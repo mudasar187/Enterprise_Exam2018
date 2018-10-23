@@ -61,8 +61,11 @@
 
 	    <!-- KOTLIN, JAVA & MAVEN -->
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
+
+	    <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 	    <kotlin.version>1.2.71</kotlin.version>
+		<kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+
 	    <java.version>1.8</java.version>
 
 	    <!-- SPRING -->
@@ -202,6 +205,14 @@
 				<artifactId>spring-boot-starter-actuator</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
+
+			<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-server -->
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+				<version>2.0.1.RELEASE</version>
+			</dependency>
+
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
