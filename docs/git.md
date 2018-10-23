@@ -16,15 +16,15 @@
   - etc..
 
 ##### Feature branches
-For hver nye feature så kan vi lage en egen branch. Et eksempel kan være å implementere spring security eller lage login funksjonalitet i frontend.
-
-Grunnlaget for dette er for å enklere kunne jobbe med flere ting samtidig, dersom f.eks. du må hoppe over fra å jobbe med autentisering til å gjøre en oppdatering i en service klasse eller liknende. Dette gjør det og enklere for andre å hoppe inn i andre sine brancher og eventuelt ta over kode.
+For every new features we creating own branch. E.g if one of us is implementing spring security or creating login functionality in frontend
+Reason for this make it easier for us to work with more things on same time. E.g you have problem on security and wait for help you can start on login functionality, or update code.
+Its make easier for us to take over others code and start working on the code.
 
 ##### Release branches
-Når vi er ferdig med en feautre kan vi merge dette inn i en release branch, her kan den ligge til alle features som vi har bestemt skal være med i en release er klar.
+When we are finished with one feature, we can merge it into a release branch. In this release branch will it wait until we push it to master branch.
 
 ##### Dev
-Når alle features er merget inn i en release og alle conflicts er løst kan dette pushes inn i dev. Når kode pushes inn i dev vil Travis plukke opp koden og kjøre et bygg på den nye koden.
+When all features are merged together into a release and all conflicts are solved then we can push it to dev. Travis will build dev, and we can verify that everythings works with the new code.
 
 ##### Master
-Master skal ALLTID være stabil. For å kunne få koden inn i Master banch må den gjennom en pull request, her må minst en annen person gjøre et code review av koden før den får lov til å gå inn i Master.
+Master always need to be stabel. To make dev merged into master it has to go trough all pull requests. It means one of the team need to do a code review and confirm the merge before its allowing merged into master
