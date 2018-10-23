@@ -1,0 +1,23 @@
+language: java
+sudo: false
+
+jdk:
+- oraclejdk8
+
+branches:
+  only:
+  - master
+  - dev
+
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
+
+script: mvn clean verify  -Dmaven.test.redirectTestOutputToFile=true
+
+notifications:
+  slack:
+    secure: AIGqizcRmawvi9cdcjU+hyv8P2stBPUO43orG54UCdVC1Iu98SBwXYPArwWjWxzvp5Da1rm9xRHIkVjLvxCG5LEZVukqNdKVYFvIx7Tjkd0/uFkkJ/Z4Kiw6XwytLJAfZdw0bsf8MER0KLGYk4l9kRYl3hv8SGETuG8av/Vufs9jni0/HvnxfGMSK+dnm6Mx3FFEsT7Udy2VF7K4rSbA1quCq9lo13dBHbeJAzb/vkLIPqbm1x6UiRw85c3A4q69h+8rx7cFhRc/ICYtG8fE7qg8nl+MaTV/M5Zv4MZxiyY+Mty4mEF5dPGmJcZk88O0F8HzcrO5U0BC6uXGN4X4coMT8iYjhEtkgz9JX3lqTZWx0RnkZMudYwuREuzri2v9giewYE5YlDtnDdqcmqlXfvjSToKjFmJcPArLh1ALEjlGiIWy7y6DtlwQtTp5ftx9YWuxTc5AtoV8OKJOLoCxz0sLGxeuhRogk6tiZFf5xcEo0xrlIgQnDWJz9qYmRnWB2HEvwnwS2kstBIRlzNz6VpWf6yuHfvKD/jCltyJxNO0h5GCCW56uNY2gyaQpkLtjgR7Gyt45eGnSAdebugsFEiI40thlhiagbviEpreuuDoT6o2qhYYIBjZJnCGSKHwcg5W3JM8PQxIrlqIL3QDatETSHjFViEzI725jbQAK6dM=
+    on_success: always # default: change
+    on_failure: always # default: always
