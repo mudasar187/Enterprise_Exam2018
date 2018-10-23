@@ -10,8 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>admin</module>
-        <module>cinema</module>
-        <module>creditcard</module>
         <module>e2etest</module>
         <module>eureka</module>
         <module>gateway</module>
