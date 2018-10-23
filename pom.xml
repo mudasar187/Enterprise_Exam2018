@@ -17,7 +17,9 @@
         <module>order</module>
         <module>schema</module>
         <module>user</module>
-    </modules>
+		<module>cinema</module>
+		<module>creditcard</module>
+	</modules>
 
     <contributors>
         <contributor>
