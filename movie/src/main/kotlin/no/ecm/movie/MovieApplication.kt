@@ -3,7 +3,7 @@ package no.ecm.movie
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
-@SpringBootApplication(scanBasePackages = arrayOf("no.ecm.movie"))
+@SpringBootApplication(scanBasePackages = ["no.ecm.movie"])
 class MovieApplication {}
 
 fun main(args: Array<String>) {

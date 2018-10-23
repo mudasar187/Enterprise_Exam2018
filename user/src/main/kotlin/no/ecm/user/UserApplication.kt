@@ -3,7 +3,7 @@ package no.ecm.user
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
-@SpringBootApplication(scanBasePackages = arrayOf("no.ecm.user"))
+@SpringBootApplication(scanBasePackages = ["no.ecm.user"])
 class UserApplication {}
 
 fun main(args: Array<String>) {

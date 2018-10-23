@@ -3,7 +3,7 @@ package no.ecm.order
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
-@SpringBootApplication(scanBasePackages = arrayOf("no.ecm.order"))
+@SpringBootApplication(scanBasePackages = ["no.ecm.order"])
 class OrderApplication {}
 
 fun main(args: Array<String>) {
