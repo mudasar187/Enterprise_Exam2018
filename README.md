@@ -13,5 +13,7 @@
 - 703960: Christian Marker
 
 ## Table of content
-1. [Git structure](docs/git.md)
-2. [Document1](docs/document1.md) 
+1. [Exam 2018 Document](docs/PG6100Exam.pdf)
+2. [Git structure](docs/git.md)
+3. [Database model](docs/databasemodel.jpg)
+4. [Document1](docs/document1.md) 
