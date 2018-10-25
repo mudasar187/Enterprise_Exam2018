@@ -1,0 +1,5 @@
+server:
+  port: 7083
+
+orderService: http://localhost:8082
+cinemaService: http://localhost:8085

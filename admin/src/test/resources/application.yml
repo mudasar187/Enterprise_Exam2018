@@ -1,0 +1,5 @@
+server:
+  port: 7085
+
+cinemaService: http://localhost:8085
+movieService: http://localhost:8083
