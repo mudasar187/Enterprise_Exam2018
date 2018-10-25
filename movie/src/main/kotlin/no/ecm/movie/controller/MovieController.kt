@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(
         path = ["/"])
 @RestController
-class AdminController {
+class MovieController {
 
     @GetMapping
     fun get(): ResponseEntity<String>? {

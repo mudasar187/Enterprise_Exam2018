@@ -1,4 +1,4 @@
-package no.ecm.order.controller
+package no.ecm.gateway.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(
         path = ["/"])
 @RestController
-class OrderController {
+class GatewayController {
 
     @GetMapping
     fun get(): ResponseEntity<String>? {
-        return ResponseEntity.ok("Order")
+        return ResponseEntity.ok("Gateway")
     }
 }

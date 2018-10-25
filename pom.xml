@@ -289,7 +289,7 @@
 				<version>${version.wiremock}</version>
 				<scope>test</scope>
 			</dependency>
-			<!-- NETFLIX STACK: RIBBON, ZUUL, EUREKA -->
+			<!-- NETFLIX STACK: RIBBON, EUREKA -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
