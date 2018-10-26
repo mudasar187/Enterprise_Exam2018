@@ -1,0 +1,4 @@
+server:
+  port: 7084
+
+userService: http://localhost:8081
