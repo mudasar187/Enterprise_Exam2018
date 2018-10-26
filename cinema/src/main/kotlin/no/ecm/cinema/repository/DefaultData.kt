@@ -7,13 +7,11 @@ import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 @Component
-class DefaultData {
+class DefaultData(
+        private var cinemaRepository: CinemaRepository,
+        private var roomRepository: RoomRepository
 
-    @Autowired
-    private lateinit var cinemaRepository: CinemaRepository
-
-    @Autowired
-    private lateinit var roomRepository: RoomRepository
+) {
 
     @PostConstruct
     fun createData(){
@@ -27,9 +25,13 @@ class DefaultData {
         roomRepository.save(room1)
 
 
-        val rooms = roomRepository.findByName("Sal 1")
+        val room = roomRepository.findByName("Sal 1")
 
-        rooms.forEach { print(it.cinema?.location) }
+        print("\n"+room.cinema!!.name + "\t" + room.name)
+
+        val cinema = cinemaRepository.findByName("Klingenberg")
+
+        print("\n"+cinema.location!! + "\n")
 
     }
 }
