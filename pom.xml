@@ -60,7 +60,7 @@
 	    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 	    <!-- KOTLIN, JAVA & MAVEN -->
-        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
 
 	    <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 	    <kotlin.version>1.2.71</kotlin.version>
@@ -69,12 +69,12 @@
 	    <java.version>1.8</java.version>
 
 	    <!-- SPRING -->
-	    <spring.version>2.0.3.RELEASE</spring.version>
+	    <spring.version>2.0.5.RELEASE</spring.version>
 	    <version.springcloud>Finchley.SR1</version.springcloud>
 
 	    <!-- DATABASES -->
 	    <h2.version>1.4.196</h2.version>
-	    <version.postgres>42.1.4</version.postgres>
+	    <version.postgres>42.2.2</version.postgres>
 
 	    <!-- XML & JSON -->
 	    <google-code-json.version>2.8.1</google-code-json.version>
@@ -82,16 +82,16 @@
 
 	    <!-- TEST -->
 	    <rest-assured.version>3.0.1</rest-assured.version>
-	    <resteasy-client.version>3.1.3.Final</resteasy-client.version>
+	    <resteasy-client.version>3.1.4.Final</resteasy-client.version>
 	    <version.junit>4.12</version.junit>
-	    <version.testcontainers>1.4.3</version.testcontainers>
+	    <version.testcontainers>1.7.3</version.testcontainers>
 
 	    <skipIntegrationTests>true</skipIntegrationTests>
 
 	    <!-- UTILS -->
 	    <version.logback-classic>1.2.3</version.logback-classic>
 	    <version.jcl-over-slf4j>1.7.25</version.jcl-over-slf4j>
-	    <spring-fox-swagger2.version>2.6.1</spring-fox-swagger2.version>
+	    <spring-fox-swagger2.version>2.9.2</spring-fox-swagger2.version>
 
 		<!-- OTHER?? -->
         <jaeger-core.version>0.20.0</jaeger-core.version>
