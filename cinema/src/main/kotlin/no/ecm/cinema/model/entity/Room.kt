@@ -6,7 +6,6 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
-//@Table(name = "room")
 class Room (
 
         @get:Id @get:GeneratedValue
@@ -19,7 +18,10 @@ class Room (
         @get:NotNull
         var seats : MutableSet<String>,
 
-        @get:ManyToOne(fetch = FetchType.EAGER)
-        @get:JoinColumn(name = "cinema_id")
-        var cinema: Cinema? = null
+//        @get:ManyToOne(fetch = FetchType.EAGER)
+//        @get:JoinColumn(name = "cinema_id")
+//        var cinema: Cinema? = null
+
+        @get:NotNull
+        var cinemaId: Long
 )
