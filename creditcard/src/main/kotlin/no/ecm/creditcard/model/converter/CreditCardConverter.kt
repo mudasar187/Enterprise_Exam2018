@@ -1,7 +1,7 @@
 package no.ecm.creditcard.model.converter
 
 import no.ecm.creditcard.model.entity.CreditCard
-import no.ecm.schema.creditCard.CreditCardDto
+import no.ecm.utils.dto.creditCard.CreditCardDto
 
 object CreditCardConverter {
 	

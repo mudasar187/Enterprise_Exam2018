@@ -1,7 +1,7 @@
 package no.ecm.movie.model.converter
 
 import no.ecm.movie.model.entity.Movie
-import no.ecm.schema.movie.MovieDto
+import no.ecm.utils.dto.movie.MovieDto
 
 object MovieConverter {
 	

@@ -1,7 +1,7 @@
 package no.ecm.movie.model.converter
 
 import no.ecm.movie.model.entity.Genre
-import no.ecm.schema.movie.GenreDto
+import no.ecm.utils.dto.movie.GenreDto
 
 object GenreConverter {
 	

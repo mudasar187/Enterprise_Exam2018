@@ -1,7 +1,7 @@
 package no.ecm.cinema.model.converter
 
 import no.ecm.cinema.model.entity.Room
-import no.ecm.schema.cinema.RoomDto
+import no.ecm.utils.dto.cinema.RoomDto
 
 object RoomConverter {
 	

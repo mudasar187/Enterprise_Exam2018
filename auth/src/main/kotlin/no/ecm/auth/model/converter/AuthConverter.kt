@@ -2,7 +2,7 @@ package no.ecm.auth.model.converter
 
 import no.ecm.auth.controller.RoleType
 import no.ecm.auth.model.entity.Auth
-import no.ecm.schema.auth.AuthDto
+import no.ecm.utils.dto.auth.AuthDto
 
 object AuthConverter {
 	fun entityToDto (entity: Auth): AuthDto {

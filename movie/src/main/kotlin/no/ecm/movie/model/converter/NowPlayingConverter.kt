@@ -1,7 +1,7 @@
 package no.ecm.movie.model.converter
 
 import no.ecm.movie.model.entity.NowPlaying
-import no.ecm.schema.movie.NowPlayingDto
+import no.ecm.utils.dto.movie.NowPlayingDto
 
 
 object NowPlayingConverter {
