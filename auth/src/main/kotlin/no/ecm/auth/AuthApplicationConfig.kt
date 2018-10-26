@@ -1,4 +1,4 @@
-package no.ecm.admin
+package no.ecm.auth
 
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Bean
@@ -12,7 +12,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @Configuration
 @EnableSwagger2
-@EntityScan(basePackages = ["no.ecm.admin"])
+@EntityScan(basePackages = ["no.ecm.auth"])
 class GatewayApplicationConfig {
 
     @Bean
@@ -26,8 +26,8 @@ class GatewayApplicationConfig {
 
     private fun apiInfo(): ApiInfo {
         return ApiInfoBuilder()
-                .title("API for admin entity")
-                .description("MicroService that contains admin entity enrepository")
+                .title("API for auth entity")
+                .description("MicroService that contains auth entity enrepository")
                 .version("1.0")
                 .build()
     }

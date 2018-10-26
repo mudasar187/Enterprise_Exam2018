@@ -27,7 +27,7 @@ class GatewayApplicationConfig {
     private fun apiInfo(): ApiInfo {
         return ApiInfoBuilder()
                 .title("API for authentication")
-                .description("MicroService that contains user entity repository and admin entity repository")
+                .description("MicroService that contains user entity repository and auth entity repository")
                 .version("1.0")
                 .build()
     }

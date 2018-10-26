@@ -13,5 +13,4 @@ server:
   port: 8081
 
 
-creditCardService: http://localhost:8084
-orderService: http://localhost:8082
+authService: http://localhost:8086

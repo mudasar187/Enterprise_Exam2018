@@ -1,5 +1,5 @@
 server:
   port: 7082
 
-userService: http://localhost:8081
+authService: http://localhost:8086
 movieService: http://localhost:8083

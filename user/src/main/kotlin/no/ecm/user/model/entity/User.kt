@@ -9,8 +9,9 @@ import javax.validation.constraints.*
 class User (
 
     @get:Id
-    @get:GeneratedValue
-    var id: Long? = null,
+    @Size(min = 5, max = 20)
+    @NotBlank
+    var username: String? = null,
 
     @get:NotNull
     @get:Min(15)
@@ -23,12 +24,6 @@ class User (
 
     @get:NotBlank
     @get:Size(max = 128)
-    var email: String,
-
-    @get:NotBlank
-    var password: String,
-
-    @get:NotBlank
-    var creditcard: String? = null
+    var email: String
 
 )

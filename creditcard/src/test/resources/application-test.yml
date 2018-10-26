@@ -1,0 +1,4 @@
+server:
+  port: 7084
+
+authService: http://localhost:8086

@@ -1,12 +1,10 @@
-package no.ecm.admin
+package no.ecm.auth
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-/**
- * @author Christian Marker on 23/10/2018 at 14:49.
- */
-@SpringBootApplication(scanBasePackages = ["no.ecm.admin"])
+
+@SpringBootApplication(scanBasePackages = ["no.ecm.auth"])
 class AdminApplication{}
 
 fun main(args: Array<String>) {
