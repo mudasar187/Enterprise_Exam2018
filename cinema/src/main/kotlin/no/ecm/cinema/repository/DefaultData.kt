@@ -22,7 +22,7 @@ class DefaultData {
 
         cinemaRepository.save(cinema1)
 
-        val room1 = Room(name = "Sal 1", cinema = cinema1)
+        val room1 = Room(name = "Sal 1", cinema = cinema1, seats = mutableSetOf("A1", "A2"))
 
         roomRepository.save(room1)
 
