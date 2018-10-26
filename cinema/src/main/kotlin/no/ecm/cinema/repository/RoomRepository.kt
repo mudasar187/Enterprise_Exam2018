@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface RoomRepository : CrudRepository<Room, Long> {
 
-    fun findByName(name: String): Iterable<Room>
+    fun findByName(name: String): Room
 
-
+    fun findAllByCinemaId(cinemaId: Long): Iterable<Room>
 }

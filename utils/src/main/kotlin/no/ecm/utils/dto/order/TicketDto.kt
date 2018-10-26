@@ -1,4 +1,4 @@
-package no.ecm.schema.order
+package no.ecm.utils.dto.order
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
