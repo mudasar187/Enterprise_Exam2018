@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository
 interface CinemaRepository : CrudRepository<Cinema, Long>{
 
     fun findByName(name: String): Cinema
+
+    fun findAllByLocationIgnoreCase(location: String): Iterable<Cinema>
 }
