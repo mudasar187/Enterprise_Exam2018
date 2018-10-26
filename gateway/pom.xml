@@ -16,7 +16,7 @@
 
         <dependency>
             <groupId>no.ecm</groupId>
-            <artifactId>schema</artifactId>
+            <artifactId>utils</artifactId>
         </dependency>
 
         <dependency>

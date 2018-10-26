@@ -1,4 +1,4 @@
-package no.ecm.schema.auth
+package no.ecm.utils.dto.auth
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
