@@ -1,5 +1,6 @@
 package no.ecm.creditcard.model.entity
 
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -10,7 +11,6 @@ import javax.validation.constraints.NotNull
 @Entity
 class CreditCard (
 
-
         @get:Id
         @get:GeneratedValue
         var id: Long? = null,
@@ -19,7 +19,7 @@ class CreditCard (
         var creditcardNumber: String,
 
         @get:NotNull
-        var expirationDate: ZonedDateTime,
+        var expirationDate: LocalDate,
 
         @get:NotNull
         var cvc: Int,
