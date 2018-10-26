@@ -16,7 +16,7 @@
         <!-- Force this module to be built last -->
         <dependency>
             <groupId>no.ecm</groupId>
-            <artifactId>schema</artifactId>
+            <artifactId>utils</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>no.ecm</groupId>
-            <artifactId>admin</artifactId>
+            <artifactId>auth</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -1,4 +1,4 @@
-package no.ecm.schema.creditCard
+package no.ecm.utils.dto.creditCard
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty

@@ -1,4 +1,4 @@
-package no.ecm.schema.movie
+package no.ecm.utils.dto.movie
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
