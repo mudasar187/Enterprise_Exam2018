@@ -3,9 +3,7 @@ package no.ecm.user.model.entity
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
+import javax.validation.constraints.*
 
 @Entity
 class User (
@@ -15,7 +13,8 @@ class User (
     var id: Long? = null,
 
     @get:NotNull
-    @get:Size(min = 15, max = 110)
+    @get:Min(15)
+    @get:Max(110)
     var age: Int,
 
     @get:NotBlank

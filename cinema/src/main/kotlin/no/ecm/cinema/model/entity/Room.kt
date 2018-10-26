@@ -5,6 +5,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @Entity
+//@Table(name = "room")
 class Room (
 
         @get:Id @get:GeneratedValue
@@ -13,7 +14,7 @@ class Room (
         @get:NotBlank @get:Size(max = 128)
         var name: String,
 
-        @ManyToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name = "cinema_id")
+        @get:ManyToOne(fetch = FetchType.EAGER)
+        @get:JoinColumn(name = "cinema_id")
         var cinema: Cinema? = null
 )
