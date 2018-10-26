@@ -21,5 +21,5 @@ class Room (
 
         @get:ManyToOne(fetch = FetchType.EAGER)
         @get:JoinColumn(name = "cinema_id")
-        var cinema: Cinema? = null
+        var cinemaId: Long? = null
 )

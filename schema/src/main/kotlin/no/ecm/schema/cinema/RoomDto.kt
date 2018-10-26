@@ -13,7 +13,7 @@ data class RoomDto (
         var name: String? = null,
 
         @ApiModelProperty("A List of all seats in a Room")
-        var seats: List<String>? = null,
+        var seats: Set<String>? = null,
 
         @ApiModelProperty("The id of the Cinema this Room belongs to")
         var cinemaId: String? = null

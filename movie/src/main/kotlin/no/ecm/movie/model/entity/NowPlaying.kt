@@ -6,8 +6,6 @@ import javax.validation.constraints.NotNull
 
 @Entity
 class NowPlaying (
-
-
         @get:Id
         @get:GeneratedValue
         var id: Long? = null,

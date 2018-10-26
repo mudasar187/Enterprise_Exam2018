@@ -11,7 +11,7 @@ data class NowPlayingDto(
         var id: String? = null,
 
         @ApiModelProperty("The id of a movie")
-        var movieId: String? = null,
+        var movieDto: MovieDto? = null,
 
         @ApiModelProperty("The id of a room")
         var roomId: String? = null,
