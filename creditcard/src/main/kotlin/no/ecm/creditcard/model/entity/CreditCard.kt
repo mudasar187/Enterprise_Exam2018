@@ -4,6 +4,7 @@ import java.time.ZonedDateTime
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
+import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @Entity
@@ -23,6 +24,6 @@ class CreditCard (
         @get:NotNull
         var cvc: Int,
 
-        @get:NotNull
-        var userId: Long
+        @get:NotBlank
+        var username: String
 )

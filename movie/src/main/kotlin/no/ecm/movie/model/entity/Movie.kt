@@ -17,7 +17,7 @@ class Movie (
         @get:NotBlank
         var posterURL: String? = null,
 
-        @ManyToMany(mappedBy = "movie", fetch = FetchType.EAGER) // cascade??
+        @get:ManyToMany(mappedBy = "movies", fetch = FetchType.EAGER) // cascade??
         var genre: MutableSet<Genre> = mutableSetOf(),
 
         @get:NotNull
@@ -26,7 +26,7 @@ class Movie (
         @get:NotNull
         var ageLimit: Int? = null,
 
-        @OneToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "movie_id")
-        var nowPlaying: NowPlaying
+        @get:OneToOne(fetch = FetchType.LAZY)
+        @get:JoinColumn(name = "nowplaying_id")
+        var nowPlaying: NowPlaying? = null
 )

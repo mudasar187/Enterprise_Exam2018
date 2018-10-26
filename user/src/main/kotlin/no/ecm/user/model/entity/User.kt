@@ -3,19 +3,19 @@ package no.ecm.user.model.entity
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
+import javax.validation.constraints.*
 
 @Entity
 class User (
 
     @get:Id
-    @get:GeneratedValue
-    var id: Long? = null,
+    @Size(min = 5, max = 20)
+    @NotBlank
+    var username: String? = null,
 
     @get:NotNull
-    @get:Size(min = 15, max = 110)
+    @get:Min(15)
+    @get:Max(110)
     var age: Int,
 
     @get:NotBlank
@@ -24,12 +24,6 @@ class User (
 
     @get:NotBlank
     @get:Size(max = 128)
-    var email: String,
-
-    @get:NotBlank
-    var password: String,
-
-    @get:NotBlank
-    var creditcard: String? = null
+    var email: String
 
 )

@@ -16,7 +16,7 @@ class Order (
         var tickets: MutableSet<Ticket> = mutableSetOf(),
 
         @get:NotBlank
-        var userId : Long,
+        var username : String,
 
         @get:NotNull
         var orderDate: ZonedDateTime,

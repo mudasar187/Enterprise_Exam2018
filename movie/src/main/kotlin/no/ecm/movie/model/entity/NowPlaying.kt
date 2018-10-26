@@ -12,12 +12,12 @@ class NowPlaying (
         @get:GeneratedValue
         var id: Long? = null,
 
-        @OneToOne(mappedBy = "nowplaying") // cascade ??
-        var movieId: Movie,
+        @get:OneToOne(mappedBy = "nowPlaying") // cascade ??
+        var movie: Movie? = null,
 
         @get:NotNull
         var timeWhenMoviePlay: ZonedDateTime,
 
         @get:ElementCollection
-        var freeSeats: MutableSet<String>
+        var freeSeats: MutableSet<String> = mutableSetOf()
 )

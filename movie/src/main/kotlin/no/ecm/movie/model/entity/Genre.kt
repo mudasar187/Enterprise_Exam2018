@@ -13,7 +13,7 @@ class Genre (
         @get:NotBlank
         var name: String? = null,
 
-        @ManyToMany(fetch = FetchType.EAGER)
-        @JoinColumn(name = "movie_id")
+        @get:ManyToMany(fetch = FetchType.EAGER)
+        @get:JoinColumn(name = "movie_id")
         var movies: MutableSet<Movie> = mutableSetOf()
 )

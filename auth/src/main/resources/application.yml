@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: auth-server
+  datasource:
+    url: "jdbc:h2:mem:"
+    driver-class-name: "org.h2.Driver"
+  jpa:
+    database: "h2"
+    hibernate:
+      ddl-auto: "create-drop"
+
+server:
+  port: 8086
+
+cinemaService: http://localhost:8085
+movieService: http://localhost:8083
