@@ -15,9 +15,9 @@ class Ticket (
         var price: Int? = null,
 
         @get:NotBlank
-        var seatnumber: String? = null,
+        var seatnumber: String? = null
 
-        @get:ManyToOne(fetch = FetchType.EAGER)
-        @get:JoinColumn(name = "order_id")
-        var order: Order? = null
+//        @get:ManyToOne(fetch = FetchType.EAGER)
+//        @get:JoinColumn(name = "order_id")
+//        var invoice: Invoice? = null
 )
