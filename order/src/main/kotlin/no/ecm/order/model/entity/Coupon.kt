@@ -22,9 +22,5 @@ class Coupon(
         var description: String,
 
         @get:NotNull
-        var expireAt: ZonedDateTime,
-
-        @OneToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name = "coupon_id")
-        var order: Order? = null
+        var expireAt: ZonedDateTime
 )

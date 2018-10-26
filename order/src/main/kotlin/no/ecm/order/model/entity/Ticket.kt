@@ -17,7 +17,7 @@ class Ticket (
         @get:NotBlank
         var seatnumber: String? = null,
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "order_id")
+        @get:ManyToOne(fetch = FetchType.EAGER)
+        @get:JoinColumn(name = "order_id")
         var order: Order? = null
 )
