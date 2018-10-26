@@ -20,5 +20,5 @@ data class CreditCardDto(
         var cvc: Int? = null,
 
         @ApiModelProperty("The User Id of the card holder")
-        var userId: String? = null
+        var username: String? = null
 )

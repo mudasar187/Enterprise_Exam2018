@@ -11,7 +11,7 @@ data class OrderDto (
         var id: String? = null,
 
         @ApiModelProperty("The id of a user that this order belong to")
-        var userId: String? = null,
+        var username: String? = null,
 
         @ApiModelProperty("The date of an order")
         var orderDate: ZonedDateTime? = null,
