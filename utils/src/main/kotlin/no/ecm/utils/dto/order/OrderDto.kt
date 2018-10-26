@@ -17,7 +17,7 @@ data class OrderDto (
         var orderDate: ZonedDateTime? = null,
 
         @ApiModelProperty("A coupon code for an order")
-        var couponCode: ZonedDateTime? = null,
+        var couponCode: String? = null,
 
         @ApiModelProperty("A coupon for an order")
         var nowPlayingId: String? = null,
