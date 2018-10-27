@@ -23,6 +23,6 @@ class OrderController {
 
     @GetMapping
     fun get(): ResponseEntity<String>? {
-        return ResponseEntity.ok("Order")
+        return ResponseEntity.ok("Invoice")
     }
 }
