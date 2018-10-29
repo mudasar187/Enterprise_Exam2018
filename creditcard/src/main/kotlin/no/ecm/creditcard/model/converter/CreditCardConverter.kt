@@ -29,4 +29,8 @@ object CreditCardConverter {
 	fun entityListToDtoList(entities: Iterable<CreditCard>): List<CreditCardDto> {
 		return entities.map { entityToDto(it) }
 	}
+	
+	fun dtoListToEntityList(dto: Iterable<CreditCardDto>): List<CreditCard> {
+		return dto.map { dtoToEntity(it) }
+	}
 }
