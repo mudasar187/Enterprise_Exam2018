@@ -23,6 +23,9 @@ data class InvoiceDto (
         var nowPlayingId: String? = null,
 
         @ApiModelProperty("All tickets in an order")
-        var tickets: List<TicketDto>? = null
+        var tickets: List<TicketDto>? = null,
+        
+        @ApiModelProperty("Payment status")
+        var isPaid: Boolean? = null
 
 )

@@ -2,6 +2,7 @@ package no.ecm.utils.dto.user
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import java.time.LocalDate
 
 @ApiModel("DTO representing a user")
 data class UserDto (
@@ -10,7 +11,7 @@ data class UserDto (
         var username: String? = null,
 
         @ApiModelProperty("The age of a user")
-        var age: Int? = null,
+        var dateOfBirth: LocalDate? = null,
 
         @ApiModelProperty("The name of a user")
         var name: String? = null,

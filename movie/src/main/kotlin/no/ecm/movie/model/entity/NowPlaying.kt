@@ -12,6 +12,9 @@ class NowPlaying (
 
         @get:OneToOne(mappedBy = "nowPlaying") // cascade ??
         var movie: Movie? = null,
+        
+        @get:NotNull
+        var roomId: Long? = null,
 
         @get:NotNull
         var timeWhenMoviePlay: ZonedDateTime,

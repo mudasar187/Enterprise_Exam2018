@@ -1,5 +1,6 @@
 package no.ecm.user.model.entity
 
+import java.time.LocalDate
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -14,9 +15,7 @@ class User (
     var username: String? = null,
 
     @get:NotNull
-    @get:Min(15)
-    @get:Max(110)
-    var age: Int,
+    var dateOfBitrh: LocalDate,
 
     @get:NotBlank
     @get:Size(max = 128)

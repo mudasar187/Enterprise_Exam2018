@@ -8,7 +8,7 @@ object UserConverter {
 	fun entityToDto(entity: User): UserDto {
 		return UserDto(
 			username = entity.username,
-			age = entity.age,
+			dateOfBirth = entity.dateOfBitrh,
 			name = entity.name,
 			email = entity.email
 		)
@@ -17,7 +17,7 @@ object UserConverter {
 	fun dtoToEntity(dto: UserDto) : User {
 		return User(
 			username = dto.username!!,
-			age = dto.age!!,
+			dateOfBitrh = dto.dateOfBirth!!,
 			name = dto.name!!,
 			email = dto.email!!
 		)

@@ -26,6 +26,8 @@ class Invoice (
         var coupon: Coupon? = null,
 
         @get:NotNull
-        var nowPlayingId: Long? = null
+        var nowPlayingId: Long? = null,
 
+        @get:NotNull
+        var isPaid: Boolean = false
 )
