@@ -14,8 +14,5 @@ class Cinema(
         var name: String,
 
         @get:NotBlank @get:Size(max = 128)
-        var location: String? = null,
-
-        @get:OneToMany(mappedBy = "cinema", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
-        var rooms: MutableSet<Room> = mutableSetOf()
+        var location: String? = null
 )

@@ -6,14 +6,15 @@ import javax.validation.constraints.NotNull
 
 @Entity
 class NowPlaying (
-
-
         @get:Id
         @get:GeneratedValue
         var id: Long? = null,
 
         @get:OneToOne(mappedBy = "nowPlaying") // cascade ??
         var movie: Movie? = null,
+        
+        @get:NotNull
+        var roomId: Long? = null,
 
         @get:NotNull
         var timeWhenMoviePlay: ZonedDateTime,

@@ -12,12 +12,12 @@ class Ticket (
         var id: Long? = null,
 
         @get:NotNull
-        var price: Int? = null,
+        var price: Double? = null,
 
         @get:NotBlank
-        var seatnumber: String? = null,
+        var seatnumber: String? = null
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "order_id")
-        var order: Order? = null
+//        @get:ManyToOne(fetch = FetchType.EAGER)
+//        @get:JoinColumn(name = "order_id")
+//        var invoice: Invoice? = null
 )

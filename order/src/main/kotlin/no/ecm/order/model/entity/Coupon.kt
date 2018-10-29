@@ -22,9 +22,7 @@ class Coupon(
         var description: String,
 
         @get:NotNull
-        var expireAt: ZonedDateTime,
+        var expireAt: ZonedDateTime
 
-        @OneToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name = "coupon_id")
-        var order: Order? = null
+        //TODO Add a runtime generated Boolean to display if a coupon has expired
 )
