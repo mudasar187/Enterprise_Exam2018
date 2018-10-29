@@ -14,36 +14,38 @@ class DefaultData(
     @PostConstruct
     fun createData(){
 
+        val seats = mutableSetOf(
+                "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14",
+                "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14",
+                "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14",
+                "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13", "D14",
+                "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10", "E11", "E12", "E13", "E14",
+                "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14",
+                "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11", "G12", "G13", "G14")
+
         // Creating cinema
-        val cinema1 = Cinema(name = "Klingenberg", location = "Oslo")
-        cinemaRepository.save(cinema1)
-
-        //Creating room
-        val room1 = Room(name = "Sal 1", cinemaId = cinema1.id!!, seats = mutableSetOf("A1", "A2"))
-        roomRepository.save(room1)
-
-        // Finding room by name
-        val room = roomRepository.findByName("Sal 1")
-        print("\n"+room.cinemaId + "\t" + room.name)
-
-        // find cinema by name
-        val cinema = cinemaRepository.findByName("Klingenberg")
-        print("\n"+cinema.location!! + "\n")
+        val klingenberg = Cinema(name = "Klingenberg", location = "Oslo")
 
         // Creating 2. ciname in Oslo
-        val cinema2 = Cinema(name = "Ringen", location = "Oslo")
-        cinemaRepository.save(cinema2)
+        val ringen = Cinema(name = "Ringen", location = "Oslo")
 
-        // Finding all cinemas by location (city)
-        val cinemas = cinemaRepository.findAllByLocationIgnoreCase("oslo")
-        print("Number of cinemas in Oslo: ${cinemas.count()} \n")
+        // Creating ciname in Bergen
+        val bergen = Cinema(name = "Bergen Kino", location = "Bergen")
 
-        // Creating 2. room in cinema 1
-        val room2 = Room(name = "sal 2", cinemaId = cinema1.id!!, seats = mutableSetOf("B1", "C1", "C2"))
-        roomRepository.save(room2)
+        cinemaRepository.saveAll(mutableListOf(klingenberg, ringen, bergen))
 
-        val roomsInCinemaOne = roomRepository.findAllByCinemaId(cinema1.id!!)
-        print("Number of rooms in Cinema 1: ${roomsInCinemaOne.count()} \n")
+        //Creating room in Klingenberg
+        val room1 = Room(name = "Sal 1", cinemaId = klingenberg.id!!, seats = seats)
 
+        // Creating 2. room in Klingenberg
+        val room2 = Room(name = "sal 2", cinemaId = klingenberg.id!!, seats = seats)
+
+        // Creating room in Ringen
+        val room3 = Room(name = "sal 1", cinemaId = ringen.id!!, seats = seats)
+
+        // Creating room in Bergen
+        val room4 = Room(name = "sal 1", cinemaId = bergen.id!!, seats = seats)
+
+        roomRepository.saveAll(mutableListOf(room1, room2, room3, room4))
     }
 }
