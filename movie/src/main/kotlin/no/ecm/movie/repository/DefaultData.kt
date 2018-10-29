@@ -34,12 +34,12 @@ class DefaultData(
         movieRepository.saveAll(mutableListOf(movie1, movie2, movie3, movie4, movie5, movie6, movie7))
 
         
-        val nowPlaying1 = NowPlaying(null, movie1, ZonedDateTime.now().plusDays(2), mutableSetOf("A1", "A2", "B1", "A3", "C2", "D4", "A7", "A5", "D2"))
-        val nowPlaying2 = NowPlaying(null, movie1, ZonedDateTime.now().plusDays(1), mutableSetOf("A1", "A2", "B1", "D4", "A7", "A5", "D2"))
-        val nowPlaying3 = NowPlaying(null, movie1, ZonedDateTime.now().plusDays(3), mutableSetOf("A2", "B1", "A3", "C2", "D4", "A7"))
-        val nowPlaying4 = NowPlaying(null, movie1, ZonedDateTime.now().plusDays(8), mutableSetOf("B1", "A3", "C2", "D4", "A7", "A5", "D2"))
-        val nowPlaying5 = NowPlaying(null, movie1, ZonedDateTime.now().plusDays(6), mutableSetOf("A2", "B1", "A3", "C2", "D4", "A7"))
-        val nowPlaying6 = NowPlaying(null, movie1, ZonedDateTime.now().plusDays(2), mutableSetOf("A1", "A2", "B1"))
+        val nowPlaying1 = NowPlaying(null, movie1, 1, ZonedDateTime.now().plusDays(2), mutableSetOf("A1", "A2", "B1", "A3", "C2", "D4", "A7", "A5", "D2"))
+        val nowPlaying2 = NowPlaying(null, movie1, 2, ZonedDateTime.now().plusDays(1), mutableSetOf("A1", "A2", "B1", "D4", "A7", "A5", "D2"))
+        val nowPlaying3 = NowPlaying(null, movie1, 3, ZonedDateTime.now().plusDays(3), mutableSetOf("A2", "B1", "A3", "C2", "D4", "A7"))
+        val nowPlaying4 = NowPlaying(null, movie1, 1, ZonedDateTime.now().plusDays(8), mutableSetOf("B1", "A3", "C2", "D4", "A7", "A5", "D2"))
+        val nowPlaying5 = NowPlaying(null, movie1, 3, ZonedDateTime.now().plusDays(6), mutableSetOf("A2", "B1", "A3", "C2", "D4", "A7"))
+        val nowPlaying6 = NowPlaying(null, movie1, 2, ZonedDateTime.now().plusDays(2), mutableSetOf("A1", "A2", "B1"))
         
         nowPlayingRepository.saveAll(mutableListOf(nowPlaying1, nowPlaying2, nowPlaying3, nowPlaying3, nowPlaying4, nowPlaying5, nowPlaying6))
         
