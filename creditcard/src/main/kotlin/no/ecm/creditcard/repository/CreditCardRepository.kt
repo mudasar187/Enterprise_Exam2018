@@ -1,10 +1,11 @@
 package no.ecm.creditcard.repository
 
 import no.ecm.creditcard.model.entity.CreditCard
+import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CreditCardRepository {
+interface CreditCardRepository : CrudRepository<CreditCard, Long> {
 
     fun findByUsername(username: String): CreditCard
 }
