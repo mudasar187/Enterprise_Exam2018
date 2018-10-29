@@ -22,16 +22,14 @@ class DefaultData(
         val scifi = Genre(name = "sci-fi")
         
         genreRepository.saveAll(mutableListOf(action, adventure, scifi))
-        
-        val actionRes = genreRepository.findByName("action")
 
-        val movie1 = Movie(null, "Inception", "http://blabla.io",  mutableSetOf(action), 120, 13)
-        val movie2 = Movie(null, "Isle of Dogs", "http://blabla.io",  mutableSetOf(action), 90, 15)
-        val movie3 = Movie(null, "Avengers: Infinity War", "http://blabla.io",  mutableSetOf(adventure), 84, 18)
-        val movie4 = Movie(null, "Batman: The Dark Knight", "http://blabla.io",  mutableSetOf(action, scifi), 105, 7)
-        val movie5 = Movie(null, "The Hateful Eight", "http://blabla.io",  mutableSetOf(scifi), 98, 15)
-        val movie6 = Movie(null, "Django Unchained", "http://blabla.io",  mutableSetOf(scifi, adventure), 100, 10)
-        val movie7 = Movie(null, "Rouge One: A Star Wars Story", "http://blabla.io",  mutableSetOf(action, adventure), 85, 7)
+        val movie1 = Movie(null, "Inception", "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",  mutableSetOf(action), 120, 13)
+        val movie2 = Movie(null, "Isle of Dogs", "https://m.media-amazon.com/images/M/MV5BMTYyOTUwNjAxM15BMl5BanBnXkFtZTgwODcyMzE0NDM@._V1_SX300.jpg",  mutableSetOf(action), 90, 15)
+        val movie3 = Movie(null, "Avengers: Infinity War", "https://m.media-amazon.com/images/M/MV5BMjMxNjY2MDU1OV5BMl5BanBnXkFtZTgwNzY1MTUwNTM@._V1_SX300.jpg",  mutableSetOf(adventure), 84, 18)
+        val movie4 = Movie(null, "Batman: The Dark Knight", "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg",  mutableSetOf(action, scifi), 105, 7)
+        val movie5 = Movie(null, "The Hateful Eight", "https://m.media-amazon.com/images/M/MV5BMjA1MTc1NTg5NV5BMl5BanBnXkFtZTgwOTM2MDEzNzE@._V1_SX300.jpg",  mutableSetOf(scifi), 98, 15)
+        val movie6 = Movie(null, "Django Unchained", "https://m.media-amazon.com/images/M/MV5BMjIyNTQ5NjQ1OV5BMl5BanBnXkFtZTcwODg1MDU4OA@@._V1_SX300.jpg",  mutableSetOf(scifi, adventure), 100, 10)
+        val movie7 = Movie(null, "Star Wars: Episode IV - A New Hope", "https://m.media-amazon.com/images/M/MV5BNzVlY2MwMjktM2E4OS00Y2Y3LWE3ZjctYzhkZGM3YzA1ZWM2XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg",  mutableSetOf(action, adventure), 85, 7)
         
         movieRepository.saveAll(mutableListOf(movie1, movie2, movie3, movie4, movie5, movie6, movie7))
 

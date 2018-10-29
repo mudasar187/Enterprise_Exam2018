@@ -17,11 +17,7 @@ class Room (
         @get:ElementCollection
         @get:NotNull
         var seats : MutableSet<String>,
-
-//        @get:ManyToOne(fetch = FetchType.EAGER)
-//        @get:JoinColumn(name = "cinema_id")
-//        var cinema: Cinema? = null
-
+        
         @get:NotNull
         var cinemaId: Long
 )
