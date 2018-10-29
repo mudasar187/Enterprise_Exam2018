@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty
 import java.time.ZonedDateTime
 
 @ApiModel("DTO representing an Order")
-data class OrderDto (
+data class InvoiceDto (
 
         @ApiModelProperty("The id of an order")
         var id: String? = null,
@@ -17,7 +17,7 @@ data class OrderDto (
         var orderDate: ZonedDateTime? = null,
 
         @ApiModelProperty("A coupon code for an order")
-        var couponCode: ZonedDateTime? = null,
+        var couponCode: CouponDto? = null,
 
         @ApiModelProperty("A coupon for an order")
         var nowPlayingId: String? = null,

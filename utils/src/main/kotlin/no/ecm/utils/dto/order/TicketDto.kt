@@ -12,6 +12,9 @@ data class TicketDto(
         @ApiModelProperty("The price of an Ticket")
         var price: Double? = null,
 
+        @ApiModelProperty("The seat of the Ticket")
+        var seatnumber: String? = null,
+
         @ApiModelProperty("The seat of an Ticket")
         var seat: String? = null
 )
