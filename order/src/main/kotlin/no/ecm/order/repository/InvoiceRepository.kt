@@ -9,5 +9,5 @@ interface InvoiceRepository : CrudRepository<Invoice, Long>{
 
     fun findAllByUsername(username: String): Iterable<Invoice>
 
-    fun findByNowPlayingId(nowPlayingId: Long): Invoice
+    fun findAllByNowPlayingId(nowPlayingId: Long): Iterable<Invoice>
 }

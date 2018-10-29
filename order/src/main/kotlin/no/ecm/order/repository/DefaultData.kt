@@ -17,27 +17,58 @@ class DefaultData(
     @PostConstruct
     fun createData(){
 
-        val coupon = Coupon(code = "summer2019", description = "For the summer of 2019", expireAt = ZonedDateTime.now())
-        couponRepository.save(coupon)
+        val coupon1 = Coupon(code = "halloween2018", description = "Halloween cupon 20% discount!", expireAt = ZonedDateTime.now())
+        val coupon2 = Coupon(code = "lastexam2018", description = "Cool discount for students with 50% !", expireAt = ZonedDateTime.now())
+        val coupon3 = Coupon(code = "christmas2018", description = "Christmas discount gives you 80% discount on 4 tickets!", expireAt = ZonedDateTime.now())
 
-        val couponRes = couponRepository.findByCode(code = "summer2019")
-        println(couponRes.description)
+        couponRepository.saveAll(mutableListOf(coupon1, coupon2, coupon3))
 
-        val invoice = Invoice(
-                username = "me",
+
+        val invoice1 = Invoice(
+                username = "jondoe",
                 orderDate = ZonedDateTime.now(),
-                coupon = coupon,
+                coupon = coupon1,
                 nowPlayingId = 67898765)
-        invoiceRepository.save(invoice)
 
-        val ticket = Ticket(price = 200, seatnumber = "a1")
-        ticketRepository.save(ticket)
+        val invoice2 = Invoice(
+                username = "foobar",
+                orderDate = ZonedDateTime.now(),
+                coupon = coupon2,
+                nowPlayingId = 47685675)
 
-        val invoiceRes = invoiceRepository.findByNowPlayingId(67898765)
-        invoiceRes.tickets = mutableSetOf(ticket)
-        invoiceRepository.save(invoiceRes)
+        val invoice3 = Invoice(
+                username = "farcar",
+                orderDate = ZonedDateTime.now(),
+                coupon = coupon3,
+                nowPlayingId = 98765431)
 
-        val ticketRes = ticketRepository.findBySeatnumber(seatNumber = "a1")
-        println(ticketRes.price)
+        invoiceRepository.saveAll(mutableListOf(invoice1, invoice2, invoice3))
+
+
+
+        val ticket1 = Ticket(price = 200, seatnumber = "a1")
+        val ticket2 = Ticket(price = 200, seatnumber = "a2")
+        val ticket3 = Ticket(price = 300, seatnumber = "b6")
+        val ticket4 = Ticket(price = 100, seatnumber = "c12")
+        ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4))
+
+
+        val invoiceRes1 = invoiceRepository.findAllByNowPlayingId(67898765).first()
+        invoiceRes1.tickets = mutableSetOf(ticket1, ticket2)
+        invoiceRepository.save(invoiceRes1)
+
+        val invoiceRes2 = invoiceRepository.findAllByNowPlayingId(47685675).first()
+        invoiceRes2.tickets = mutableSetOf(ticket3)
+        invoiceRepository.save(invoiceRes2)
+
+        val invoiceRes3 = invoiceRepository.findAllByNowPlayingId(98765431).first()
+        invoiceRes3.tickets = mutableSetOf(ticket4)
+        invoiceRepository.save(invoiceRes3)
+
+
+
+
+
+
     }
 }
