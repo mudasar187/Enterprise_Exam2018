@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface GenreRepository : CrudRepository<Genre, Long> {
 
-    fun findByName(name: String): Iterable<Genre>
+    fun findByName(name: String): Genre
 }
