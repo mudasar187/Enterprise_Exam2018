@@ -46,10 +46,10 @@ class DefaultData(
 
 
 
-        val ticket1 = Ticket(price = 200, seatnumber = "a1")
-        val ticket2 = Ticket(price = 200, seatnumber = "a2")
-        val ticket3 = Ticket(price = 300, seatnumber = "b6")
-        val ticket4 = Ticket(price = 100, seatnumber = "c12")
+        val ticket1 = Ticket(price = 200.00, seatnumber = "a1")
+        val ticket2 = Ticket(price = 200.00, seatnumber = "a2")
+        val ticket3 = Ticket(price = 300.00, seatnumber = "b6")
+        val ticket4 = Ticket(price = 100.00, seatnumber = "c12")
         ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4))
 
 
