@@ -17,5 +17,3 @@
 2. [Git structure](docs/git.md)
 3. [Database model](docs/databasemodel.jpg)
 4. [Document1](docs/document1.md) 
-
-//force a commit
