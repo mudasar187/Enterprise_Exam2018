@@ -12,7 +12,7 @@ class Ticket (
         var id: Long? = null,
 
         @get:NotNull
-        var price: Int? = null,
+        var price: Double? = null,
 
         @get:NotBlank
         var seatnumber: String? = null
