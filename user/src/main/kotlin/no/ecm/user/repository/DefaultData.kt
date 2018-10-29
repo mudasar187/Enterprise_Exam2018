@@ -11,13 +11,16 @@ class DefaultData(
 
     @PostConstruct
     fun createData(){
-        val user = User(username = "me", age = 20, name = "Me Bar", email = "me@me.com")
-        userRepository.save(user)
+        val jondoe = User(username = "jondoe", age = 20, name = "Jon Doe", email = "jondoe@mail.com")
+        val foobar = User(username = "foobar", age = 18, name = "Foo Bar", email = "foobar@mail.com")
+        val farcar = User(username = "farcar", age = 45, name = "Far Car", email = "farcar@mail.com")
 
-        val userRes = userRepository.findById("me")
+        userRepository.saveAll(mutableListOf(jondoe, foobar, farcar))
+
+        val userRes = userRepository.findById("jondoe")
         println(userRes.get().email)
 
-        val userResTwo = userRepository.findByEmail(email = "me@me.com")
+        val userResTwo = userRepository.findByEmail(email = "jondoe@mail.com")
         println(userResTwo.age)
     }
 }
