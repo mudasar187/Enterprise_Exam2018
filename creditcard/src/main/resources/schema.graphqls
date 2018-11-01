@@ -1,0 +1,35 @@
+type Query {
+    # Get creditcard by ID
+    creditcardById(id: String!) : CreditCard
+}
+
+type Mutation {
+    # Create creditcard
+    createCreditCard(creditCard : InputCreditCard) : String
+    # Delete creditcard by ID
+    deleteCreditCardById(id: String!) : String
+}
+
+type CreditCard {
+    # ID
+    id: String,
+    # Cardnumber
+    cardNumber: String,
+    # expirationDate
+    expirationDate: String,
+    # CVC number
+    cvc: Int,
+    # Who creditcard belong to
+    username: String
+}
+
+input InputCreditCard {
+    # Cardnumber
+    cardNumber: String,
+    # expirationDate
+    expirationDate: String,
+    # CVC number
+    cvc: Int,
+    # Who creditcard belong to
+    username: String
+}

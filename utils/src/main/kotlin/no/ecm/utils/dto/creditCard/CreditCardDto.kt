@@ -14,7 +14,7 @@ data class CreditCardDto(
     var cardNumber: String? = null,
     
     @ApiModelProperty("The expiration date of a credit card")
-    var expirationDate: LocalDate? = null,
+    var expirationDate: String? = null,
     
     @ApiModelProperty("The CVC code of a credit card")
     var cvc: Int? = null,

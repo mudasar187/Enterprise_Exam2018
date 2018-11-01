@@ -16,13 +16,13 @@ class DefaultData(
         val jondoeCreditCard = CreditCard(
                 creditcardNumber = "6756675476575675674563645654",
                 cvc = 123,
-                expirationDate = LocalDate.now().plusYears(3),
+                expirationDate = "01/19",
                 username = "jondoe")
 
         val foobarCreditCard = CreditCard(
                 creditcardNumber = "2346578654321345678954324567",
                 cvc = 544,
-                expirationDate = LocalDate.now().plusYears(2),
+                expirationDate = "06/20",
                 username = "foobar"
         )
         creditCardRepository.saveAll(mutableListOf(jondoeCreditCard, foobarCreditCard))

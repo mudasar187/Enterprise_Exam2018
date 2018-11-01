@@ -19,7 +19,7 @@ class CreditCard (
         var creditcardNumber: String,
 
         @get:NotNull
-        var expirationDate: LocalDate,
+        var expirationDate: String,
 
         @get:NotNull
         var cvc: Int,
