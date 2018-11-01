@@ -2,9 +2,10 @@ package no.ecm.creditcard.resolver
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import com.google.common.base.Throwables
+import graphql.execution.DataFetcherResult
+import graphql.servlet.GenericGraphQLError
 import no.ecm.creditcard.model.converter.CreditCardConverter
 import no.ecm.creditcard.repository.CreditCardRepository
-import no.ecm.utils.dto.creditCard.CreditCardDto
 import no.ecm.utils.dto.creditCard.InputCreditCardDto
 import org.springframework.stereotype.Component
 import javax.validation.ConstraintViolationException
@@ -15,10 +16,10 @@ class MutationResolver(
 ): GraphQLMutationResolver {
 
 
-    fun createCreditCard(input: InputCreditCardDto): CreditCardDto? {
+    fun createCreditCard(input: InputCreditCardDto): DataFetcherResult<String> {
 
-        val creditCard = try {
-            creditCardRepository.save(CreditCardConverter.dtoToEntity(input))
+        val id = try {
+            creditCardRepository.save(CreditCardConverter.dtoToEntity(input)).id
         } catch (e: Exception) {
             val cause = Throwables.getRootCause(e)
             val msg = if (cause is ConstraintViolationException) {
@@ -26,13 +27,29 @@ class MutationResolver(
             }else {
                 e.message
             }
+            return DataFetcherResult<String>(null, listOf(GenericGraphQLError(msg)))
+        }
+
+        return DataFetcherResult(id.toString(), listOf())
+
+    }
+
+    fun deleteCreditCardById(inputId: String): String? {
+
+        val id: Long
+        try {
+            id = inputId.toLong()
+        } catch (e: Exception){
             return null
         }
 
-        println("id here: ${creditCard.username}")
+        if (!creditCardRepository.existsById(id)) {
+            return null
+        }
 
-        return CreditCardConverter.entityToDto(creditCard)
+        creditCardRepository.deleteById(id)
 
+        return inputId
     }
 
 }
