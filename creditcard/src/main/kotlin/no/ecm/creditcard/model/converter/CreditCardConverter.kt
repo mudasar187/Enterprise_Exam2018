@@ -2,13 +2,14 @@ package no.ecm.creditcard.model.converter
 
 import no.ecm.creditcard.model.entity.CreditCard
 import no.ecm.utils.dto.creditCard.CreditCardDto
+import no.ecm.utils.dto.creditCard.InputCreditCardDto
 
 object CreditCardConverter {
 	
 	
 	fun entityToDto(entity: CreditCard) : CreditCardDto {
 		return CreditCardDto(
-			id = entity.id.toString(),
+			id = entity.id?.toString(),
 			cardNumber = entity.creditcardNumber,
 			expirationDate = entity.expirationDate,
 			cvc = entity.cvc,
@@ -16,9 +17,8 @@ object CreditCardConverter {
 		)
 	}
 	
-	fun dtoToEntity(dto: CreditCardDto) : CreditCard {
+	fun dtoToEntity(dto: InputCreditCardDto) : CreditCard {
 		return CreditCard(
-			id = dto.id!!.toLong(),
 			creditcardNumber = dto.cardNumber!!,
 			expirationDate = dto.expirationDate!!,
 			cvc = dto.cvc!!,

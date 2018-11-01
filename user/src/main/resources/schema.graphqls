@@ -1,0 +1,38 @@
+type Query {
+    # Get user by username
+    userById(id: String!) : User
+}
+
+type Mutation {
+    # Create creditcard
+    createUser(user : InputUser) : String
+    deleteUserById(id: String!): String
+    updateUserById(id: String!, name: String, email: String): Boolean
+}
+
+type User {
+    # ID
+    username: String,
+    # Date of birth
+    dateOfBirth: String
+    # Name of the user
+    name: String
+    # User´s email
+    email: String
+}
+
+# NOTE: currently GraphQL does not support Date scalars, so need
+# to create a custom one. But maybe it will be supported in the future.
+# See: https://github.com/facebook/graphql/pull/315
+# So we need to implement our own custom parser for it
+
+input InputUser {
+    # ID
+    username: String,
+    # Date of birth
+    dateOfBirth: String
+    # Name of the user
+    name: String
+    # User´s email
+    email: String
+}
