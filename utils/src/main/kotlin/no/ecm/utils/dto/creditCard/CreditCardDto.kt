@@ -1,14 +1,9 @@
 package no.ecm.utils.dto.creditCard
 
-data class CreditCardDto(
-    
-    var id: String? = null,
-    
-    var cardNumber: String? = null,
-    
-    var expirationDate: String? = null,
-    
-    var cvc: Int? = null,
-    
-    var username: String? = null
-)
+open class CreditCardDto(
+        var id: String? = null,
+        cardNumber: String? = null,
+        expirationDate: String? = null,
+        cvc: Int? = null,
+        username: String? = null
+) : InputCreditCardDto(cardNumber, expirationDate, cvc, username)

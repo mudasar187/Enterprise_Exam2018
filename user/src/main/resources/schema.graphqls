@@ -3,6 +3,12 @@ type Query {
     userById(id: String!) : User
 }
 
+type Mutation {
+    # Create creditcard
+    createUser(user : InputUser) : String
+    deleteUserById(id: String!): String
+}
+
 type User {
     # ID
     username: String,

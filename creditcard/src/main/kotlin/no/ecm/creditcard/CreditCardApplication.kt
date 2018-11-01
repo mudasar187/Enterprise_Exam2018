@@ -8,11 +8,11 @@ class CreditCardApplication {}
 
 /*
     UI accessible at
-    http://localhost:8080/graphiql
+    http://localhost:8084/graphiql
     (note the "i" between graph and ql...)
 
     UI graph representation at
-    http://localhost:8080/voyager
+    http://localhost:8084/voyager
 
  */
 
