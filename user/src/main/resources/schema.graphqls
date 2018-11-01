@@ -1,0 +1,32 @@
+type Query {
+    # Get user by username
+    userById(id: String!) : User
+}
+
+type User {
+    # ID
+    username: String,
+    # Date of birth
+    dateOfBirth: MyBirthdayScalar
+    # Name of the user
+    name: String
+    # User´s email
+    email: String
+}
+
+# NOTE: currently GraphQL does not support Date scalars, so need
+# to create a custom one. But maybe it will be supported in the future.
+# See: https://github.com/facebook/graphql/pull/315
+# So we need to implement our own custom parser for it
+scalar MyBirthdayScalar
+
+input InputUser {
+    # ID
+    username: String,
+    # Date of birth
+    dateOfBirth: MyBirthdayScalar
+    # Name of the user
+    name: String
+    # User´s email
+    email: String
+}
