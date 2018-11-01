@@ -3,7 +3,11 @@ type Query {
     creditcardById(id: String!) : CreditCard
 }
 
+type Mutation {
+    # Create creditcard
+    createCreditCard(creditCard : InputCreditCard) : CreditCard
 
+}
 
 type CreditCard {
     # ID

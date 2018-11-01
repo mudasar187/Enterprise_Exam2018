@@ -1,7 +1,6 @@
-package no.ecm.creditcard.type
+package no.ecm.utils.dto.creditCard
 
-open class InputCreditCardType(
-
+open class InputCreditCardDto(
         var cardNumber: String? = null,
         var expirationDate: String? = null,
         var cvc: Int? = null,
