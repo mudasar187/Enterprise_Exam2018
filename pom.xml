@@ -69,7 +69,7 @@
 	    <java.version>1.8</java.version>
 
 	    <!-- SPRING -->
-	    <spring.version>2.0.5.RELEASE</spring.version>
+	    <spring.version>2.0.3.RELEASE</spring.version>
 	    <version.springcloud>Finchley.SR1</version.springcloud>
 
 	    <!-- DATABASES -->
