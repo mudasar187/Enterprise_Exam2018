@@ -7,6 +7,7 @@ type Mutation {
     # Create creditcard
     createUser(user : InputUser) : String
     deleteUserById(id: String!): String
+    updateUserById(id: String!, name: String, email: String): Boolean
 }
 
 type User {

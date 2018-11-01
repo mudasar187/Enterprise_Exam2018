@@ -46,4 +46,38 @@ class MutationResolver(
         return inputId
     }
 
+    fun updateUserById(userId: String, name: String?, email: String?): DataFetcherResult<Boolean> {
+
+
+        if (!userRepository.existsById(userId)) {
+            return DataFetcherResult<Boolean>(null, listOf(
+                    GenericGraphQLError("No user with id $userId exists")))
+        }
+
+
+        try {
+            val user = userRepository.findById(userId).get()
+
+            if (!name.isNullOrEmpty()){
+                user.name = name!!
+            }
+
+            if (!email.isNullOrEmpty()){
+                user.email = email!!
+            }
+
+            userRepository.save(user)
+
+        } catch (e: Exception) {
+            val cause = Throwables.getRootCause(e)
+            if (cause is ConstraintViolationException) {
+                return DataFetcherResult<Boolean>(null, listOf(
+                        GenericGraphQLError("Violated constraints: ${cause.message}")))
+            }
+            throw e
+        }
+
+        return DataFetcherResult(true, listOf())
+    }
+
 }
