@@ -2,7 +2,6 @@ package no.ecm.creditcard.repository
 
 import no.ecm.creditcard.model.entity.CreditCard
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 import javax.annotation.PostConstruct
 
 @Component
