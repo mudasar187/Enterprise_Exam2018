@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
 @SpringBootApplication(scanBasePackages = ["no.ecm.creditcard"])
-class CreditCardApplication {}
+class CreditCardApplication
 
 /*
     UI accessible at

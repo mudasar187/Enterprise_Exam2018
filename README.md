@@ -9,7 +9,7 @@
 
 ## Students
 - 703830: Mudasar Ahmad
-- <student_nr>: Endre Synnes
+- 704293: Endre Synnes
 - 703960: Christian Marker
 
 ## Table of content
@@ -17,3 +17,5 @@
 2. [Git structure](docs/git.md)
 3. [Database model](docs/databasemodel.jpg)
 4. [Document1](docs/document1.md) 
+
+Handle concurrency med optimistic and pessimistic locking of the database
