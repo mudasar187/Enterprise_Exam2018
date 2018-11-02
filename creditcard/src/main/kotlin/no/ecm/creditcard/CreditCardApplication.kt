@@ -6,7 +6,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient
 
 @SpringBootApplication(scanBasePackages = ["no.ecm.creditcard"])
 @EnableEurekaClient
-class CreditCardApplication {}
+class CreditCardApplication
 
 /*
     UI accessible at

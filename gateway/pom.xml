@@ -13,12 +13,13 @@
 
 
     <dependencies>
-
+        <!-- Project -->
         <dependency>
             <groupId>no.ecm</groupId>
             <artifactId>utils</artifactId>
         </dependency>
 
+        <!-- Spring -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
@@ -46,7 +47,12 @@
             <!--<artifactId>spring-boot-starter-data-redis</artifactId>-->
         <!--</dependency>-->
 
-
+        <!--RabbitMq
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -63,20 +69,19 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
+        <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
 
-        <!--DBs-->
+        <!-- Database -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+
+        <!-- Database -->
         <!--
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -84,14 +89,7 @@
         </dependency>
         -->
 
-        <!--RabbitMq
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
-        -->
-
-        <!-- test -->
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -104,6 +102,7 @@
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
         </dependency>
+
         <!--
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -111,6 +110,7 @@
         </dependency>
         -->
 
+        <!-- Swagger -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -123,9 +123,6 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-spring-web</artifactId>
         </dependency>
-
-
-
     </dependencies>
 
     <build>
