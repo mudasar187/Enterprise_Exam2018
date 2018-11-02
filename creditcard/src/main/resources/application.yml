@@ -1,3 +1,9 @@
+graphql:
+  servlet:
+    mapping: /creditcard
+    enabled: true
+
+
 eureka:
   client:
     healthcheck:

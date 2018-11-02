@@ -1,3 +1,9 @@
+graphql:
+  servlet:
+    mapping: /user
+    enabled: true
+
+
 eureka:
   client:
     healthcheck:
