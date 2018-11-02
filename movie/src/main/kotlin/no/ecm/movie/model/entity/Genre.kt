@@ -14,6 +14,7 @@ class Genre (
         var name: String? = null,
 
         @get:ManyToMany(fetch = FetchType.EAGER)
+        //@get:ManyToMany(mappedBy = "genres", fetch = FetchType.EAGER) // cascade??
         @get:JoinColumn(name = "movie_id")
         var movies: MutableSet<Movie> = mutableSetOf()
 )

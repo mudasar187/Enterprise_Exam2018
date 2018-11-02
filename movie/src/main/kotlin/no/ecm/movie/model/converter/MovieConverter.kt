@@ -10,7 +10,7 @@ object MovieConverter {
 			id = entity.id.toString(),
 			movieName = entity.movieName,
 			posterUrl = entity.posterURL,
-			genre = GenreConverter.entityListToDtoList(entity.genre).toMutableSet(),
+			genre = entity.genre,
 			movieDuration = entity.movieDuration,
 			ageLimit = entity.ageLimit,
 			nowPlaying = NowPlayingConverter.entityToDto(entity.nowPlaying!!)
@@ -22,7 +22,7 @@ object MovieConverter {
 			id = dto.id!!.toLong(),
 			movieName = dto.movieName!!,
 			posterURL = dto.posterUrl!!,
-			genre = GenreConverter.dtoListToEntityList(dto.genre!!).toMutableSet(),
+			genre = dto.genre!!,
 			movieDuration = dto.movieDuration,
 			ageLimit = dto.ageLimit!!,
 			nowPlaying = NowPlayingConverter.dtoToEntity(dto.nowPlaying!!)

@@ -16,7 +16,7 @@ data class MovieDto (
 	var posterUrl: String? = null,
 	
 	@ApiModelProperty("The GenreDto of the movie")
-	var genre: MutableSet<GenreDto>? = null,
+	var genre: MutableSet<String>? = null,
 	
 	@ApiModelProperty("The duration of the movie in minutes")
 	var movieDuration: Int,

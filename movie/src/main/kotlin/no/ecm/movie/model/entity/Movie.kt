@@ -17,8 +17,10 @@ class Movie (
         @get:NotBlank
         var posterURL: String? = null,
 
-        @get:ManyToMany(mappedBy = "movies", fetch = FetchType.EAGER) // cascade??
-        var genre: MutableSet<Genre> = mutableSetOf(),
+//        @get:ManyToMany(mappedBy = "movies", fetch = FetchType.EAGER) // cascade??
+//        var genre: MutableSet<Genre> = mutableSetOf(),
+        @get:ElementCollection
+        var genre: MutableSet<String> = mutableSetOf(),
 
         @get:NotNull
         var movieDuration: Int,
