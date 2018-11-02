@@ -20,4 +20,4 @@ spring:
 server:
   port: 8083
 
-cinemaService: http://localhost:8085
+cinemaService: http://localhost:8086

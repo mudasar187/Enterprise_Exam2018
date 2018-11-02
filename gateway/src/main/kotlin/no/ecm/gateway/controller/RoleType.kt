@@ -1,4 +1,4 @@
-package no.ecm.auth.controller
+package no.ecm.gateway.controller
 
 enum class RoleType {
 
