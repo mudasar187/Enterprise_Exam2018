@@ -20,8 +20,6 @@ import org.springframework.web.client.getForEntity
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class MovieController (
-    private var movieRepository: MovieRepository,
-    val restTemplate: RestTemplate
 ){
     
     
