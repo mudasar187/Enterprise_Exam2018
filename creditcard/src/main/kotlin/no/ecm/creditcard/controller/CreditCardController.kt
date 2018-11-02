@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class CreditCardController {
 
-    @Value("\${authService}")
-    private lateinit var authHost : String
-
     @GetMapping
     fun get(): ResponseEntity<String>? {
         return ResponseEntity.ok("CreditCard")

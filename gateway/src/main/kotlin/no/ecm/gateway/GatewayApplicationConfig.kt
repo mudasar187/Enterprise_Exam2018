@@ -12,7 +12,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @Configuration
 @EnableSwagger2
-@EntityScan(basePackages = ["no.ecm.gateway"])
+@EntityScan(basePackages = ["no.ecm.auth"])
 class GatewayApplicationConfig {
 
     @Bean
@@ -26,8 +26,8 @@ class GatewayApplicationConfig {
 
     private fun apiInfo(): ApiInfo {
         return ApiInfoBuilder()
-                .title("API for authentication")
-                .description("MicroService that contains user entity repository and auth entity repository")
+                .title("API for auth entity")
+                .description("MicroService that contains auth entity repository")
                 .version("1.0")
                 .build()
     }

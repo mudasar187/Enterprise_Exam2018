@@ -1,3 +1,2 @@
-spring:
-  application:
-    name: cinema-server
+server:
+  port: 7086
