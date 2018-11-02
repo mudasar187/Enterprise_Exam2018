@@ -9,6 +9,7 @@ import javax.validation.constraints.Size
 @Entity
 class Auth (
 
+        @Id
         @get:NotBlank
         @get:Size(min = 5, max = 20)
         var userName: String,
