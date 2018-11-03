@@ -1,11 +1,22 @@
 package no.ecm.creditcard
 
 
+import io.restassured.RestAssured
 import junit.framework.Assert.assertTrue
+import no.ecm.creditcard.repository.CreditCardRepository
+import org.junit.Before
 import org.junit.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.runner.RunWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.core.io.Resource
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.util.StreamUtils
+import java.nio.charset.StandardCharsets
 
 @RunWith(SpringJUnit4ClassRunner::class)
 @SpringBootTest(
@@ -13,9 +24,25 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TestBase {
 	
-	@Test
-	fun test() {
-		assertTrue(true)
+	@LocalServerPort
+	protected var port = 0
+	
+	@field:Autowired
+	private lateinit var creditCardRepository: CreditCardRepository
+	
+	@Value("classpath/graphql/get-creditcard.graphql")
+	private lateinit var createCreditcardFile: Resource
+	
+	fun createThingPayload(): String {
+		return StreamUtils.copyToString(createCreditcardFile.inputStream, StandardCharsets.UTF_8)
 	}
 	
+	@Before
+	fun clean() {
+		// RestAssured configs shared by all the tests
+		RestAssured.baseURI = "http://localhost"
+		RestAssured.port = port
+		RestAssured.basePath = "/graphql"
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+	}
 }

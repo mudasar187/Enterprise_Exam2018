@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RequestMapping(
-        path = ["/creditcard"],
+        path = ["/graphql"],
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class CreditCardController {
