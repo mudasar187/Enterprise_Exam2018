@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets
 @SpringBootTest(
 	classes = [(CreditCardApplication::class)],
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class TestBase {
+abstract class TestBase {
 	
 	@LocalServerPort
 	protected var port = 0

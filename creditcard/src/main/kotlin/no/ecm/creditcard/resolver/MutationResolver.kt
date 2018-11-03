@@ -34,22 +34,22 @@ class MutationResolver(
 
     }
 
-    fun deleteCreditCardById(inputId: String): String? {
+    fun deleteCreditCardById(inputId: String): Boolean {
 
         val id: Long
         try {
             id = inputId.toLong()
         } catch (e: Exception){
-            return null
+            return false
         }
 
         if (!creditCardRepository.existsById(id)) {
-            return null
+            return false
         }
 
         creditCardRepository.deleteById(id)
 
-        return inputId
+        return true
     }
 
 }
