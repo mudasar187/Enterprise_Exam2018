@@ -3,10 +3,8 @@ package no.ecm.creditcard.tests
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import no.ecm.creditcard.TestBase
-import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.hasItem
-import org.junit.Assert
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 
@@ -15,29 +13,14 @@ class CreditCardTest : TestBase() {
 	@Test
 	fun testCreateAndGetById() {
 		
-		
 		val username = "johndoe"
 		val creditcardNumber = "12345"
 		val cvc = 123
 		val expDate = "20/01"
 		
-		val createQuery = """
-                    { "query" :
-                         "mutation{createCreditCard(creditCard:{expirationDate:\"$expDate\",cvc: $cvc,username:\"$username\",cardNumber:\"$creditcardNumber\"})}"
-                    }
-                    """.trimIndent()
+		val id = createCreditcard(username, creditcardNumber, expDate, cvc)
 		
-		val id = given()
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-			.body(createQuery)
-			.post()
-			.then()
-			.statusCode(200)
-			.extract().body().path<String>("data.createCreditCard")
-			//.extract().response().body.prettyPeek()
-		
-		//println(id)
+		assertNotNull(id)
 		
 		val getQuery = """
 			{
@@ -55,6 +38,7 @@ class CreditCardTest : TestBase() {
 			.then()
 			.statusCode(200)
 			
+			
 			// all queries params are present
 			.body("data.creditcardById.size()", equalTo(5))
 			
@@ -66,8 +50,54 @@ class CreditCardTest : TestBase() {
 			.body("data.creditcardById.expirationDate", equalTo(expDate))
 			
 			//print result
-			.extract().response().body.prettyPeek()
-			
+			//.extract().response().body.prettyPeek()
+	}
+	
+	@Test
+	fun testDeleteCreditcard() {
+		
+		val username = "johndoe"
+		val creditcardNumber = "12345"
+		val cvc = 123
+		val expDate = "20/01"
+		
+		val id = createCreditcard(username, creditcardNumber, expDate, cvc)
+		
+		assertNotNull(id)
+		
+		val getQuery = """
+			{
+  				creditcardById(id: "$id") {
+    				id, username, cardNumber, cvc, expirationDate
+  				}
+			}
+		""".trimIndent()
+		
+		given()
+			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
+			.queryParam("query", getQuery)
+			.get()
+			.then()
+			.statusCode(200)
+		
+		//DELETE
+		
+		val deleteQuery = """
+                    { "query" :
+                         "mutation{deleteCreditCardById(id:\"$id\")}"
+                    }
+                    """.trimIndent()
+		
+		given()
+			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
+			.body(deleteQuery)
+			.post()
+			.then()
+			.statusCode(200)
+			.body("data.deleteCreditCardById", equalTo(id))
+		
 	}
 	
 }

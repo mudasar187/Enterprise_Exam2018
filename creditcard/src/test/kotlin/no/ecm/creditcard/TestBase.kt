@@ -2,6 +2,10 @@ package no.ecm.creditcard
 
 
 import io.restassured.RestAssured
+import io.restassured.RestAssured.given
+import io.restassured.http.ContentType
+import io.restassured.response.Response
+import io.restassured.response.ValidatableResponse
 import junit.framework.Assert.assertTrue
 import no.ecm.creditcard.repository.CreditCardRepository
 import org.junit.Before
@@ -30,6 +34,7 @@ class TestBase {
 	@field:Autowired
 	private lateinit var creditCardRepository: CreditCardRepository
 	
+	//TODO make these files work
 	@Value("classpath/graphql/get-creditcard.graphql")
 	private lateinit var getCreditcardFile: Resource
 	
@@ -54,5 +59,42 @@ class TestBase {
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
 		
 		creditCardRepository.deleteAll()
+	}
+	
+	fun createCreditcard(username: String, creditcardNumber: String, expDate: String, cvc: Int) : String? {
+		val createQuery = """
+                    { "query" :
+                         "mutation{createCreditCard(creditCard:{expirationDate:\"$expDate\",cvc: $cvc,username:\"$username\",cardNumber:\"$creditcardNumber\"})}"
+                    }
+                    """.trimIndent()
+		
+		return given()
+			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
+			.body(createQuery)
+			.post()
+			.then()
+			.statusCode(200)
+			.extract().body().path<String>("data.createCreditCard")
+			//.extract().response().body.prettyPeek()
+	}
+	
+	//TODO make this method generic enough to put elsewhere
+	fun getCreditcardById(id: String): Response? {
+		
+		val getQuery = """
+			{
+  				creditcardById(id: "$id") {
+    				id, username, cardNumber, cvc, expirationDate
+  				}
+			}
+		""".trimIndent()
+		
+		return given()
+			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
+			.queryParam("query", getQuery)
+			.get().thenReturn()
+		
 	}
 }
