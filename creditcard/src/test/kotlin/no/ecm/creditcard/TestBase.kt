@@ -31,9 +31,17 @@ class TestBase {
 	private lateinit var creditCardRepository: CreditCardRepository
 	
 	@Value("classpath/graphql/get-creditcard.graphql")
+	private lateinit var getCreditcardFile: Resource
+	
+	@Value("classpath/graphql/create-creditcard.graphql")
 	private lateinit var createCreditcardFile: Resource
 	
-	fun createThingPayload(): String {
+	
+	fun getCreditcardPayload(): String {
+		return StreamUtils.copyToString(getCreditcardFile.inputStream, StandardCharsets.UTF_8)
+	}
+	
+	fun createCreditcardPayload(): String {
 		return StreamUtils.copyToString(createCreditcardFile.inputStream, StandardCharsets.UTF_8)
 	}
 	
@@ -44,5 +52,7 @@ class TestBase {
 		RestAssured.port = port
 		RestAssured.basePath = "/graphql"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+		
+		creditCardRepository.deleteAll()
 	}
 }

@@ -1,5 +1,10 @@
 mutation {
-    createCreditcard {
-
+    createCreditcard(input: {
+        cardNumber: "12345",
+        expirationDate: "10/03",
+        cvc: 201,
+        username: "johndoe"
+    }) {
+        id
     }
 }
