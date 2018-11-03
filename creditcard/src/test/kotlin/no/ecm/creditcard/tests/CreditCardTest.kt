@@ -3,7 +3,6 @@ package no.ecm.creditcard.tests
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import no.ecm.creditcard.TestBase
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -23,22 +22,8 @@ class CreditCardTest : TestBase() {
 		
 		assertNotNull(id)
 		
-		val getQuery = """
-			{
-  				creditcardById(id: "$id") {
-    				id, username, cardNumber, cvc, expirationDate
-  				}
-			}
-		""".trimIndent()
-		
-		given()
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-			.queryParam("query", getQuery)
-			.get()
-			.then()
+		getCreditcardById(id!!)!!
 			.statusCode(200)
-			
 			
 			// all queries params are present
 			.body("data.creditcardById.size()", equalTo(5))
@@ -54,8 +39,6 @@ class CreditCardTest : TestBase() {
 	@Test
 	fun testCreateCreditcardWithMissingArguments() {
 		
-		val creditcardNumber = "12345"
-		val cvc = 123
 		val expDate = "20/01"
 		
 		val createQuery = """
@@ -76,29 +59,14 @@ class CreditCardTest : TestBase() {
 			
 			//TODO get the errormessages in errors.message[0]. Problem in converter?
 			//.extract().response().body.prettyPeek()
-		
-		
 	}
 	
 	@Test
 	fun testGetNonExistingCreditcard() {
-		val getQuery = """
-			{
-  				creditcardById(id: "-1") {
-    				id, username, cardNumber, cvc, expirationDate
-  				}
-			}
-		""".trimIndent()
 		
-		given()
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-			.queryParam("query", getQuery)
-			.get()
-			.then()
+		getCreditcardById("-1")!!
 			.statusCode(200)
 			.body("data.creditcardById", equalTo(null))
-			
 	}
 	
 	@Test
@@ -113,20 +81,7 @@ class CreditCardTest : TestBase() {
 		
 		assertNotNull(id)
 		
-		val getQuery = """
-			{
-  				creditcardById(id: "$id") {
-    				id, username, cardNumber, cvc, expirationDate
-  				}
-			}
-		""".trimIndent()
-		
-		given()
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-			.queryParam("query", getQuery)
-			.get()
-			.then()
+		getCreditcardById(id!!)!!
 			.statusCode(200)
 		
 		//DELETE

@@ -79,8 +79,7 @@ abstract class TestBase {
 			//.extract().response().body.prettyPeek()
 	}
 	
-	//TODO make this method generic enough to put elsewhere
-	fun getCreditcardById(id: String): Response? {
+	fun getCreditcardById(id: String): ValidatableResponse? {
 		
 		val getQuery = """
 			{
@@ -94,7 +93,7 @@ abstract class TestBase {
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.queryParam("query", getQuery)
-			.get().thenReturn()
-		
+			.get()
+			.then()
 	}
 }
