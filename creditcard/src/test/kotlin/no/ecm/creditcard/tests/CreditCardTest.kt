@@ -8,7 +8,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 
-class UserTest : TestBase() {
+class CreditCardTest : TestBase() {
 	
 	@Test
 	fun testCreateAndGetById() {
