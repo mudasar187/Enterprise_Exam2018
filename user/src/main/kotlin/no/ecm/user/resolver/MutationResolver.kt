@@ -34,16 +34,16 @@ class MutationResolver(
 
     }
 
-    fun deleteUserById(inputId: String): String? {
+    fun deleteUserById(inputId: String): Boolean {
 
 
         if (!userRepository.existsById(inputId)) {
-            return null
+            return false
         }
 
         userRepository.deleteById(inputId)
 
-        return inputId
+        return true
     }
 
     fun updateUserById(userId: String, name: String?, email: String?): DataFetcherResult<Boolean> {
