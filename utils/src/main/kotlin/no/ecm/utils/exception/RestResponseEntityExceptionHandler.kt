@@ -1,5 +1,6 @@
+package no.ecm.utils.exception
+
 import com.google.common.base.Throwables
-import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus

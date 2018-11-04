@@ -9,15 +9,20 @@ object GenreConverter {
 		return GenreDto(
 			id = entity.id.toString(),
 			name = entity.name,
-			movies = MovieConverter.entityListToDtoList(entity.movies).toMutableSet()
+			movies = MovieConverter.genreEntityListToDtoList(entity.movies).toMutableSet()
 		)
 	}
 	
 	fun dtoToEntity(dto: GenreDto) : Genre {
 		return Genre(
-			id = dto.id!!.toLong(),
-			name = dto.name!!,
-			movies = MovieConverter.dtoListToDtoList(dto.movies!!).toMutableSet()
+			name = dto.name!!
+		)
+	}
+
+	fun movieEntityToDto(entity: Genre) : GenreDto {
+		return GenreDto(
+				id = entity.id.toString(),
+				name = entity.name
 		)
 	}
 	
@@ -27,6 +32,10 @@ object GenreConverter {
 	
 	fun dtoListToEntityList(dto: Iterable<GenreDto>): List<Genre> {
 		return dto.map { dtoToEntity(it) }
+	}
+
+	fun movieEntityListToDtoList(entities: Iterable<Genre>): List<GenreDto> {
+		return entities.map { movieEntityToDto(it) }
 	}
 	
 }

@@ -9,7 +9,7 @@ object NowPlayingConverter {
 	fun entityToDto(entity: NowPlaying) : NowPlayingDto {
 		return NowPlayingDto(
 			id = entity.id.toString(),
-			movieDto = MovieConverter.entityToDto(entity.movie!!),
+			movieDto = MovieConverter.nowPlayingEntityToDto(entity.movie!!),
 			roomId = entity.roomId.toString(),
 			time = entity.timeWhenMoviePlay,
 			seats = entity.freeSeats.toList()
@@ -18,11 +18,19 @@ object NowPlayingConverter {
 	
 	fun dtoToEntity(dto: NowPlayingDto) : NowPlaying {
 		return NowPlaying(
-			id = dto.id!!.toLong(),
-			movie = MovieConverter.dtoToEntity(dto.movieDto!!),
+			//movie = MovieConverter.dtoToEntity(dto.movieDto!!),
 			roomId = dto.roomId!!.toLong(),
 			timeWhenMoviePlay = dto.time!!,
 			freeSeats = dto.seats!!.toMutableSet()
+		)
+	}
+
+	fun movieEntityToDto(entity: NowPlaying) : NowPlayingDto {
+		return NowPlayingDto(
+				id = entity.id.toString(),
+				roomId = entity.roomId.toString(),
+				time = entity.timeWhenMoviePlay,
+				seats = entity.freeSeats.toList()
 		)
 	}
 	

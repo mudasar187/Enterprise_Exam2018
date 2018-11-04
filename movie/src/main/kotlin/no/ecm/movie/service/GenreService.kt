@@ -32,6 +32,10 @@ class GenreService (
     fun getGenre(stringId: String?): GenreDto {
 
         val id = validateId(stringId)
+
+        if (!genreRepository.existsById(id)){
+            throw UserInputValidationException("Genre not found", 404)
+        }
         
         val genre = genreRepository.findById(id).get()
         
@@ -94,18 +98,19 @@ class GenreService (
             }
         }
 
-        if (jsonNode.has("movies")) {
-            val movies = jsonNode.get("movies")
-            when {
-                movies.isNull -> genre.movies = mutableSetOf()
-                movies.isArray -> {
-                    val mapper = jacksonObjectMapper()
-                    val tmp: Set<MovieDto> = mapper.readValue(movies.toString())
-                    genre.movies = MovieConverter.dtoListToDtoList(tmp).toMutableSet()
-                }
-                else -> throw UserInputValidationException("Unable to handle field: 'movies'")
-            }
-        }
+        //TODO kanskje ikke la Genre oppdatere dette? kun via movie
+//        if (jsonNode.has("movies")) {
+//            val movies = jsonNode.get("movies")
+//            when {
+//                movies.isNull -> genre.movies = mutableSetOf()
+//                movies.isArray -> {
+//                    val mapper = jacksonObjectMapper()
+//                    val tmp: Set<MovieDto> = mapper.readValue(movies.toString())
+//                    genre.movies = MovieConverter.dtoListToDtoList(tmp).toMutableSet()
+//                }
+//                else -> throw UserInputValidationException("Unable to handle field: 'movies'")
+//            }
+//        }
         genreRepository.save(genre)
 
         return GenreConverter.entityToDto(genre)
