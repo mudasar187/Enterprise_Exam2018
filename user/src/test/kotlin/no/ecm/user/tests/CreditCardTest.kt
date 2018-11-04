@@ -1,8 +1,8 @@
-package no.ecm.creditcard.tests
+package no.ecm.user.tests
 
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import no.ecm.creditcard.TestBase
+import no.ecm.user.TestBase
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -56,8 +56,10 @@ class CreditCardTest : TestBase() {
 			.statusCode(200)
 			.body("data.createCreditCard", equalTo(null))
 			.extract().body().path<String>("data.createCreditCard")
-			
+		
 			//TODO get the errormessages in errors.message[0]. Problem in converter?
+		
+			
 			//.extract().response().body.prettyPeek()
 	}
 	
