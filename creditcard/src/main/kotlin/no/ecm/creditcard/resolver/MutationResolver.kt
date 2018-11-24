@@ -24,8 +24,8 @@ class MutationResolver(
             val cause = Throwables.getRootCause(e)
             val msg = if (cause is ConstraintViolationException) {
                 "Violated constraints: ${cause.message}"
-            }else {
-                e.message
+            } else {
+				"${e.javaClass}: ${e.message}"
             }
             return DataFetcherResult<String>(null, listOf(GenericGraphQLError(msg)))
         }

@@ -4,6 +4,7 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import no.ecm.user.TestBase
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.not
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -59,10 +60,7 @@ class UserTest : TestBase() {
 			.then()
 			.statusCode(200)
 			.body("data.createUser", equalTo(null))
-			//.extract().body().path<String>("data.createUser")
-		
-		//TODO get the errormessages in errors.message[0]. Problem in converter?
-			.extract().response().body.prettyPeek()
+			.body("errors.message[0]", not(equalTo(null)))
 	}
 	
 	@Test

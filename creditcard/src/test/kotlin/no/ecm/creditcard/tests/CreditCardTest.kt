@@ -55,12 +55,7 @@ class CreditCardTest : TestBase() {
 			.then()
 			.statusCode(200)
 			.body("data.createCreditCard", equalTo(null))
-			.extract().body().path<String>("data.createCreditCard")
-		
-			//TODO get the errormessages in errors.message[0]. Problem in converter?
-		
-			
-			//.extract().response().body.prettyPeek()
+			.body("errors.message[0]", not(equalTo(null)))
 	}
 	
 	@Test
