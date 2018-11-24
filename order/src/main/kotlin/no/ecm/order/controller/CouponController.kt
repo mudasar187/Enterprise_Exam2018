@@ -74,6 +74,14 @@ class CouponController {
 		
 	}
 	
+	@ApiOperation("Delete a coupon with the given id")
+	@DeleteMapping
+	fun deletePokemon(@ApiParam("id of coupon")
+					  @RequestParam("id", required = true) paramId: String
+	): ResponseEntity<WrappedResponse<CouponDto>> {
+		return service.delete(paramId)
+	}
+	
 	/*
 		api/coupons (under invoice modul men egen url) Enkel (MARKER) (Skriver tester selv)
 		GET -> alle coupons
@@ -82,6 +90,4 @@ class CouponController {
 		POST -> Opprette coupon
 		DELETE /{id} -> Slette en invoice
 	*/
-	
-	
 }

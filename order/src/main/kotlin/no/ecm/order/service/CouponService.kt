@@ -22,7 +22,7 @@ import javax.validation.ConstraintViolationException
 class CouponService {
 	
 	@Autowired
-	private lateinit var respository: CouponRepository
+	private lateinit var repository: CouponRepository
 	
 	fun get(paramCode: String?, paramId: String?, offset: Int, limit: Int) : ResponseEntity<WrappedResponse<CouponDto>> {
 		
@@ -41,14 +41,14 @@ class CouponService {
 		//If NOT paramCode or paramId are present, return all coupons in DB
 		if (paramCode.isNullOrBlank() && paramId.isNullOrBlank()) {
 			
-			couponResultList = CouponConverter.entityListToDtoList(respository.findAll())
+			couponResultList = CouponConverter.entityListToDtoList(repository.findAll())
 			
 		}
 		
 		//If only paramCode are present, return coupon with given code
 		else if (!paramCode.isNullOrBlank() && paramId.isNullOrBlank()){
 			
-			couponResultList = try { listOf(CouponConverter.entityToDto(respository.findByCode(paramCode!!))) }
+			couponResultList = try { listOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!))) }
 			
 			catch (e: java.lang.Exception) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -76,7 +76,7 @@ class CouponService {
 				)
 			}
 			
-			val entity = respository.findById(id).orElse(null)
+			val entity = repository.findById(id).orElse(null)
 				?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					CouponResponseDto(
 						code = HttpStatus.NOT_FOUND.value(),
@@ -183,7 +183,7 @@ class CouponService {
 		println("Parsed ZonedDateTime: $parsedDateTime")
 		
 		val id = try {
-			respository.createCoupon(dto.code!!, dto.description!!, parsedDateTime)
+			repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime)
 		} catch (e: Exception) {
 			
 			if (Throwables.getRootCause(e) is ConstraintViolationException) {
@@ -206,4 +206,35 @@ class CouponService {
 		)
 	}
 	
+	fun delete(paramId: String) : ResponseEntity<WrappedResponse<CouponDto>> {
+		
+		val id= try { paramId.toLong() }
+		
+		catch (e: Exception) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+				CouponResponseDto(
+					code = HttpStatus.BAD_REQUEST.value(),
+					message = "Invalid id: $paramId"
+				).validated()
+			)
+		}
+		
+		//if the given is is not registred in the DB
+		if (!repository.existsById(id)) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				CouponResponseDto(
+					code = HttpStatus.NOT_FOUND.value(),
+					message = "Could not find coupon with id: $id"
+				).validated()
+			)
+		}
+		
+		repository.deleteById(id)
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+			CouponResponseDto(
+				code = HttpStatus.NO_CONTENT.value(),
+				message = "Coupon with id: $id successfully deleted"
+			).validated()
+		)
+	}
 }

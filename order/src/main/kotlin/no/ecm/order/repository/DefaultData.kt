@@ -23,8 +23,7 @@ class DefaultData(
         val coupon3 = Coupon(code = "christmas2018", description = "Christmas discount gives you 80% discount on 4 tickets!", expireAt = ZonedDateTime.now())
 
         couponRepository.saveAll(mutableListOf(coupon1, coupon2, coupon3))
-
-
+        
         val invoice1 = Invoice(
                 username = "jondoe",
                 orderDate = ZonedDateTime.now(),
