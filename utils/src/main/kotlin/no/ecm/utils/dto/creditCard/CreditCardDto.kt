@@ -1,6 +1,6 @@
 package no.ecm.utils.dto.creditCard
 
-open class CreditCardDto(
+open class wCreditCardDto(
         var id: String? = null,
         cardNumber: String? = null,
         expirationDate: String? = null,

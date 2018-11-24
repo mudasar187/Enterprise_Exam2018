@@ -3,6 +3,7 @@ package no.ecm.order.repository
 import no.ecm.order.model.entity.Coupon
 import no.ecm.order.model.entity.Invoice
 import no.ecm.order.model.entity.Ticket
+import no.ecm.order.repository.coupon.CouponRepository
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
 import javax.annotation.PostConstruct
