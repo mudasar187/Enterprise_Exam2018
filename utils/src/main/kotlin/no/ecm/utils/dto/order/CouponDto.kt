@@ -17,5 +17,5 @@ data class CouponDto(
 	var description: String? = null,
 	
 	@ApiModelProperty("The expiration date of a Coupon")
-	var expireAt: ZonedDateTime? = null
+	var expireAt: String? = null //ZonedDateTime
 )
