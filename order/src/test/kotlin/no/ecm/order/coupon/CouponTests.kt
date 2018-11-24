@@ -12,6 +12,12 @@ import org.springframework.http.HttpStatus
 class CouponTests : TestBase() {
 	
 	//TODO Fix all sizes stuff after DELETE is done
+	/*
+	@Test
+	fun testCleanDb() {
+		assertResultSize(0)
+	}
+	*/
 	
 	@Test
 	fun getAllCouponsTest() {
@@ -32,7 +38,7 @@ class CouponTests : TestBase() {
 			.extract()
 			.`as`(CouponResponseDto::class.java).data!!.list.size
 		
-		val code = "1234567899"
+		val code = "1234554321"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00.000000"
 		
@@ -70,7 +76,7 @@ class CouponTests : TestBase() {
 	@Test
 	fun getByCodeTest() {
 		
-		val code = "1234567899"
+		val code = "0987654321"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00.000000"
 		
@@ -91,7 +97,7 @@ class CouponTests : TestBase() {
 		
 		//TODO Expand to more test cases
 		
-		val code = "1234567899"
+		val code = "45678123"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00.000000"
 		
@@ -105,6 +111,31 @@ class CouponTests : TestBase() {
 			.body("message", CoreMatchers.notNullValue())
 			.body("status", CoreMatchers.equalTo("ERROR"))
 			.body("page", CoreMatchers.nullValue())
+	}
+	
+	@Test
+	fun deleteUnusedCouponTest() {
+		
+		// This test covers deletion of a coupon that is unused.
+		// Which means that no orders have been made using this coupon
+		// This will be tested in another test
+		
+		val code = "123412345"
+		val description = "DefaultDescription"
+		val expireAt = "2019-01-01 01:00:00.000000"
+		
+		val id = createCoupon(code, description, expireAt)
+		
+		given()
+			.delete("/$id")
+			.then()
+			.statusCode(204)
+		
+		given()
+			.get("/$id")
+			.then()
+			.statusCode(404)
+		
 	}
 	
 	@Test

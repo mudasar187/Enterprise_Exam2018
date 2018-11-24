@@ -3,13 +3,10 @@ package no.ecm.order.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
 import no.ecm.order.service.CouponService
 import no.ecm.utils.dto.order.CouponDto
-import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -75,11 +72,12 @@ class CouponController {
 	}
 	
 	@ApiOperation("Delete a coupon with the given id")
-	@DeleteMapping
+	@DeleteMapping(path = ["/{id}"])
 	fun deletePokemon(@ApiParam("id of coupon")
-					  @RequestParam("id", required = true) paramId: String
+					  @PathVariable("id", required = true)
+					  id: String
 	): ResponseEntity<WrappedResponse<CouponDto>> {
-		return service.delete(paramId)
+		return service.delete(id)
 	}
 	
 	/*
