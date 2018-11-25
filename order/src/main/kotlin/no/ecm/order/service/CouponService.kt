@@ -36,7 +36,7 @@ class CouponService {
 		}
 		
 		val couponResultList: List<CouponDto>
-		val builder = UriComponentsBuilder.fromPath("/coupon")
+		val builder = UriComponentsBuilder.fromPath("/coupons")
 		
 		//If NOT paramCode or paramId are present, return all coupons in DB
 		if (paramCode.isNullOrBlank() && paramId.isNullOrBlank()) {
@@ -65,9 +65,9 @@ class CouponService {
 		//If only paramId are present, return coupon with given id
 		else {
 			
-			val id = try {
-				paramId!!.toLong()
-			} catch (e: Exception) {
+			val id = try { paramId!!.toLong() }
+			
+			catch (e: Exception) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					CouponResponseDto(
 						code = HttpStatus.NOT_FOUND.value(),
@@ -159,10 +159,11 @@ class CouponService {
 			)
 		}
 		
-		println("Unparsed date: ${dto.expireAt}")
+		//println("Unparsed date: ${dto.expireAt}")
 		
-		
-		//Converting string to ZonedDateTime
+		// Converting string to ZonedDateTime
+		// inspired by this answer from StackOverflow
+		// https://stackoverflow.com/a/44487882/10396560
 		val pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS"
 		val parser: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.systemDefault())
 		
@@ -180,17 +181,17 @@ class CouponService {
 			)
 		}
 		
-		println("Parsed ZonedDateTime: $parsedDateTime")
+		//println("Parsed ZonedDateTime: $parsedDateTime")
 		
-		val id = try {
-			repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime)
-		} catch (e: Exception) {
+		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime) }
+		
+		catch (e: Exception) {
 			
 			if (Throwables.getRootCause(e) is ConstraintViolationException) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 					CouponResponseDto(
 						code = HttpStatus.BAD_REQUEST.value(),
-						message = "Error while creating a pokemon, contact sys-adm"
+						message = "Error while creating a coupon, contact sys-adm"
 					).validated()
 				)
 			}
