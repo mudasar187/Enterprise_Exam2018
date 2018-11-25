@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.RestController
 
 @Api(value = "/order", description = "API for order entity")
 @RequestMapping(
-        path = ["/order"],
-        produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+	path = ["/order"],
+	produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class OrderController {
-
-    @Value("\${movieService}")
-    private lateinit var movieHost : String
-
-    @GetMapping
-    fun get(): ResponseEntity<String>? {
-        return ResponseEntity.ok("Invoice")
-    }
+	
+	@Value("\${movieService}")
+	private lateinit var movieHost : String
+	
+	@GetMapping
+	fun get(): ResponseEntity<String>? {
+		return ResponseEntity.ok("Invoice")
+	}
 }
