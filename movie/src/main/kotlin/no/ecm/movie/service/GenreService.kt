@@ -7,16 +7,14 @@ import no.ecm.movie.repository.GenreRepository
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.exception.UserInputValidationException
 import org.springframework.stereotype.Service
-import com.fasterxml.jackson.module.kotlin.*
-import no.ecm.movie.model.converter.MovieConverter
-import no.ecm.utils.dto.movie.MovieDto
+
 
 
 @Service
 class GenreService (
         private var genreRepository: GenreRepository){
 
-
+    //TODO implement cache
     fun getGenres(name: String?): List<GenreDto> {
 
         val genres = if (!name.isNullOrEmpty()){
@@ -28,7 +26,7 @@ class GenreService (
         return GenreConverter.entityListToDtoList(genres)
     }
 
-
+    //TODO maybe return entity in stead of dto
     fun getGenre(stringId: String?): GenreDto {
 
         val id = validateId(stringId)

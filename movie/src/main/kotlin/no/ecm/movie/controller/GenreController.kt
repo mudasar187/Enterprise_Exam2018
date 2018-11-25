@@ -3,7 +3,6 @@ package no.ecm.movie.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import no.ecm.movie.model.response.GenreResponse
 import no.ecm.movie.service.GenreService
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.response.WrappedResponse
