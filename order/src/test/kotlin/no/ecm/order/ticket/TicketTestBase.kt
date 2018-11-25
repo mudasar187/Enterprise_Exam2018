@@ -1,11 +1,13 @@
-package no.ecm.order.coupon
+package no.ecm.order.ticket
 
 import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import no.ecm.order.OrderApplication
 import no.ecm.utils.dto.order.CouponDto
+import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.response.CouponResponseDto
+import no.ecm.utils.response.TicketResponseDto
 import org.hamcrest.CoreMatchers
 import org.junit.After
 import org.junit.Before
@@ -20,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 	classes = [(OrderApplication::class)],
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-abstract class TestBase {
+abstract class TicketTestBase {
 	
 	@LocalServerPort
 	protected var port = 0
@@ -30,7 +32,7 @@ abstract class TestBase {
 	fun clean() {
 		RestAssured.baseURI = "http://localhost"
 		RestAssured.port = port
-		RestAssured.basePath = "/coupons"
+		RestAssured.basePath = "/tickets"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
 		
 		
@@ -38,7 +40,7 @@ abstract class TestBase {
 			.then()
 			.statusCode(200)
 			.extract()
-			.`as`(CouponResponseDto::class.java)
+			.`as`(TicketResponseDto::class.java)
 		
 		/*
 		// TODO fix this DELETE stuff with foreign keys and shit
@@ -58,9 +60,9 @@ abstract class TestBase {
 		*/
 	}
 	
-	fun createCoupon(code: String, description: String, expireAt: String): Long {
+	fun createTicket(price: Double, seat: String): Long {
 		
-		val dto = CouponDto(null, code, description, expireAt)
+		val dto = TicketDto(null, price, seat)
 		
 		return given()
 			.contentType(ContentType.JSON)
