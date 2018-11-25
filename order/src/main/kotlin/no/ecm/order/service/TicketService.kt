@@ -284,5 +284,4 @@ class TicketService {
 		return regex.matches(text)
 		
 	}
-	
 }

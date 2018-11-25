@@ -11,7 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@Api(value = "/tickets", description = "API for order entity")
+@Api(value = "/tickets", description = "API for ticket entity")
 @RequestMapping(
 	path = ["/tickets"],
 	produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
