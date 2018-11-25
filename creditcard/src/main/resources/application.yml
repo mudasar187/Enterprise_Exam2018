@@ -1,6 +1,6 @@
 graphql:
   servlet:
-    mapping: /creditcard
+    mapping: /graphql
     enabled: true
 
 
@@ -24,6 +24,4 @@ spring:
       ddl-auto: "create-drop"
 
 server:
-  port: 8084
-
-authService: http://localhost:8086
+  port: 8085

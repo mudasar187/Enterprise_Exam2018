@@ -1,0 +1,27 @@
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+
+
+spring:
+  application:
+    name: movie-server
+  datasource:
+    url: "jdbc:postgresql://postgres-movie:5432/postgres"
+    username: "postgres"
+    password: ""
+    driver-class-name: "org.postgresql.Driver"
+  jpa:
+    database: "postgresql"
+    hibernate:
+      ddl-auto: "update"
+
+server:
+  port: 8080
+
+cinemaService: http://cinema-server

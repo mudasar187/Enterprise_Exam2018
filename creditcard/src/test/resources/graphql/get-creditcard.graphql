@@ -1,0 +1,5 @@
+{
+    creditcardById(id: "1"){
+        id, username, cardNumber, cvc, expirationDate
+    }
+}

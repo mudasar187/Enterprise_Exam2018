@@ -21,7 +21,7 @@ class Invoice (
         @get:NotNull
         var orderDate: ZonedDateTime,
 
-        @get:ManyToOne(fetch = FetchType.EAGER)
+        @get:ManyToOne(fetch = FetchType.LAZY)
         @get:JoinColumn(name = "coupon_id")
         var coupon: Coupon? = null,
 

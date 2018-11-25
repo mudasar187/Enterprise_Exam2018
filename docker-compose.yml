@@ -1,0 +1,82 @@
+version: '3.3'
+
+services:
+
+  postgres-user:
+    image: "postgres:10"
+  postgres-order:
+    image: "postgres:10"
+  postgres-movie:
+    image: "postgres:10"
+  postgres-creditcard:
+    image: "postgres:10"
+  postgres-cinema:
+    image: "postgres:10"
+
+  eureka:
+    build:
+      context: ./eureka
+      dockerfile: Dockerfile
+
+
+  user-server:
+    build:
+      context: ./user
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka
+      - postgres-user
+
+
+  order-server:
+    build:
+      context: ./order
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka
+      - postgres-order
+
+
+  movie-server:
+    build:
+      context: ./movie
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka
+      - postgres-movie
+
+
+  creditcard-server:
+    build:
+      context: ./creditcard
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka
+      - postgres-creditcard
+
+
+  cinema-server:
+    build:
+      context: ./cinema
+      dockerfile: Dockerfile
+    depends_on:
+      - eureka
+      - postgres-cinema
+
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "9000:8080"
+    depends_on:
+      - eureka
+      - user-server
+      - order-server
+      - movie-server
+      - creditcard-server
+      - cinema-server
+
+# This is not complete, need to have a database for auth, later add redis and RabbitMQ, and check out of replicas, need more?
+

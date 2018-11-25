@@ -1,4 +1,6 @@
 server:
   port: 7081
 
-authService: http://localhost:8086
+eureka:
+  client:
+    enabled: false
