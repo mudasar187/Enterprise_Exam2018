@@ -7,6 +7,7 @@ import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.hal.HalLink
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.CouponResponseDto
+import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -28,7 +29,7 @@ class CouponService {
 		
 		if(offset < 0 || limit < 1) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.BAD_REQUEST.value(),
 					message = "Invalid offset or limit.	 Rules: Offset > 0 && limit >= 1"
 				).validated()
@@ -52,7 +53,7 @@ class CouponService {
 			
 			catch (e: java.lang.Exception) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					CouponResponseDto(
+					ResponseDto<CouponDto>(
 						code = HttpStatus.NOT_FOUND.value(),
 						message = "Could now find coupon with code: $paramCode"
 					).validated()
@@ -69,7 +70,7 @@ class CouponService {
 			
 			catch (e: Exception) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					CouponResponseDto(
+					ResponseDto<CouponDto>(
 						code = HttpStatus.NOT_FOUND.value(),
 						message = "Invalid id: $paramId"
 					).validated()
@@ -78,7 +79,7 @@ class CouponService {
 			
 			val entity = repository.findById(id).orElse(null)
 				?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					CouponResponseDto(
+					ResponseDto<CouponDto>(
 						code = HttpStatus.NOT_FOUND.value(),
 						message = "could not find coupon with ID: $id"
 					).validated()
@@ -93,7 +94,7 @@ class CouponService {
 		if (offset != 0 && offset >= couponResultList.size) {
 			
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.BAD_REQUEST.value(),
 					message = "Too large offset, size of result is ${couponResultList.size}"
 				).validated()
@@ -131,7 +132,7 @@ class CouponService {
 		return ResponseEntity.status(HttpStatus.OK)
 			.eTag(etag)
 			.body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.OK.value(),
 					page = dto
 				).validated()
@@ -142,7 +143,7 @@ class CouponService {
 		
 		if (dto.id != null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.NOT_FOUND.value(),
 					message = "id != null, you cannot create a coupon with predefined id"
 				).validated()
@@ -151,7 +152,7 @@ class CouponService {
 		
 		if (dto.code.isNullOrEmpty() || dto.description.isNullOrEmpty() || dto.expireAt == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.BAD_REQUEST.value(),
 					message = "You need to specify a code, description and expireAt when creating a Coupon, " +
 						"please check documentation for more info"
@@ -174,7 +175,7 @@ class CouponService {
 		} catch (e: Exception) {
 			
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.BAD_REQUEST.value(),
 					message = "Bad expireAt format!, This is of datatype ZonedDateTime and follows following formatting: \"yyyy-MM-dd HH:mm:ss.SSSSSS\""
 				).validated()
@@ -189,7 +190,7 @@ class CouponService {
 			
 			if (Throwables.getRootCause(e) is ConstraintViolationException) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					CouponResponseDto(
+					ResponseDto<CouponDto>(
 						code = HttpStatus.BAD_REQUEST.value(),
 						message = "Error while creating a coupon, contact sys-adm"
 					).validated()
@@ -199,7 +200,7 @@ class CouponService {
 		}
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(
-			CouponResponseDto(
+			ResponseDto<CouponDto>(
 				code = HttpStatus.CREATED.value(),
 				page = PageDto(list = mutableListOf(CouponDto(id = id.toString()))),
 				message = "Coupon with id: $id was created"
@@ -213,7 +214,7 @@ class CouponService {
 		
 		catch (e: Exception) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.BAD_REQUEST.value(),
 					message = "Invalid id: $paramId"
 				).validated()
@@ -223,7 +224,7 @@ class CouponService {
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				CouponResponseDto(
+				ResponseDto<CouponDto>(
 					code = HttpStatus.NOT_FOUND.value(),
 					message = "Could not find coupon with id: $id"
 				).validated()
@@ -232,7 +233,7 @@ class CouponService {
 		
 		repository.deleteById(id)
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-			CouponResponseDto(
+			ResponseDto<CouponDto>(
 				code = HttpStatus.NO_CONTENT.value(),
 				message = "Coupon with id: $id successfully deleted"
 			).validated()
