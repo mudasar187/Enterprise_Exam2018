@@ -1,11 +1,11 @@
-package no.ecm.order.repository
+package no.ecm.order.repository.ticket
 
 import no.ecm.order.model.entity.Ticket
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface TicketRepository: CrudRepository<Ticket, Long> {
+interface TicketRepository: CrudRepository<Ticket, Long>, TicketRepositoryCustom {
 
-    fun findBySeatnumber(seatNumber: String): Ticket
+    fun findBySeat(seat: String): Ticket
 }

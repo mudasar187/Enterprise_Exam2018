@@ -21,7 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 	classes = [(OrderApplication::class)],
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-abstract class TestBase {
+abstract class CouponTestBase {
 	
 	@LocalServerPort
 	protected var port = 0
