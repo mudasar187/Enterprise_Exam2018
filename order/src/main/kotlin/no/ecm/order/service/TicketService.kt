@@ -8,6 +8,7 @@ import no.ecm.order.repository.ticket.TicketRepository
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.hal.HalLink
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.TicketResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,7 +28,7 @@ class TicketService {
 		
 		if(offset < 0 || limit < 1) {
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "Invalid offset or limit.	 Rules: Offset > 0 && limit >= 1"
 				).validated()
@@ -46,7 +47,7 @@ class TicketService {
 			
 			catch (e: Exception) {
 				return ResponseEntity.status(404).body(
-					TicketResponseDto(
+					ResponseDto<TicketDto>(
 						code = 404,
 						message = "Invalid id: $paramId"
 					).validated()
@@ -55,7 +56,7 @@ class TicketService {
 			
 			val entity = repository.findById(id).orElse(null)
 				?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					TicketResponseDto(
+					ResponseDto<TicketDto>(
 						code = HttpStatus.NOT_FOUND.value(),
 						message = "could not find ticket with ID: $id"
 					).validated()
@@ -70,7 +71,7 @@ class TicketService {
 		if (offset != 0 && offset >= ticketResultList.size) {
 			
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "Too large offset, size of result is ${ticketResultList.size}"
 				).validated()
@@ -106,7 +107,7 @@ class TicketService {
 		return ResponseEntity.status(200)
 			.eTag(etag)
 			.body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 200,
 					page = dto
 				).validated()
@@ -117,7 +118,7 @@ class TicketService {
 		
 		if (dto.id != null) {
 			return ResponseEntity.status(404).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 404,
 					message = "id != null, you cannot create a coupon with predefined id"
 				).validated()
@@ -126,7 +127,7 @@ class TicketService {
 		
 		if (dto.price!!.isNaN() || dto.seat.isNullOrEmpty()) {
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "You need to specify a code, description and expireAt when creating a Coupon, " +
 						"please check documentation for more info"
@@ -136,7 +137,7 @@ class TicketService {
 		
 		if(!checkSeatRegex(dto.seat!!)){
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "Wrong formatting of seat, please see documentation for RegEx"
 				).validated()
@@ -149,7 +150,7 @@ class TicketService {
 			
 			if (Throwables.getRootCause(e) is ConstraintViolationException) {
 				return ResponseEntity.status(400).body(
-					TicketResponseDto(
+					ResponseDto<TicketDto>(
 						code = 400,
 						message = "Error while creating a ticket, contact sys-adm"
 					).validated()
@@ -159,7 +160,7 @@ class TicketService {
 		}
 		
 		return ResponseEntity.status(201).body(
-			TicketResponseDto(
+			ResponseDto<TicketDto>(
 				code = 201,
 				page = PageDto(list = mutableListOf(TicketDto(id = id.toString()))),
 				message = "Coupon with id: $id was created"
@@ -173,7 +174,7 @@ class TicketService {
 		
 		catch (e: Exception) {
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "Invalid id: $paramId"
 				).validated()
@@ -183,7 +184,7 @@ class TicketService {
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
 			return ResponseEntity.status(404).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 404,
 					message = "Could not find coupon with id: $id"
 				).validated()
@@ -192,7 +193,7 @@ class TicketService {
 		
 		repository.deleteById(id)
 		return ResponseEntity.status(204).body(
-			TicketResponseDto(
+			ResponseDto<TicketDto>(
 				code = 204,
 				message = "Coupon with id: $id successfully deleted"
 			).validated()
@@ -205,7 +206,7 @@ class TicketService {
 		
 		catch (e: Exception) {
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "Invalid id: $paramId"
 				).validated()
@@ -214,7 +215,7 @@ class TicketService {
 		
 		if (!repository.existsById(id)) {
 			return ResponseEntity.status(404).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = HttpStatus.NOT_FOUND.value(),
 					message = "could not find ticket with ID: $id"
 				).validated()
@@ -229,7 +230,7 @@ class TicketService {
 			
 			//Invalid JSON data
 			return ResponseEntity.status(409).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 409,
 					message = "Invalid JSON data"
 				).validated()
@@ -239,7 +240,7 @@ class TicketService {
 		// Updating the id is not allowed
 		if (jsonNode.has("id")) {
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "Updating the id is not allowed"
 				).validated()
@@ -248,7 +249,7 @@ class TicketService {
 		
 		if (!jsonNode.has("seat")) {
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "You need to specify a seat in the jsonPatch data"
 				).validated()
@@ -259,7 +260,7 @@ class TicketService {
 		
 		if(!checkSeatRegex(seatNodeValue)){
 			return ResponseEntity.status(400).body(
-				TicketResponseDto(
+				ResponseDto<TicketDto>(
 					code = 400,
 					message = "Wrong formatting of seat, please see documentation for RegEx"
 				).validated()
@@ -269,7 +270,7 @@ class TicketService {
 		repository.updateSeat(id, seatNodeValue)
 		
 		return ResponseEntity.status(204).body(
-			TicketResponseDto(
+			ResponseDto<TicketDto>(
 				code = 204,
 				message = "Ticket with id: $id successfully patched"
 			).validated()
