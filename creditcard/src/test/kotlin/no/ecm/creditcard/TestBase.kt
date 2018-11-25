@@ -17,11 +17,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.core.io.Resource
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.util.StreamUtils
 import java.nio.charset.StandardCharsets
 
+@ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner::class)
 @SpringBootTest(
 	classes = [(CreditCardApplication::class)],

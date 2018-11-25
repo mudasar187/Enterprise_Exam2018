@@ -1,2 +1,6 @@
 server:
   port: 7085
+
+eureka:
+  client:
+    enabled: false
