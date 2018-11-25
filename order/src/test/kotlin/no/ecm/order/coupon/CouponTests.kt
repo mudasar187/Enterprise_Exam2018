@@ -7,9 +7,8 @@ import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.response.CouponResponseDto
 import org.hamcrest.CoreMatchers
 import org.junit.Test
-import org.springframework.http.HttpStatus
 
-class CouponTests : TestBase() {
+class CouponTests : CouponTestBase() {
 	
 	//TODO Fix all sizes stuff after DELETE is done
 	/*

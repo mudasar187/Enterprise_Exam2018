@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface TicketRepository: CrudRepository<Ticket, Long>, TicketRepositoryCustom {
 
-    fun findBySeatnumber(seatNumber: String): Ticket
+    fun findBySeat(seat: String): Ticket
 }

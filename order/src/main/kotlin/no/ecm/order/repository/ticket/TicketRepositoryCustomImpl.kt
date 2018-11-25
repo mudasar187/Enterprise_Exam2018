@@ -13,12 +13,21 @@ class TicketRepositoryCustomImpl : TicketRepositoryCustom {
 	@Autowired
 	private lateinit var em: EntityManager
 	
-	override fun createTicket(price: Double, seat: String?): Long {
+	override fun createTicket(price: Double, seat: String): Long {
 		
 		val entity = Ticket(null, price, seat)
 		
 		em.persist(entity)
 		return entity.id!!
+	}
+	
+	override fun updateSeat(paramId: Long, newSeat: String): Boolean {
+		
+		val entity = em.find(Ticket::class.java, paramId) ?: return false
+		
+		entity.seat = newSeat
+		
+		return true
 	}
 
 }

@@ -1,5 +1,7 @@
 package no.ecm.order.service
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Throwables
 import no.ecm.order.model.converter.TicketConverter
 import no.ecm.order.repository.ticket.TicketRepository
@@ -17,12 +19,16 @@ import javax.validation.ConstraintViolationException
 
 @Service
 class TicketService {
+	
+	@Autowired
+	private lateinit var repository: TicketRepository
+	
 	fun get(paramId: String?, offset: Int, limit: Int): ResponseEntity<WrappedResponse<TicketDto>> {
 		
 		if(offset < 0 || limit < 1) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+			return ResponseEntity.status(400).body(
 				TicketResponseDto(
-					code = HttpStatus.BAD_REQUEST.value(),
+					code = 400,
 					message = "Invalid offset or limit.	 Rules: Offset > 0 && limit >= 1"
 				).validated()
 			)
@@ -39,9 +45,9 @@ class TicketService {
 			val id = try { paramId!!.toLong() }
 			
 			catch (e: Exception) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				return ResponseEntity.status(404).body(
 					TicketResponseDto(
-						code = HttpStatus.NOT_FOUND.value(),
+						code = 404,
 						message = "Invalid id: $paramId"
 					).validated()
 				)
@@ -63,9 +69,9 @@ class TicketService {
 		
 		if (offset != 0 && offset >= ticketResultList.size) {
 			
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+			return ResponseEntity.status(400).body(
 				TicketResponseDto(
-					code = HttpStatus.BAD_REQUEST.value(),
+					code = 400,
 					message = "Too large offset, size of result is ${ticketResultList.size}"
 				).validated()
 			)
@@ -97,11 +103,11 @@ class TicketService {
 		
 		val etag = ticketResultList.hashCode().toString()
 		
-		return ResponseEntity.status(HttpStatus.OK)
+		return ResponseEntity.status(200)
 			.eTag(etag)
 			.body(
 				TicketResponseDto(
-					code = HttpStatus.OK.value(),
+					code = 200,
 					page = dto
 				).validated()
 			)
@@ -110,43 +116,51 @@ class TicketService {
 	fun create(dto: TicketDto): ResponseEntity<WrappedResponse<TicketDto>> {
 		
 		if (dto.id != null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+			return ResponseEntity.status(404).body(
 				TicketResponseDto(
-					code = HttpStatus.NOT_FOUND.value(),
+					code = 404,
 					message = "id != null, you cannot create a coupon with predefined id"
 				).validated()
 			)
 		}
 		
 		if (dto.price!!.isNaN() || dto.seat.isNullOrEmpty()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+			return ResponseEntity.status(400).body(
 				TicketResponseDto(
-					code = HttpStatus.BAD_REQUEST.value(),
+					code = 400,
 					message = "You need to specify a code, description and expireAt when creating a Coupon, " +
 						"please check documentation for more info"
 				).validated()
 			)
 		}
 		
-		val id = try { repository.createTicket(dto.price!!, dto.seat) }
+		if(!checkSeatRegex(dto.seat!!)){
+			return ResponseEntity.status(400).body(
+				TicketResponseDto(
+					code = 400,
+					message = "Wrong formatting of seat, please see documentation for RegEx"
+				).validated()
+			)
+		}
+		
+		val id = try { repository.createTicket(dto.price!!, dto.seat!!) }
 		
 		catch (e: Exception) {
 			
 			if (Throwables.getRootCause(e) is ConstraintViolationException) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+				return ResponseEntity.status(400).body(
 					TicketResponseDto(
-						code = HttpStatus.BAD_REQUEST.value(),
+						code = 400,
 						message = "Error while creating a ticket, contact sys-adm"
 					).validated()
 				)
 			}
 			throw e
-			
 		}
 		
-		return ResponseEntity.status(HttpStatus.CREATED).body(
+		return ResponseEntity.status(201).body(
 			TicketResponseDto(
-				code = HttpStatus.CREATED.value(),
+				code = 201,
 				page = PageDto(list = mutableListOf(TicketDto(id = id.toString()))),
 				message = "Coupon with id: $id was created"
 			).validated()
@@ -158,9 +172,9 @@ class TicketService {
 		val id = try { paramId.toLong() }
 		
 		catch (e: Exception) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+			return ResponseEntity.status(400).body(
 				TicketResponseDto(
-					code = HttpStatus.BAD_REQUEST.value(),
+					code = 400,
 					message = "Invalid id: $paramId"
 				).validated()
 			)
@@ -168,24 +182,106 @@ class TicketService {
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+			return ResponseEntity.status(404).body(
 				TicketResponseDto(
-					code = HttpStatus.NOT_FOUND.value(),
+					code = 404,
 					message = "Could not find coupon with id: $id"
 				).validated()
 			)
 		}
 		
 		repository.deleteById(id)
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+		return ResponseEntity.status(204).body(
 			TicketResponseDto(
-				code = HttpStatus.NO_CONTENT.value(),
+				code = 204,
 				message = "Coupon with id: $id successfully deleted"
 			).validated()
 		)
 	}
 	
-	@Autowired
-	private lateinit var repository: TicketRepository
-
+	fun patchSeat(paramId: String, jsonPatch: String): ResponseEntity<WrappedResponse<TicketDto>> {
+		
+		val id = try { paramId.toLong() }
+		
+		catch (e: Exception) {
+			return ResponseEntity.status(400).body(
+				TicketResponseDto(
+					code = 400,
+					message = "Invalid id: $paramId"
+				).validated()
+			)
+		}
+		
+		if (!repository.existsById(id)) {
+			return ResponseEntity.status(404).body(
+				TicketResponseDto(
+					code = HttpStatus.NOT_FOUND.value(),
+					message = "could not find ticket with ID: $id"
+				).validated()
+			)
+		}
+		
+		val jacksonObjectMapper = ObjectMapper()
+		
+		val jsonNode = try { jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java) }
+		
+		catch (e: Exception) {
+			
+			//Invalid JSON data
+			return ResponseEntity.status(409).body(
+				TicketResponseDto(
+					code = 409,
+					message = "Invalid JSON data"
+				).validated()
+			)
+		}
+		
+		// Updating the id is not allowed
+		if (jsonNode.has("id")) {
+			return ResponseEntity.status(400).body(
+				TicketResponseDto(
+					code = 400,
+					message = "Updating the id is not allowed"
+				).validated()
+			)
+		}
+		
+		if (!jsonNode.has("seat")) {
+			return ResponseEntity.status(400).body(
+				TicketResponseDto(
+					code = 400,
+					message = "You need to specify a seat in the jsonPatch data"
+				).validated()
+			)
+		}
+		
+		val seatNodeValue = jsonNode.get("seat").asText()
+		
+		if(!checkSeatRegex(seatNodeValue)){
+			return ResponseEntity.status(400).body(
+				TicketResponseDto(
+					code = 400,
+					message = "Wrong formatting of seat, please see documentation for RegEx"
+				).validated()
+			)
+		}
+		
+		repository.updateSeat(id, seatNodeValue)
+		
+		return ResponseEntity.status(204).body(
+			TicketResponseDto(
+				code = 204,
+				message = "Ticket with id: $id successfully patched"
+			).validated()
+		)
+		
+	}
+	
+	private fun checkSeatRegex(text: String): Boolean {
+		
+		val regex = "^[A-Z][0-9]{1,2}".toRegex()
+		return regex.matches(text)
+		
+	}
+	
 }

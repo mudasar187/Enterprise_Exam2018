@@ -56,7 +56,7 @@ class TicketController {
 	@ApiOperation("Create a new ticket")
 	@PostMapping(consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 	fun createCoupon(
-		@ApiParam("Dto of a tickets: price, seatnumber, seat")
+		@ApiParam("Dto of a tickets: price, seat")
 		@RequestBody dto: TicketDto
 	) : ResponseEntity<WrappedResponse<TicketDto>> {
 		
@@ -64,9 +64,22 @@ class TicketController {
 		
 	}
 	
+	@ApiOperation("Update a ticket with the given id")
+	@PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
+	fun patchTicketSeat(@ApiParam("id of ticket")
+						@PathVariable("id", required = true)
+						id: String,
+						//
+						@ApiParam("The partial patch (seat only).")
+						@RequestBody jsonPatch: String
+	): ResponseEntity<WrappedResponse<TicketDto>> {
+		return service.patchSeat(id, jsonPatch)
+	}
+	
+	
 	@ApiOperation("Delete a ticket with the given id")
 	@DeleteMapping(path = ["/{id}"])
-	fun deletePokemon(@ApiParam("id of ticket")
+	fun delete(@ApiParam("id of ticket")
 					  @PathVariable("id", required = true)
 					  id: String
 	): ResponseEntity<WrappedResponse<TicketDto>> {
