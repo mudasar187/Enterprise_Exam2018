@@ -10,5 +10,8 @@ data class CinemaDto (
 	var id: String? = null,
 	
 	@ApiModelProperty("The name of a Cinema")
-	var name: String? = null
+	var name: String? = null,
+
+	@ApiModelProperty("Location of the cinema")
+	var location: String? = null
 )
