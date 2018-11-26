@@ -4,11 +4,15 @@ import com.google.common.base.Throwables
 import no.ecm.order.model.converter.CouponConverter
 import no.ecm.order.repository.coupon.CouponRepository
 import no.ecm.utils.dto.order.CouponDto
+import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.exception.NotFoundException
+import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.hal.HalLink
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.CouponResponseDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
+import no.ecm.utils.validation.ValidationHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -28,12 +32,17 @@ class CouponService {
 	fun get(paramCode: String?, paramId: String?, offset: Int, limit: Int) : ResponseEntity<WrappedResponse<CouponDto>> {
 		
 		if(offset < 0 || limit < 1) {
+			
+			throw UserInputValidationException(ExceptionMessages.offsetAndLimitInvalid(), 400)
+			
+			/*
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 				ResponseDto<CouponDto>(
 					code = HttpStatus.BAD_REQUEST.value(),
 					message = "Invalid offset or limit.	 Rules: Offset > 0 && limit >= 1"
 				).validated()
 			)
+			*/
 		}
 		
 		val couponResultList: List<CouponDto>
@@ -51,13 +60,18 @@ class CouponService {
 			
 			couponResultList = try { listOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!))) }
 			
-			catch (e: java.lang.Exception) {
+			catch (e: Exception) {
+				
+				throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "code", paramCode!!), 404)
+				
+				/*
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					ResponseDto<CouponDto>(
 						code = HttpStatus.NOT_FOUND.value(),
 						message = "Could now find coupon with code: $paramCode"
 					).validated()
 				)
+				*/
 			}
 			
 			builder.queryParam("code", paramCode)
@@ -66,9 +80,13 @@ class CouponService {
 		//If only paramId are present, return coupon with given id
 		else {
 			
+			val id = ValidationHandler.validateId(paramId)
+			
+			/*
 			val id = try { paramId!!.toLong() }
 			
 			catch (e: Exception) {
+				
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					ResponseDto<CouponDto>(
 						code = HttpStatus.NOT_FOUND.value(),
@@ -76,7 +94,15 @@ class CouponService {
 					).validated()
 				)
 			}
+			*/
 			
+			couponResultList = try { listOf(CouponConverter.entityToDto(repository.findById(id).get())) }
+			
+			catch (e: Exception) {
+				throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", "$paramId"), 404)
+			}
+			
+			/*
 			val entity = repository.findById(id).orElse(null)
 				?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					ResponseDto<CouponDto>(
@@ -84,8 +110,10 @@ class CouponService {
 						message = "could not find coupon with ID: $id"
 					).validated()
 				)
+				
+				*/
 			
-			couponResultList = listOf(CouponConverter.entityToDto(entity))
+			//couponResultList = listOf(CouponConverter.entityToDto(entity))
 			
 			builder.queryParam("id", paramId)
 			
