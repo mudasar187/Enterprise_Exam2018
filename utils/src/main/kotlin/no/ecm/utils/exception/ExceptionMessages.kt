@@ -5,7 +5,7 @@ class ExceptionMessages{
     companion object {
 
         fun notFoundMessage (type: String, paramValue: String, value: String): String {
-            return "Can not find $type with $paramValue: $value"
+            return "Can't find $type with $paramValue: $value"
         }
 
         fun inputFilterInvalid() : String {
@@ -22,6 +22,10 @@ class ExceptionMessages{
 
         fun invalidIdParameter(): String {
             return "Invalid id parameter. This should be a numeric string"
+        }
+        
+        fun tooLargeOffset(size: Int): String {
+            return "Too large offset, size of result is $size"
         }
 
     }
