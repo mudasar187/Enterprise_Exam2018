@@ -2,7 +2,9 @@ package no.ecm.order.service
 
 import com.google.common.base.Throwables
 import no.ecm.order.model.converter.CouponConverter
+import no.ecm.order.model.entity.Coupon
 import no.ecm.order.repository.coupon.CouponRepository
+import no.ecm.utils.converter.ConvertionHandler
 import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.exception.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
@@ -76,7 +78,7 @@ class CouponService {
 		
 		if (offset != 0 && offset >= couponResultList.size) {
 			
-			throw NotFoundException(ExceptionMessages.tooLargeOffset(couponResultList.size))
+			throw UserInputValidationException(ExceptionMessages.tooLargeOffset(couponResultList.size))
 			
 		}
 		
@@ -118,6 +120,7 @@ class CouponService {
 	
 	fun create(dto: CouponDto): ResponseEntity<WrappedResponse<CouponDto>> {
 		
+		
 		if (dto.id != null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 				ResponseDto<CouponDto>(
@@ -127,41 +130,25 @@ class CouponService {
 			)
 		}
 		
-		if (dto.code.isNullOrEmpty() || dto.description.isNullOrEmpty() || dto.expireAt == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "You need to specify a code, description and expireAt when creating a Coupon, " +
-						"please check documentation for more info"
-				).validated()
-			)
+		if (dto.code.isNullOrEmpty()) {
+			throw UserInputValidationException(ExceptionMessages.missingRequiredField("code"))
+		} else if (dto.description.isNullOrEmpty()) {
+			throw UserInputValidationException(ExceptionMessages.missingRequiredField("description"))
+		} else if (dto.expireAt == null) {
+			throw UserInputValidationException(ExceptionMessages.missingRequiredField("expireAt"))
 		}
 		
-		//println("Unparsed date: ${dto.expireAt}")
+		// New format for input = yyyy-MM-dd HH:mm:ss
 		
-		// Converting string to ZonedDateTime
-		// inspired by this answer from StackOverflow
-		// https://stackoverflow.com/a/44487882/10396560
-		val pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS"
-		val parser: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.systemDefault())
+		val formattedTime = "${dto.expireAt!!}.000000"
+		val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
+		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 		
-		val parsedDateTime = try {
-			
-			ZonedDateTime.parse(dto.expireAt, parser)
-			
-		} catch (e: Exception) {
-			
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Bad expireAt format!, This is of datatype ZonedDateTime and follows following formatting: \"yyyy-MM-dd HH:mm:ss.SSSSSS\""
-				).validated()
-			)
-		}
+		//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
+		//return repository.save(updated).id.toString()
 		
-		//println("Parsed ZonedDateTime: $parsedDateTime")
 		
-		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime) }
+		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!) }
 		
 		catch (e: Exception) {
 			
@@ -176,6 +163,7 @@ class CouponService {
 			throw e
 		}
 		
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 			ResponseDto<CouponDto>(
 				code = HttpStatus.CREATED.value(),
@@ -183,20 +171,12 @@ class CouponService {
 				message = "Coupon with id: $id was created"
 			).validated()
 		)
+		
 	}
 	
 	fun delete(paramId: String) : ResponseEntity<WrappedResponse<CouponDto>> {
 		
-		val id= try { paramId.toLong() }
-		
-		catch (e: Exception) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Invalid id: $paramId"
-				).validated()
-			)
-		}
+		val id= ValidationHandler.validateId(paramId)
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {

@@ -27,6 +27,10 @@ class ExceptionMessages{
         fun tooLargeOffset(size: Int): String {
             return "Too large offset, size of result is $size"
         }
+        
+        fun invalidTimeFormat(): String {
+            return "Bad expireAt format!, this follows following formatting rules: \"yyyy-MM-dd HH:mm:ss\""
+        }
 
     }
 
