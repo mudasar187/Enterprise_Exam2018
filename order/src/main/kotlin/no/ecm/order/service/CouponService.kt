@@ -35,14 +35,6 @@ class CouponService {
 			
 			throw UserInputValidationException(ExceptionMessages.offsetAndLimitInvalid(), 400)
 			
-			/*
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Invalid offset or limit.	 Rules: Offset > 0 && limit >= 1"
-				).validated()
-			)
-			*/
 		}
 		
 		val couponResultList: List<CouponDto>
@@ -61,17 +53,7 @@ class CouponService {
 			couponResultList = try { listOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!))) }
 			
 			catch (e: Exception) {
-				
 				throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "code", paramCode!!), 404)
-				
-				/*
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.NOT_FOUND.value(),
-						message = "Could now find coupon with code: $paramCode"
-					).validated()
-				)
-				*/
 			}
 			
 			builder.queryParam("code", paramCode)
@@ -82,38 +64,11 @@ class CouponService {
 			
 			val id = ValidationHandler.validateId(paramId)
 			
-			/*
-			val id = try { paramId!!.toLong() }
-			
-			catch (e: Exception) {
-				
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.NOT_FOUND.value(),
-						message = "Invalid id: $paramId"
-					).validated()
-				)
-			}
-			*/
-			
 			couponResultList = try { listOf(CouponConverter.entityToDto(repository.findById(id).get())) }
 			
 			catch (e: Exception) {
 				throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", "$paramId"), 404)
 			}
-			
-			/*
-			val entity = repository.findById(id).orElse(null)
-				?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.NOT_FOUND.value(),
-						message = "could not find coupon with ID: $id"
-					).validated()
-				)
-				
-				*/
-			
-			//couponResultList = listOf(CouponConverter.entityToDto(entity))
 			
 			builder.queryParam("id", paramId)
 			
@@ -121,12 +76,7 @@ class CouponService {
 		
 		if (offset != 0 && offset >= couponResultList.size) {
 			
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Too large offset, size of result is ${couponResultList.size}"
-				).validated()
-			)
+			throw NotFoundException(ExceptionMessages.tooLargeOffset(couponResultList.size))
 			
 		}
 		
@@ -153,7 +103,6 @@ class CouponService {
 				.build().toString()
 			)
 		}
-		
 		
 		val etag = couponResultList.hashCode().toString()
 		
