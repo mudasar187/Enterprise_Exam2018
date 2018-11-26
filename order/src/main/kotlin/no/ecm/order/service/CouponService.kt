@@ -180,12 +180,7 @@ class CouponService {
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.NOT_FOUND.value(),
-					message = "Could not find coupon with id: $id"
-				).validated()
-			)
+			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
 		}
 		
 		repository.deleteById(id)
