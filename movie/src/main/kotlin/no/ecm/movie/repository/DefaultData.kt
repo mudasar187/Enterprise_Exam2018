@@ -17,9 +17,9 @@ class DefaultData(
     @PostConstruct
     fun createDefault(){
 
-        val action = Genre(name = "action")
-        val adventure = Genre(name = "adventure")
-        val scifi = Genre(name = "sci-fi")
+        val action = Genre(name = "Action")
+        val adventure = Genre(name = "Adventure")
+        val scifi = Genre(name = "Sci-Fi")
         
         genreRepository.saveAll(mutableListOf(action, adventure, scifi))
 

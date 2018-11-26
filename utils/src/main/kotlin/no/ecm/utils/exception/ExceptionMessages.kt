@@ -32,6 +32,14 @@ class ExceptionMessages{
             return "Unable to parse object variable: $value"
         }
 
+        fun illegalParameter(value: String) : String{
+            return "You should not provide parameter: $value in this request!"
+        }
+
+        fun resourceAlreadyExists(type: String, paramValue: String, value: String): String {
+            return "$type with $paramValue equal to: '$value' already exists."
+        }
+
     }
 
 }

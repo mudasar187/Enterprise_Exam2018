@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository
 interface GenreRepository : CrudRepository<Genre, Long> {
 
     fun findByName(name: String): Genre
+
+    fun existsByNameIgnoreCase(name: String): Boolean
 }
