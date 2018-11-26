@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 
-@Api(value = "/movie", description = "API for movie entity")
+@Api(value = "/movies", description = "API for movie entity")
 @RequestMapping(
-        path = ["/movie"],
+        path = ["/movies"],
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class MovieController (

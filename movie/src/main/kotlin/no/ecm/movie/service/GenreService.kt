@@ -15,12 +15,16 @@ class GenreService (
         private var genreRepository: GenreRepository){
 
     //TODO implement cache
-    fun getGenres(name: String?): List<GenreDto> {
+    fun getGenres(name: String?): MutableList<GenreDto> {
 
         val genres = if (!name.isNullOrEmpty()){
-            listOf(genreRepository.findByName(name!!))
+            try {
+                mutableListOf(genreRepository.findByName(name!!))
+            } catch (e: Exception){
+                throw UserInputValidationException("resource with name: $name not found", 404)
+            }
         } else {
-            genreRepository.findAll().toList()
+            genreRepository.findAll().toMutableList()
         }
 
         return GenreConverter.entityListToDtoList(genres)

@@ -2,6 +2,8 @@ package no.ecm.movie.model.converter
 
 import no.ecm.movie.model.entity.Genre
 import no.ecm.utils.dto.movie.GenreDto
+import no.ecm.utils.hal.PageDto
+import kotlin.streams.toList
 
 object GenreConverter {
 	
@@ -26,8 +28,8 @@ object GenreConverter {
 		)
 	}
 	
-	fun entityListToDtoList(entities: Iterable<Genre>): List<GenreDto> {
-		return entities.map { entityToDto(it) }
+	fun entityListToDtoList(entities: Iterable<Genre>): MutableList<GenreDto> {
+		return entities.map { entityToDto(it) }.toMutableList()
 	}
 	
 	fun dtoListToEntityList(dto: Iterable<GenreDto>): List<Genre> {
@@ -36,6 +38,25 @@ object GenreConverter {
 
 	fun movieEntityListToDtoList(entities: Iterable<Genre>): List<GenreDto> {
 		return entities.map { movieEntityToDto(it) }
+	}
+
+	fun dtoListToPageDto(genreList: List<GenreDto>,
+						 offset: Int,
+						 limit: Int): PageDto<GenreDto> {
+
+		val dtoList: MutableList<GenreDto> =
+				genreList.stream()
+						.skip(offset.toLong())
+						.limit(limit.toLong())
+						.toList().toMutableList()
+
+		return PageDto(
+				list = dtoList,
+				rangeMin = offset,
+				rangeMax = offset + dtoList.size - 1,
+				totalSize = genreList.size
+		)
+
 	}
 	
 }
