@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.movie.model.converter.GenreConverter
 import no.ecm.movie.repository.GenreRepository
 import no.ecm.utils.dto.movie.GenreDto
+import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import org.springframework.stereotype.Service
 
@@ -14,20 +15,19 @@ import org.springframework.stereotype.Service
 class GenreService (
         private var genreRepository: GenreRepository){
 
-    //TODO implement cache
     fun getGenres(name: String?): MutableList<GenreDto> {
 
         val genres = if (!name.isNullOrEmpty()){
             try {
                 mutableListOf(genreRepository.findByName(name!!))
             } catch (e: Exception){
-                throw UserInputValidationException("resource with name: $name not found", 404)
+                throw NotFoundException("Genre with name: $name not found")
             }
         } else {
             genreRepository.findAll().toMutableList()
         }
 
-        return GenreConverter.entityListToDtoList(genres)
+        return GenreConverter.entityListToDtoList(genres, false)
     }
 
     //TODO maybe return entity in stead of dto
@@ -36,12 +36,12 @@ class GenreService (
         val id = validateId(stringId)
 
         if (!genreRepository.existsById(id)){
-            throw UserInputValidationException("Genre not found", 404)
+            throw NotFoundException("Genre not found")
         }
         
         val genre = genreRepository.findById(id).get()
         
-        return GenreConverter.entityToDto(genre)
+        return GenreConverter.entityToDto(genre, true)
     }
 
 
@@ -62,7 +62,7 @@ class GenreService (
         val id = validateId(stringId)
 
         if (!genreRepository.existsById(id)){
-            throw UserInputValidationException("Genre not found", 404)
+            throw NotFoundException("Genre not found")
         }
         
         genreRepository.deleteById(id)
@@ -75,7 +75,7 @@ class GenreService (
         val id = validateId(stringId)
 
         if (!genreRepository.existsById(id)){
-            throw UserInputValidationException("Genre not found", 404)
+            throw NotFoundException("Genre not found")
         }
 
         val jackson = ObjectMapper()
@@ -115,7 +115,7 @@ class GenreService (
 //        }
         genreRepository.save(genre)
 
-        return GenreConverter.entityToDto(genre)
+        return GenreConverter.entityToDto(genre, true)
     }
 
 

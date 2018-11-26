@@ -46,11 +46,18 @@ class GenreController(
     fun getGenre(
             @ApiParam("id of the Genre")
             @PathVariable("id") id: String): ResponseEntity<WrappedResponse<GenreDto>> {
-        return ResponseEntity.ok(
-                ResponseDto(
-                        code = HttpStatus.OK.value(),
-                        page = PageDto(mutableListOf(genreService.getGenre(id)))
-                ).validated()
+
+        val dto = genreService.getGenre(id)
+        val etag = dto.hashCode().toString()
+
+        return ResponseEntity
+                .status(HttpStatus.OK.value())
+                .eTag(etag)
+                .body(
+                    ResponseDto(
+                            code = HttpStatus.OK.value(),
+                            page = PageDto(mutableListOf(genreService.getGenre(id)))
+                    ).validated()
         )
     }
 
