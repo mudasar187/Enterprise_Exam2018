@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.movie.model.converter.GenreConverter
 import no.ecm.movie.repository.GenreRepository
 import no.ecm.utils.dto.movie.GenreDto
+import no.ecm.utils.exception.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import org.springframework.stereotype.Service
@@ -49,6 +50,8 @@ class GenreService (
 
         if (genreDto.name.isNullOrEmpty()) {
             throw UserInputValidationException("Empty field: 'name'")
+        } else if (!genreDto.id.isNullOrEmpty()){
+            throw UserInputValidationException("")
         }
 
         val genre = GenreConverter.dtoToEntity(genreDto)
@@ -85,8 +88,9 @@ class GenreService (
         try {
             jsonNode = jackson.readValue(body, JsonNode::class.java)
         } catch (e: Exception) {
-            //Invalid JSON data as input
-            throw UserInputValidationException("Invalid JSON object")
+            throw UserInputValidationException(
+                    ExceptionMessages.invalidParameter("JSON", "invalid JSON object")
+            )
         }
 
         val genre = genreRepository.findById(id).get()
@@ -96,7 +100,7 @@ class GenreService (
             if (name.isTextual){
                 genre.name = name.asText()
             } else {
-                throw UserInputValidationException("Unable to handle field: 'name'")
+                throw UserInputValidationException(ExceptionMessages.unableToParse("name"))
             }
         }
 
@@ -123,7 +127,7 @@ class GenreService (
         try {
             return stringId!!.toLong()
         } catch (e: Exception){
-            throw UserInputValidationException("Invalid id")
+            throw UserInputValidationException(ExceptionMessages.invalidIdParameter())
         }
     }
 }

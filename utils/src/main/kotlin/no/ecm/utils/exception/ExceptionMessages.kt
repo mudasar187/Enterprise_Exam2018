@@ -24,6 +24,14 @@ class ExceptionMessages{
             return "Invalid id parameter, This should be a numeric string"
         }
 
+        fun invalidParameter(required: String, received: String): String {
+            return "Invalid parameter, expected: $required, but received: $received"
+        }
+
+        fun unableToParse(value: String): String {
+            return "Unable to parse object variable: $value"
+        }
+
     }
 
 }
