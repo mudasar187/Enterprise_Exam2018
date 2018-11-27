@@ -1,6 +1,9 @@
 package no.ecm.cinema.service
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.cinema.model.converter.CinemaConverter
+import no.ecm.cinema.model.entity.Cinema
 import no.ecm.cinema.repository.CinemaRepository
 import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.exception.ExceptionMessages
@@ -59,15 +62,90 @@ class CinemaService {
 
     fun createCinema(cinemaDto: CinemaDto): String {
 
+        val cinema: Cinema
+
         if (cinemaDto.name.isNullOrEmpty()) {
             throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
         } else if (cinemaDto.location.isNullOrEmpty()) {
             throw UserInputValidationException(ExceptionMessages.missingRequiredField("location"))
         }
 
-        val cinema = CinemaConverter.dtoToEntity(cinemaDto)
+        val isExists = cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString())
+
+        if(isExists) {
+            throw UserInputValidationException("Cinema '${cinemaDto.name.toString()}' with location '${cinemaDto.location.toString()}' already exists", 409)
+        } else {
+            cinema = CinemaConverter.dtoToEntity(cinemaDto)
+        }
 
         return cinemaRepository.save(cinema).id.toString()
+    }
+
+    fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto): String? {
+
+        val id = ValidationHandler.validateId(paramId)
+
+        if(!cinemaRepository.existsById(id)) {
+            throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+        }
+
+        if (cinemaDto.name.isNullOrEmpty()) {
+            throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
+        } else if (cinemaDto.location.isNullOrEmpty()) {
+            throw UserInputValidationException(ExceptionMessages.missingRequiredField("location"))
+        }
+
+        val cinema = cinemaRepository.findById(id).get()
+
+        cinema.name = cinemaDto.name!!
+        cinema.location = cinemaDto.location!!
+
+        return cinemaRepository.save(cinema).id.toString()
+    }
+
+    fun patchUpdateCinema(paramId: String?, body: String?): CinemaDto {
+
+        val id = ValidationHandler.validateId(paramId)
+
+        if (!cinemaRepository.existsById(id)){
+            throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+        }
+
+        val jackson = ObjectMapper()
+
+        val jsonNode: JsonNode
+
+        try {
+            jsonNode = jackson.readValue(body, JsonNode::class.java)
+        } catch (e: Exception) {
+            throw UserInputValidationException("Invalid JSON object")
+        }
+
+        val cinema = cinemaRepository.findById(id).get()
+
+        if (jsonNode.has("name")) {
+            val name = jsonNode.get("name")
+            if (name.isTextual) {
+                cinema.name = name.asText()
+            } else {
+                throw UserInputValidationException("Unable to handle field: 'name'")
+            }
+        }
+
+        if(jsonNode.has("location")) {
+            val location = jsonNode.get("location")
+            if(location.isTextual) {
+                cinema.location = location.asText()
+            } else {
+                throw UserInputValidationException("Unable to handle field: 'location")
+            }
+        }
+
+        cinemaRepository.save(cinema)
+
+        return CinemaConverter.entityToDto(cinema)
+
+
     }
 
     fun deleteCinema(paramId: String?): String? {

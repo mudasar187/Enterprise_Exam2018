@@ -11,5 +11,5 @@ interface CinemaRepository : CrudRepository<Cinema, Long>{
 
     fun findAllByLocationContainingIgnoreCase(location: String): Cinema
 
-    fun findByNameAndLocationIgnoreCase(name: String, location: String): Cinema
+    fun existsByNameAndLocationIgnoreCase(name: String, location: String): Boolean
 }

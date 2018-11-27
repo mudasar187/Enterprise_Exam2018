@@ -26,7 +26,7 @@ class CinemaController {
 
     @ApiOperation("Get all cinemas")
     @GetMapping
-    fun get(
+    fun getCinemas(
             @ApiParam("search for cinema")
             @RequestParam("name", required = false)
             name: String?,
@@ -91,11 +91,49 @@ class CinemaController {
         )
     }
 
+    @ApiOperation("Update partial information of a cinema by id ")
+    @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
+    fun updateGenre(@ApiParam("id of the cinema")
+                    @PathVariable("id")
+                    id: String?,
+                    @ApiParam("The partial patch")
+                    @RequestBody
+                    jsonPatch: String) : ResponseEntity<WrappedResponse<CinemaDto>> {
+        return ResponseEntity.ok(
+                ResponseDto(
+                        code = HttpStatus.CREATED.value(),
+                        page = PageDto(mutableListOf(cinemaService.patchUpdateCinema(id, jsonPatch)))
+                ).validated()
+        )
+    }
+
+    @ApiOperation("Update whole information of a cinema by id")
+    @PutMapping(path = ["/{id}"])
+    fun updateCinema(
+            @ApiParam("id of the cinema")
+            @PathVariable("id")
+            id: String,
+
+            @ApiParam("Cinema data")
+            @RequestBody
+            cinemaDto: CinemaDto
+    ): ResponseEntity<WrappedResponse<String?>> {
+        return ResponseEntity.ok(
+                ResponseDto(
+                        code = HttpStatus.OK.value(),
+                        page = PageDto(mutableListOf(cinemaService.putUpdateCinema(id, cinemaDto)))
+                ).validated()
+        )
+    }
+
+
     @ApiOperation("Delete a cinema by id")
     @DeleteMapping(path = ["/{id}"])
     fun deleteCinema(
             @ApiParam("id of the cinema")
-            @PathVariable("id") id: String): ResponseEntity<WrappedResponse<String?>> {
+            @PathVariable("id")
+            id: String
+    ): ResponseEntity<WrappedResponse<String?>> {
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.OK.value(),
