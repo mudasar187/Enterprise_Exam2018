@@ -1,6 +1,7 @@
 package no.ecm.utils.validation
 
 import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.exception.ExceptionMessages.Companion.offsetAndLimitInvalid
 import no.ecm.utils.exception.UserInputValidationException
 
 class ValidationHandler{
@@ -20,6 +21,12 @@ class ValidationHandler{
                 throw UserInputValidationException(errorMsg)
             }
             return id
+        }
+
+        fun validateLimitAndOffset(offset: Int, limit: Int) {
+            if(offset < 0 || limit < 1) {
+                throw UserInputValidationException(offsetAndLimitInvalid())
+            }
         }
     }
 }

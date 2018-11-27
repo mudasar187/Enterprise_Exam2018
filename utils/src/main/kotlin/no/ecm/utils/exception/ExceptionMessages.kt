@@ -16,6 +16,10 @@ class ExceptionMessages{
             return "Offset must be grater than 0 and limit must be greater than/or equal 1"
         }
 
+        fun toLargeOffset(offset: Int): String {
+            return "Too large offset: $offset"
+        }
+
         fun missingRequiredField(field: String): String {
             return "Missing required field: $field"
         }

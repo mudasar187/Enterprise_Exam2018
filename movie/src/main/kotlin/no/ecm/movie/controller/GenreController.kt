@@ -3,12 +3,12 @@ package no.ecm.movie.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import no.ecm.movie.model.converter.GenreConverter
 import no.ecm.movie.service.GenreService
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
+import no.ecm.utils.validation.ValidationHandler.Companion.validateLimitAndOffset
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -27,18 +27,16 @@ class GenreController(
     @GetMapping
     fun getGenres(@ApiParam("Name of the Genre")
                   @RequestParam("name", required = false)
-                  name : String?): ResponseEntity<WrappedResponse<GenreDto>> {
-        val dtos = genreService.getGenres(name)
-        val etag = dtos.hashCode().toString()
+                  name : String?,
 
-        return ResponseEntity.status(HttpStatus.OK.value())
-                .eTag(etag)
-                .body(
-                        ResponseDto(
-                                code = HttpStatus.OK.value(),
-                                page = PageDto(list = dtos, totalSize = dtos.size)
-                        ).validated()
-        )
+                  @ApiParam("Offset in the list of coupons")
+                  @RequestParam("offset", defaultValue = "0")
+                  offset: Int,
+
+                  @ApiParam("Limit of coupons in a single retrieved page")
+                  @RequestParam("limit", defaultValue = "10")
+                  limit: Int): ResponseEntity<WrappedResponse<GenreDto>> {
+        return genreService.getGenres(name, offset, limit)
     }
 
     @ApiOperation("Get a Genre by the id")
@@ -62,7 +60,7 @@ class GenreController(
     }
 
     @ApiOperation("Create a Genre")
-    @PostMapping
+    @PostMapping(consumes = ["application/json"])
     fun createGenre(
             @ApiParam("JSON object representing the Genre")
             @RequestBody genreDto: GenreDto): ResponseEntity<WrappedResponse<String>> {
