@@ -31,6 +31,10 @@ class CinemaController {
             @RequestParam("name", required = false)
             name: String?,
 
+            @ApiParam("search for location")
+            @RequestParam("location", required = false)
+            location: String?,
+
             @ApiParam("offset in the list of cinemas")
             @RequestParam("offset", defaultValue = "0")
             offset: Int,
@@ -40,7 +44,7 @@ class CinemaController {
             limit: Int
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dtos = cinemaService.get(name, null, offset, limit)
+        val dtos = cinemaService.get(name, location, null, offset, limit)
         val etag = dtos.hashCode().toString()
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -55,12 +59,12 @@ class CinemaController {
 
     @ApiOperation("Get cinema by id")
     @GetMapping(path = ["/{id}"])
-    fun get(
+    fun findBy(
             @PathVariable("id")
             id: String?
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dto = cinemaService.get(null, id, 0, 1)
+        val dto = cinemaService.get(null, null, id, 0, 1)
         val etag = dto.hashCode().toString()
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -89,7 +93,7 @@ class CinemaController {
 
     @ApiOperation("Delete a cinema by id")
     @DeleteMapping(path = ["/{id}"])
-    fun deleteGenre(
+    fun deleteCinema(
             @ApiParam("id of the cinema")
             @PathVariable("id") id: String): ResponseEntity<WrappedResponse<String?>> {
         return ResponseEntity.ok(

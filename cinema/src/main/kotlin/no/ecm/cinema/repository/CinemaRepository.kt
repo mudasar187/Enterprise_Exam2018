@@ -7,7 +7,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CinemaRepository : CrudRepository<Cinema, Long>{
 
-    fun findAllByNameIgnoreCase(name: String): Cinema
+    fun findAllByNameContainingIgnoreCase(name: String): Cinema
 
-    fun findAllByLocationIgnoreCase(location: String): Iterable<Cinema>
+    fun findAllByLocationContainingIgnoreCase(location: String): Cinema
+
+    fun findByNameAndLocationIgnoreCase(name: String, location: String): Cinema
 }

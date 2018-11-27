@@ -18,23 +18,30 @@ class CinemaService {
     @Autowired
     private lateinit var cinemaRepository: CinemaRepository
 
-    fun get(paramName: String?, paramId: String?, offset: Int, limit: Int) : MutableList<CinemaDto> {
+    fun get(paramName: String?, paramLocation: String?, paramId: String?, offset: Int, limit: Int) : MutableList<CinemaDto> {
 
         if(offset < 0 || limit < 1) {
             throw UserInputValidationException(ExceptionMessages.offsetAndLimitInvalid(), 400)
         }
 
-        val cinemas = if (!paramName.isNullOrEmpty() && !paramId.isNullOrEmpty()) {
+        val cinemas = if (!paramName.isNullOrEmpty() && !paramId.isNullOrEmpty() && !paramLocation.isNullOrEmpty()) {
             throw UserInputValidationException(ExceptionMessages.inputFilterInvalid())
         }
-        else if (!paramName.isNullOrEmpty() && paramId.isNullOrEmpty()) {
+        else if (paramName.isNullOrEmpty() && paramId.isNullOrEmpty() && !paramLocation.isNullOrEmpty()) {
             try {
-                mutableListOf(cinemaRepository.findAllByNameIgnoreCase(paramName!!))
+                mutableListOf(cinemaRepository.findAllByLocationContainingIgnoreCase(paramLocation!!))
+            } catch (e: Exception) {
+                throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "location", "$paramLocation"))
+            }
+        }
+        else if (!paramName.isNullOrEmpty() && paramId.isNullOrEmpty() && paramLocation.isNullOrEmpty()) {
+            try {
+                mutableListOf(cinemaRepository.findAllByNameContainingIgnoreCase(paramName!!))
             } catch (e: Exception) {
                 throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "name", "$paramName"), 404)
             }
 
-        } else if (!paramId.isNullOrEmpty() && paramName.isNullOrEmpty()) {
+        } else if (!paramId.isNullOrEmpty() && paramName.isNullOrEmpty() && paramLocation.isNullOrEmpty()) {
 
             val id = ValidationHandler.validateId(paramId)
 
