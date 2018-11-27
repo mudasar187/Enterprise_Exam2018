@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface MovieRepository : CrudRepository<Movie, Long> {
 
-    fun findBymovieName(movieName: String): Iterable<Movie>
+    fun findByTitleContainsIgnoreCase(title: String): Iterable<Movie>
+
+    fun existsByTitleAndPosterUrlIgnoreCase(title: String, posterUrl: String): Boolean
 }

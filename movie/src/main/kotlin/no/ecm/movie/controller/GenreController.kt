@@ -29,11 +29,11 @@ class GenreController(
                   @RequestParam("name", required = false)
                   name : String?,
 
-                  @ApiParam("Offset in the list of coupons")
+                  @ApiParam("Offset in the list of genres")
                   @RequestParam("offset", defaultValue = "0")
                   offset: Int,
 
-                  @ApiParam("Limit of coupons in a single retrieved page")
+                  @ApiParam("Limit of genres in a single retrieved page")
                   @RequestParam("limit", defaultValue = "10")
                   limit: Int): ResponseEntity<WrappedResponse<GenreDto>> {
         return genreService.getGenres(name, offset, limit)
@@ -54,7 +54,7 @@ class GenreController(
                 .body(
                     ResponseDto(
                             code = HttpStatus.OK.value(),
-                            page = PageDto(mutableListOf(genreService.getGenre(id)))
+                            page = PageDto(mutableListOf(dto))
                     ).validated()
         )
     }
