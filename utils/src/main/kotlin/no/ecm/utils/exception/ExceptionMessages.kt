@@ -31,6 +31,18 @@ class ExceptionMessages{
         fun invalidTimeFormat(): String {
             return "Bad expireAt format!, this follows following formatting rules: \"yyyy-MM-dd HH:mm:ss\""
         }
+        
+        fun idInCreationDtoBody(type: String): String {
+            return "You cannot create a $type with predefined id"
+        }
+        
+        fun createEntity(type: String): String {
+            return "Error while creating a $type"
+        }
+        
+        fun deleteEntity(type: String): String {
+            return "Error while deleting $type"
+        }
 
     }
 

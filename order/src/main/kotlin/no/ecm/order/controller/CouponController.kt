@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.order.service.CouponService
 import no.ecm.utils.dto.order.CouponDto
+import no.ecm.utils.hal.PageDto
+import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -65,19 +67,31 @@ class CouponController {
 	fun createCoupon(
 		@ApiParam("Dto of a coupon: code, description, expireAt")
 		@RequestBody dto: CouponDto
-	) : ResponseEntity<WrappedResponse<CouponDto>> {
+	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
-		return service.create(dto)
-		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(CouponDto(id = service.create(dto))))
+			).validated()
+		)
 	}
 	
-	@ApiOperation("Delete a coupon with the given id")
+	@ApiOperation("Delete a coupon with the given paramId")
 	@DeleteMapping(path = ["/{id}"])
-	fun deletePokemon(@ApiParam("id of coupon")
+	fun deletePokemon(@ApiParam("paramId of coupon")
 					  @PathVariable("id", required = true)
-					  id: String
+					  paramId: String
 	): ResponseEntity<WrappedResponse<CouponDto>> {
-		return service.delete(id)
+		
+		val returnId = service.delete(paramId)
+		
+		return ResponseEntity.status(204).body(
+			ResponseDto<CouponDto>(
+				code = 204,
+				message = "Coupon with paramId: $returnId successfully deleted"
+			).validated()
+		)
 	}
 	
 	/*

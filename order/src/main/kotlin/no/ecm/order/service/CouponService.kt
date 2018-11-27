@@ -1,6 +1,7 @@
 package no.ecm.order.service
 
 import com.google.common.base.Throwables
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ErrorMessages
 import no.ecm.order.model.converter.CouponConverter
 import no.ecm.order.model.entity.Coupon
 import no.ecm.order.repository.coupon.CouponRepository
@@ -118,16 +119,11 @@ class CouponService {
 			)
 	}
 	
-	fun create(dto: CouponDto): ResponseEntity<WrappedResponse<CouponDto>> {
+	fun create(dto: CouponDto): String {
 		
 		
 		if (dto.id != null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.NOT_FOUND.value(),
-					message = "id != null, you cannot create a coupon with predefined id"
-				).validated()
-			)
+			throw UserInputValidationException(ExceptionMessages.idInCreationDtoBody("coupon"), 404)
 		}
 		
 		if (dto.code.isNullOrEmpty()) {
@@ -151,30 +147,14 @@ class CouponService {
 		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!) }
 		
 		catch (e: Exception) {
-			
-			if (Throwables.getRootCause(e) is ConstraintViolationException) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.BAD_REQUEST.value(),
-						message = "Error while creating a coupon, contact sys-adm"
-					).validated()
-				)
-			}
-			throw e
+			UserInputValidationException(ExceptionMessages.createEntity("coupon"))
 		}
 		
-		
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-			ResponseDto<CouponDto>(
-				code = HttpStatus.CREATED.value(),
-				page = PageDto(list = mutableListOf(CouponDto(id = id.toString()))),
-				message = "Coupon with id: $id was created"
-			).validated()
-		)
+		return id.toString()
 		
 	}
 	
-	fun delete(paramId: String) : ResponseEntity<WrappedResponse<CouponDto>> {
+	fun delete(paramId: String): String {
 		
 		val id= ValidationHandler.validateId(paramId)
 		
@@ -183,12 +163,11 @@ class CouponService {
 			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
 		}
 		
-		repository.deleteById(id)
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-			ResponseDto<CouponDto>(
-				code = HttpStatus.NO_CONTENT.value(),
-				message = "Coupon with id: $id successfully deleted"
-			).validated()
-		)
+		try { repository.deleteById(id) }
+		catch (e: Exception) {
+			throw UserInputValidationException(ExceptionMessages.deleteEntity("coupon"))
+		}
+		
+		return id.toString()
 	}
 }

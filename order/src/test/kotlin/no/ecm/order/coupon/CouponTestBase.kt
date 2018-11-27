@@ -70,7 +70,7 @@ abstract class CouponTestBase {
 			.then()
 			.statusCode(201)
 			.extract()
-			.jsonPath().getLong("data.list[0].id")
+			.jsonPath().getLong("data.list[0].idw")
 	}
 	
 	fun assertResultSize(size: Int) {
