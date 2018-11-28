@@ -3,6 +3,7 @@ package no.ecm.movie.service
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.movie.model.converter.GenreConverter
+import no.ecm.movie.model.entity.Genre
 import no.ecm.movie.repository.GenreRepository
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.exception.ConflictException
@@ -102,7 +103,7 @@ class GenreService (
     }
 
     //TODO maybe return entity in stead of dto
-    fun getGenre(stringId: String?): GenreDto {
+    fun getGenre(stringId: String?): Genre {
 
         val id = validateId(stringId)
 
@@ -112,9 +113,7 @@ class GenreService (
             throw NotFoundException(errorMsg)
         }
         
-        val genre = genreRepository.findById(id).get()
-        
-        return GenreConverter.entityToDto(genre, true)
+        return genreRepository.findById(id).get()
     }
 
     private fun handleIllegalField(fieldName: String){
