@@ -99,7 +99,7 @@ class MovieService (
         return MovieDto(id = movieRepository.save(movie).id.toString())
     }
 
-    fun updateMovie(stringId: String?, body: String?): MovieDto {
+    fun patchMovie(stringId: String?, body: String?): MovieDto {
 
         val id = validateId(stringId)
 

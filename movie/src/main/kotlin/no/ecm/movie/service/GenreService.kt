@@ -114,7 +114,7 @@ class GenreService (
         return id.toString()
     }
 
-    fun updateGenre(stringId: String?, body: String?): GenreDto {
+    fun patchGenre(stringId: String?, body: String?): GenreDto {
 
         val id = validateId(stringId)
 

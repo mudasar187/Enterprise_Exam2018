@@ -94,7 +94,7 @@ class MovieController (
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(movieService.updateMovie(id, jsonPatch)))
+                        page = PageDto(mutableListOf(movieService.patchMovie(id, jsonPatch)))
                 ).validated()
         )
     }

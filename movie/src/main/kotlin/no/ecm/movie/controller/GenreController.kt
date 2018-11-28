@@ -10,7 +10,6 @@ import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
-import no.ecm.utils.validation.ValidationHandler.Companion.validateLimitAndOffset
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -96,7 +95,7 @@ class GenreController(
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(genreService.updateGenre(id, jsonPatch)))
+                        page = PageDto(mutableListOf(genreService.patchGenre(id, jsonPatch)))
                 ).validated()
         )
     }
