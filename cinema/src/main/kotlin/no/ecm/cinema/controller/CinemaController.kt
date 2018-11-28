@@ -3,8 +3,13 @@ package no.ecm.cinema.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import no.ecm.cinema.model.converter.CinemaConverter
+import no.ecm.cinema.model.converter.RoomConverter
 import no.ecm.cinema.service.CinemaService
+import no.ecm.cinema.service.RoomService
 import no.ecm.utils.dto.cinema.CinemaDto
+import no.ecm.utils.dto.cinema.RoomDto
+import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
@@ -13,16 +18,17 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.util.UriComponentsBuilder
 
 @Api(value = "/cinemas", description = "API for cinema entity")
 @RequestMapping(
         path = ["/cinemas"],
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
-class CinemaController {
-
-    @Autowired
-    private lateinit var cinemaService: CinemaService
+class CinemaController(
+        private var cinemaService: CinemaService,
+        private var roomService: RoomService
+) {
 
     @ApiOperation("Get all cinemas")
     @GetMapping
@@ -44,17 +50,18 @@ class CinemaController {
             limit: Int
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dtos = cinemaService.get(name, location, offset, limit)
-        val etag = dtos.hashCode().toString()
+        val cinemasDtos = cinemaService.get(name, location)
+        val builder = UriComponentsBuilder.fromPath("/cinemas")
+        if(!name.isNullOrEmpty()) {
+            builder.queryParam("name", name)
+        }
 
-        return ResponseEntity.status(HttpStatus.OK.value())
-                .eTag(etag)
-                .body(
-                        ResponseDto(
-                                code = HttpStatus.OK.value(),
-                                page = PageDto(list = dtos, totalSize = dtos.size)
-                        ).validated()
-                )
+        if(!location.isNullOrEmpty()) {
+            builder.queryParam("location", location)
+        }
+
+        val pageDto = CinemaConverter.dtoListToPageDto(cinemasDtos, offset, limit)
+        return HalLinkGenerator<CinemaDto>().generateHalLinks(cinemasDtos, pageDto, builder, limit, offset)
     }
 
     @ApiOperation("Get cinema by id")
@@ -142,4 +149,52 @@ class CinemaController {
         )
     }
 
+
+    @ApiOperation("Get all rooms based on cinema id")
+    @GetMapping(path = ["/{id}/rooms"])
+    fun getRoomsFromCinema(
+            @ApiParam("id of cinema")
+            @PathVariable("id")
+            id: String,
+
+            @ApiParam("offset in the list of rooms")
+            @RequestParam("offset", defaultValue = "0")
+            offset: Int,
+
+            @ApiParam("limit of rooms in a single retrived page")
+            @RequestParam("limit", defaultValue = "10")
+            limit: Int
+    ): ResponseEntity<WrappedResponse<RoomDto>> {
+
+        val roomsDto = roomService.getAllRoomsFromCinema(id)
+        val builder = UriComponentsBuilder.fromPath("/cinemas/$id/rooms")
+
+        val pageDto = RoomConverter.dtoListToPageDto(roomsDto, offset, limit)
+        return HalLinkGenerator<RoomDto>().generateHalLinks(roomsDto, pageDto, builder, limit, offset)
+    }
+
+    @ApiOperation("Get room by id and cinema id")
+    @GetMapping(path = ["/{cinema_id}/rooms/{room_id}"])
+    fun findBy(
+            @ApiParam("id of cinema")
+            @PathVariable("cinema_id")
+            cinemaId: String?,
+
+            @ApiParam("id of room")
+            @PathVariable("room_id")
+            roomId: String?
+    ): ResponseEntity<WrappedResponse<RoomDto>> {
+
+        val dto = roomService.getSingleRoomFromCinema(cinemaId, roomId)
+        val etag = dto.hashCode().toString()
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+                .eTag(etag)
+                .body(
+                        ResponseDto(
+                                code = HttpStatus.OK.value(),
+                                page = PageDto(list = mutableListOf(dto), totalSize = mutableListOf(dto).size)
+                        ).validated()
+                )
+    }
 }

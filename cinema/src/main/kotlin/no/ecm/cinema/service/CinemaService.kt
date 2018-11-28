@@ -15,14 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class CinemaService {
+class CinemaService(
+        private var cinemaRepository: CinemaRepository
+) {
 
-    @Autowired
-    private lateinit var cinemaRepository: CinemaRepository
-
-    fun get(paramName: String?, paramLocation: String?, offset: Int, limit: Int): MutableList<CinemaDto> {
-
-        ValidationHandler.validateLimitAndOffset(offset,limit)
+    fun get(paramName: String?, paramLocation: String?): MutableList<CinemaDto> {
 
         val cinemas = if (!paramName.isNullOrEmpty() && !paramLocation.isNullOrEmpty()) {
             throw UserInputValidationException(ExceptionMessages.inputFilterInvalid())
