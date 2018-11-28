@@ -5,7 +5,7 @@ class ExceptionMessages{
     companion object {
 
         fun notFoundMessage (type: String, paramValue: String, value: String): String {
-            return "Can not find $type with $paramValue: $value"
+            return "Can't find $type with $paramValue: $value"
         }
 
         fun inputFilterInvalid() : String {
@@ -27,6 +27,30 @@ class ExceptionMessages{
         fun invalidIdParameter(): String {
             return "Invalid id parameter. This should be a numeric string"
         }
+        
+        fun tooLargeOffset(size: Int): String {
+            return "Too large offset, size of result is $size"
+        }
+        
+        fun invalidTimeFormat(): String {
+            return "Bad expireAt format!, this follows following formatting rules: \"yyyy-MM-dd HH:mm:ss\""
+        }
+        
+        fun idInCreationDtoBody(type: String): String {
+            return "You cannot create a $type with predefined id"
+        }
+        
+        fun createEntity(type: String): String {
+            return "Error while creating a $type"
+        }
+        
+        fun deleteEntity(type: String): String {
+            return "Error while deleting $type"
+        }
+    
+        fun updateEntity(type: String): String {
+            return "Error while updating $type"
+        }
 
         fun invalidParameter(required: String, received: String): String {
             return "Invalid parameter, expected: $required, but received: $received"
@@ -42,6 +66,10 @@ class ExceptionMessages{
 
         fun resourceAlreadyExists(type: String, paramValue: String, value: String): String {
             return "$type with $paramValue equal to: '$value' already exists."
+        }
+        
+        fun notMachingIds(): String {
+            return "The given id in DTO doesn't match the id in the database"
         }
 
     }

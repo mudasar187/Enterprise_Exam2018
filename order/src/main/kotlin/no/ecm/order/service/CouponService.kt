@@ -1,14 +1,22 @@
 package no.ecm.order.service
 
 import com.google.common.base.Throwables
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ErrorMessages
 import no.ecm.order.model.converter.CouponConverter
+import no.ecm.order.model.entity.Coupon
 import no.ecm.order.repository.coupon.CouponRepository
+import no.ecm.utils.converter.ConvertionHandler
 import no.ecm.utils.dto.order.CouponDto
+import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.exception.NotFoundException
+import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.hal.HalLink
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.logger
 import no.ecm.utils.response.CouponResponseDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
+import no.ecm.utils.validation.ValidationHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,19 +33,14 @@ class CouponService {
 	@Autowired
 	private lateinit var repository: CouponRepository
 	
-	fun get(paramCode: String?, paramId: String?, offset: Int, limit: Int) : ResponseEntity<WrappedResponse<CouponDto>> {
+	val logger = logger<CouponService>()
+	
+	fun get(paramCode: String?, paramId: String?, offset: Int, limit: Int) : MutableList<CouponDto> {
 		
-		if(offset < 0 || limit < 1) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Invalid offset or limit.	 Rules: Offset > 0 && limit >= 1"
-				).validated()
-			)
-		}
+		ValidationHandler.validateLimitAndOffset(offset, limit)
 		
-		val couponResultList: List<CouponDto>
-		val builder = UriComponentsBuilder.fromPath("/coupons")
+		val couponResultList: MutableList<CouponDto>
+		//val builder = UriComponentsBuilder.fromPath("/coupons")
 		
 		//If NOT paramCode or paramId are present, return all coupons in DB
 		if (paramCode.isNullOrBlank() && paramId.isNullOrBlank()) {
@@ -49,194 +52,107 @@ class CouponService {
 		//If only paramCode are present, return coupon with given code
 		else if (!paramCode.isNullOrBlank() && paramId.isNullOrBlank()){
 			
-			couponResultList = try { listOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!))) }
+			couponResultList = try { mutableListOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!))) }
 			
-			catch (e: java.lang.Exception) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.NOT_FOUND.value(),
-						message = "Could now find coupon with code: $paramCode"
-					).validated()
-				)
+			catch (e: Exception) {
+				
+				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "code", paramCode!!)
+				logger.warn(errorMsg)
+				throw NotFoundException(errorMsg, 404)
 			}
-			
-			builder.queryParam("code", paramCode)
 		}
 		
 		//If only paramId are present, return coupon with given id
 		else {
+			val id = ValidationHandler.validateId(paramId)
 			
-			val id = try { paramId!!.toLong() }
+			couponResultList = try { mutableListOf(CouponConverter.entityToDto(repository.findById(id).get())) }
 			
 			catch (e: Exception) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.NOT_FOUND.value(),
-						message = "Invalid id: $paramId"
-					).validated()
-				)
+				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
+				logger.warn(errorMsg)
+				throw NotFoundException(errorMsg, 404)
 			}
-			
-			val entity = repository.findById(id).orElse(null)
-				?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.NOT_FOUND.value(),
-						message = "could not find coupon with ID: $id"
-					).validated()
-				)
-			
-			couponResultList = listOf(CouponConverter.entityToDto(entity))
-			
-			builder.queryParam("id", paramId)
-			
 		}
 		
-		if (offset != 0 && offset >= couponResultList.size) {
-			
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Too large offset, size of result is ${couponResultList.size}"
-				).validated()
-			)
-			
-		}
-		
-		builder.queryParam("limit", limit)
-		
-		val dto = CouponConverter.dtoListToPageDto(couponResultList, offset, limit)
-		
-		// Build HalLinks
-		dto._self = HalLink(builder.cloneBuilder()
-			.queryParam("offset", offset)
-			.build().toString()
-		)
-		
-		if (!couponResultList.isEmpty() && offset > 0) {
-			dto.previous = HalLink(builder.cloneBuilder()
-				.queryParam("offset", Math.max(offset - limit, 0))
-				.build().toString()
-			)
-		}
-		
-		if (offset + limit < couponResultList.size) {
-			dto.next = HalLink(builder.cloneBuilder()
-				.queryParam("offset", (offset + limit))
-				.build().toString()
-			)
-		}
-		
-		
-		val etag = couponResultList.hashCode().toString()
-		
-		return ResponseEntity.status(HttpStatus.OK)
-			.eTag(etag)
-			.body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.OK.value(),
-					page = dto
-				).validated()
-			)
+		return couponResultList
 	}
 	
-	fun create(dto: CouponDto): ResponseEntity<WrappedResponse<CouponDto>> {
+	fun create(dto: CouponDto): String {
+		
 		
 		if (dto.id != null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.NOT_FOUND.value(),
-					message = "id != null, you cannot create a coupon with predefined id"
-				).validated()
-			)
+			throw UserInputValidationException(ExceptionMessages.idInCreationDtoBody("coupon"), 404)
 		}
 		
-		if (dto.code.isNullOrEmpty() || dto.description.isNullOrEmpty() || dto.expireAt == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "You need to specify a code, description and expireAt when creating a Coupon, " +
-						"please check documentation for more info"
-				).validated()
-			)
+		if (dto.code.isNullOrEmpty()) {
+			throw UserInputValidationException(ExceptionMessages.missingRequiredField("code"))
+		} else if (dto.description.isNullOrEmpty()) {
+			throw UserInputValidationException(ExceptionMessages.missingRequiredField("description"))
+		} else if (dto.expireAt == null) {
+			throw UserInputValidationException(ExceptionMessages.missingRequiredField("expireAt"))
 		}
 		
-		//println("Unparsed date: ${dto.expireAt}")
+		// New format for input = yyyy-MM-dd HH:mm:ss
+		val formattedTime = "${dto.expireAt!!}.000000"
+		val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
+		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 		
-		// Converting string to ZonedDateTime
-		// inspired by this answer from StackOverflow
-		// https://stackoverflow.com/a/44487882/10396560
-		val pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS"
-		val parser: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.systemDefault())
+		//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
+		//return repository.save(updated).id.toString()
 		
-		val parsedDateTime = try {
-			
-			ZonedDateTime.parse(dto.expireAt, parser)
-			
-		} catch (e: Exception) {
-			
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Bad expireAt format!, This is of datatype ZonedDateTime and follows following formatting: \"yyyy-MM-dd HH:mm:ss.SSSSSS\""
-				).validated()
-			)
-		}
 		
-		//println("Parsed ZonedDateTime: $parsedDateTime")
-		
-		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime) }
+		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!) }
 		
 		catch (e: Exception) {
-			
-			if (Throwables.getRootCause(e) is ConstraintViolationException) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					ResponseDto<CouponDto>(
-						code = HttpStatus.BAD_REQUEST.value(),
-						message = "Error while creating a coupon, contact sys-adm"
-					).validated()
-				)
-			}
-			throw e
+			UserInputValidationException(ExceptionMessages.createEntity("coupon"))
 		}
 		
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-			ResponseDto<CouponDto>(
-				code = HttpStatus.CREATED.value(),
-				page = PageDto(list = mutableListOf(CouponDto(id = id.toString()))),
-				message = "Coupon with id: $id was created"
-			).validated()
-		)
+		return id.toString()
+		
 	}
 	
-	fun delete(paramId: String) : ResponseEntity<WrappedResponse<CouponDto>> {
+	fun delete(paramId: String): String {
 		
-		val id= try { paramId.toLong() }
-		
-		catch (e: Exception) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.BAD_REQUEST.value(),
-					message = "Invalid id: $paramId"
-				).validated()
-			)
-		}
+		val id= ValidationHandler.validateId(paramId)
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				ResponseDto<CouponDto>(
-					code = HttpStatus.NOT_FOUND.value(),
-					message = "Could not find coupon with id: $id"
-				).validated()
-			)
+			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
 		}
 		
-		repository.deleteById(id)
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-			ResponseDto<CouponDto>(
-				code = HttpStatus.NO_CONTENT.value(),
-				message = "Coupon with id: $id successfully deleted"
-			).validated()
-		)
+		try {
+			repository.deleteById(id)
+		}
+		catch (e: Exception) {
+			throw UserInputValidationException(ExceptionMessages.deleteEntity("coupon"))
+		}
+		
+		return id.toString()
+	}
+	
+	fun put(paramId: String, updatedCouponDto: CouponDto): String {
+		
+		val id = ValidationHandler.validateId(paramId)
+		
+		if (!updatedCouponDto.id.equals(id.toString())) {
+			throw UserInputValidationException(ExceptionMessages.notMachingIds(), 409)
+		}
+		
+		if (!repository.existsById(id)) {
+			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
+		}
+		
+		val formattedTime = "${updatedCouponDto.expireAt!!}.000000"
+		val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
+		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
+		
+		try {
+			assert(repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!))
+		} catch (e: Exception) {
+			throw UserInputValidationException(ExceptionMessages.updateEntity("coupon"))
+		}
+		
+		return id.toString()
 	}
 }
