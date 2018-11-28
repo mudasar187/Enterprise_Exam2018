@@ -2,27 +2,29 @@ package no.ecm.movie.model.converter
 
 import no.ecm.movie.model.entity.Movie
 import no.ecm.utils.dto.movie.MovieDto
+import no.ecm.utils.hal.PageDto
+import kotlin.streams.toList
 
 object MovieConverter {
 	
 	fun entityToDto(entity: Movie) : MovieDto {
 		return MovieDto(
 			id = entity.id.toString(),
-			movieName = entity.movieName,
-			posterUrl = entity.posterURL,
+			title = entity.title,
+			posterUrl = entity.posterUrl,
 			genre = GenreConverter.movieEntityListToDtoList(entity.genre).toMutableSet(),
 			movieDuration = entity.movieDuration,
 			ageLimit = entity.ageLimit,
-			nowPlaying = NowPlayingConverter.movieEntityToDto(entity.nowPlaying!!)
+			nowPlaying = entity.nowPlaying?.let { NowPlayingConverter.movieEntityToDto(it) }
 		)
 	}
 	
 	fun dtoToEntity(dto: MovieDto) : Movie {
 		return Movie (
-			movieName = dto.movieName!!,
-			posterURL = dto.posterUrl!!,
+			title = dto.title!!,
+			posterUrl = dto.posterUrl!!,
 			//genre = dto.genre!!,
-			movieDuration = dto.movieDuration,
+			movieDuration = dto.movieDuration!!,
 			ageLimit = dto.ageLimit!!
 			//nowPlaying = NowPlayingConverter.dtoToEntity(dto.nowPlaying!!)
 		)
@@ -31,8 +33,8 @@ object MovieConverter {
 	fun genreEntityToDto(entity: Movie) : MovieDto {
 		return MovieDto(
 				id = entity.id.toString(),
-				movieName = entity.movieName,
-				posterUrl = entity.posterURL,
+				title = entity.title,
+				posterUrl = entity.posterUrl,
 				movieDuration = entity.movieDuration,
 				ageLimit = entity.ageLimit
 		)
@@ -41,16 +43,16 @@ object MovieConverter {
 	fun nowPlayingEntityToDto(entity: Movie) : MovieDto {
 		return MovieDto(
 				id = entity.id.toString(),
-				movieName = entity.movieName,
-				posterUrl = entity.posterURL,
+				title = entity.title,
+				posterUrl = entity.posterUrl,
 				genre = GenreConverter.movieEntityListToDtoList(entity.genre).toMutableSet(),
 				movieDuration = entity.movieDuration,
 				ageLimit = entity.ageLimit
 		)
 	}
 	
-	fun entityListToDtoList(entities: Iterable<Movie>): List<MovieDto> {
-		return entities.map { entityToDto(it) }
+	fun entityListToDtoList(entities: Iterable<Movie>): MutableList<MovieDto> {
+		return entities.map { entityToDto(it) }.toMutableList()
 	}
 	
 	fun dtoListToDtoList(dto: Iterable<MovieDto>): List<Movie> {
@@ -59,6 +61,25 @@ object MovieConverter {
 
 	fun genreEntityListToDtoList(entities: Iterable<Movie>): List<MovieDto> {
 		return entities.map { genreEntityToDto(it) }
+	}
+
+	fun dtoListToPageDto(genreList: List<MovieDto>,
+						 offset: Int,
+						 limit: Int): PageDto<MovieDto> {
+
+		val dtoList: MutableList<MovieDto> =
+				genreList.stream()
+						.skip(offset.toLong())
+						.limit(limit.toLong())
+						.toList().toMutableList()
+
+		return PageDto(
+				list = dtoList,
+				rangeMin = offset,
+				rangeMax = offset + dtoList.size - 1,
+				totalSize = genreList.size
+		)
+
 	}
 	
 }

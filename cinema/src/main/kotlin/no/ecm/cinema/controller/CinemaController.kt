@@ -44,7 +44,7 @@ class CinemaController {
             limit: Int
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dtos = cinemaService.get(name, location, null, offset, limit)
+        val dtos = cinemaService.get(name, location, offset, limit)
         val etag = dtos.hashCode().toString()
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -64,7 +64,7 @@ class CinemaController {
             id: String?
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dto = cinemaService.get(null, null, id, 0, 1)
+        val dto = cinemaService.getCinemaById(id)
         val etag = dto.hashCode().toString()
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -72,7 +72,7 @@ class CinemaController {
                 .body(
                         ResponseDto(
                                 code = HttpStatus.OK.value(),
-                                page = PageDto(list = dto, totalSize = dto.size)
+                                page = PageDto(list = mutableListOf(dto), totalSize = mutableListOf(dto).size)
                         ).validated()
                 )
     }

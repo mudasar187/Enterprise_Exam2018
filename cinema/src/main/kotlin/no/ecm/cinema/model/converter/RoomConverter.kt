@@ -10,15 +10,14 @@ object RoomConverter {
 			id = entity.id.toString(),
 			name = entity.name,
 			seats =  entity.seats.toSet(),
-			cinemaId = entity.cinemaId!!.toString())
+			cinemaId = entity.cinema!!.id.toString())
 	}
 	
 	fun dtoToEntity(dto: RoomDto) : Room {
 		return Room(
 			id = dto.id!!.toLong(),
 			name = dto.name!!,
-			seats = dto.seats!!.toMutableSet(),
-			cinemaId = dto.cinemaId!!.toLong()
+			seats = dto.seats!!.toMutableSet()
 		)
 	}
 	
