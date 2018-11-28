@@ -21,6 +21,7 @@ import no.ecm.utils.hal.HalLink
 import no.ecm.utils.logger
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
+import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import no.ecm.utils.validation.ValidationHandler.Companion.validateLimitAndOffset
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -58,7 +59,7 @@ class GenreService (
 
     fun getGenre(stringId: String?): Genre {
 
-        val id = validateId(stringId)
+        val id = validateId(stringId, "id")
 
         if (!genreRepository.existsById(id)){
             val errorMsg = notFoundMessage("Genre", "id", stringId!!)
@@ -101,7 +102,7 @@ class GenreService (
 
 
     fun deleteGenre(stringId: String?): String? {
-        val id = validateId(stringId)
+        val id = validateId(stringId, "id")
 
         if (!genreRepository.existsById(id)){
             val errorMsg = notFoundMessage("Genre", "id", stringId!!)
@@ -116,7 +117,7 @@ class GenreService (
 
     fun patchGenre(stringId: String?, body: String?): GenreDto {
 
-        val id = validateId(stringId)
+        val id = validateId(stringId, "id")
 
         if (!genreRepository.existsById(id)){
             val errorMsg = notFoundMessage("Genre", "id", stringId!!)
@@ -159,16 +160,5 @@ class GenreService (
         genreRepository.save(genre)
 
         return GenreConverter.entityToDto(genre, true)
-    }
-
-
-    private fun validateId(stringId: String?): Long {
-        try {
-            return stringId!!.toLong()
-        } catch (e: Exception){
-            val errorMsg = invalidIdParameter()
-            logger.warn(errorMsg)
-            throw UserInputValidationException(errorMsg)
-        }
     }
 }

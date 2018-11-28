@@ -48,7 +48,7 @@ class MovieService (
 
     fun getMovie(stringId: String?): MovieDto {
 
-        val id = validateId(stringId)
+        val id = validateId(stringId, "id")
 
         if (!movieRepository.existsById(id)){
             val errorMsg = ExceptionMessages.notFoundMessage("Movie", "id", stringId!!)
@@ -101,7 +101,7 @@ class MovieService (
 
     fun patchMovie(stringId: String?, body: String?): MovieDto {
 
-        val id = validateId(stringId)
+        val id = validateId(stringId, "id")
 
         if (!movieRepository.existsById(id)){
             val errorMsg = ExceptionMessages.notFoundMessage("Movie", "id", stringId!!)
@@ -173,7 +173,7 @@ class MovieService (
 
     fun deleteMovie(stringId: String?): String? {
 
-        val id = validateId(stringId)
+        val id = validateId(stringId, "id")
 
         if (!movieRepository.existsById(id)){
             val errorMsg = ExceptionMessages.notFoundMessage("Movie", "id", stringId!!)

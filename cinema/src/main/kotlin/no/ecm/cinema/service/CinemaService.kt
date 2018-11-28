@@ -15,14 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class CinemaService {
+class CinemaService(
+        private var cinemaRepository: CinemaRepository
+) {
 
-    @Autowired
-    private lateinit var cinemaRepository: CinemaRepository
-
-    fun get(paramName: String?, paramLocation: String?, offset: Int, limit: Int): MutableList<CinemaDto> {
-
-        ValidationHandler.validateLimitAndOffset(offset,limit)
+    fun get(paramName: String?, paramLocation: String?): MutableList<CinemaDto> {
 
         val cinemas = if (!paramName.isNullOrEmpty() && !paramLocation.isNullOrEmpty()) {
             throw UserInputValidationException(ExceptionMessages.inputFilterInvalid())
@@ -48,7 +45,7 @@ class CinemaService {
 
     fun getCinemaById(paramId: String?): CinemaDto {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$paramId"), 404)
@@ -85,7 +82,7 @@ class CinemaService {
 
     fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto): String? {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
@@ -111,7 +108,7 @@ class CinemaService {
 
     fun patchUpdateCinema(paramId: String?, body: String?): CinemaDto {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
@@ -170,7 +167,7 @@ class CinemaService {
 
     fun deleteCinema(paramId: String?): String? {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
