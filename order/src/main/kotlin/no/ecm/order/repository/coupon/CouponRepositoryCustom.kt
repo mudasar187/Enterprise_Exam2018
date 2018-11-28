@@ -8,4 +8,6 @@ interface CouponRepositoryCustom {
 	
 	fun createCoupon(code: String, description: String, expireAt: ZonedDateTime): Long
 	
+	fun updateCoupon(id: Long, code: String, description: String, expireAt: ZonedDateTime): Boolean
+	
 }

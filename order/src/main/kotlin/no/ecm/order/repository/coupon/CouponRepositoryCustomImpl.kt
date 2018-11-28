@@ -11,6 +11,7 @@ import javax.persistence.EntityManager
 @Repository
 @Transactional
 class CouponRepositoryCustomImpl : CouponRepositoryCustom {
+	
 	@Autowired
 	private lateinit var em: EntityManager
 	
@@ -20,5 +21,16 @@ class CouponRepositoryCustomImpl : CouponRepositoryCustom {
 		
 		em.persist(entity)
 		return entity.id!!
+	}
+	
+	override fun updateCoupon(id: Long, code: String, description: String, expireAt: ZonedDateTime): Boolean {
+		
+		val entity = em.find(Coupon::class.java, id) ?: return false
+		
+		entity.code = code
+		entity.description = description
+		entity.expireAt = expireAt
+		
+		return true
 	}
 }
