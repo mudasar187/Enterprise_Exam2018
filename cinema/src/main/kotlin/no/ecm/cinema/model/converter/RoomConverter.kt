@@ -18,7 +18,6 @@ object RoomConverter {
 	
 	fun dtoToEntity(dto: RoomDto) : Room {
 		return Room(
-			id = dto.id!!.toLong(),
 			name = dto.name!!,
 			seats = dto.seats!!.toMutableSet()
 		)

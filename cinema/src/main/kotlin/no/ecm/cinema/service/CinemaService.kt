@@ -43,7 +43,7 @@ class CinemaService(
         return CinemaConverter.entityListToDtoList(cinemas, false)
     }
 
-    fun getCinemaById(paramId: String?): CinemaDto {
+    fun getCinemaById(paramId: String?): Cinema {
 
         val id = ValidationHandler.validateId(paramId, "id")
 
@@ -51,13 +51,11 @@ class CinemaService(
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$paramId"), 404)
         }
 
-        return CinemaConverter.entityToDto(cinemaRepository.findById(id).get(), true)
+        return cinemaRepository.findById(id).get()
 
     }
 
-    fun createCinema(cinemaDto: CinemaDto): String {
-
-        val cinema: Cinema
+    fun createCinema(cinemaDto: CinemaDto): CinemaDto {
 
         if (cinemaDto.name.isNullOrEmpty()) {
             throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
@@ -73,11 +71,9 @@ class CinemaService(
 
         if (isExists) {
             throw ConflictException(ExceptionMessages.resourceAlreadyExists("Cinema", "name & location", "${cinemaDto.name}, ${cinemaDto.location}"))
-        } else {
-            cinema = CinemaConverter.dtoToEntity(cinemaDto)
         }
 
-        return cinemaRepository.save(cinema).id.toString()
+        return CinemaDto(id = cinemaRepository.save(CinemaConverter.dtoToEntity(cinemaDto)).id.toString())
     }
 
     fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto): String? {

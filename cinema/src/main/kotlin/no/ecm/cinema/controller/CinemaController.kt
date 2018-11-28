@@ -71,7 +71,7 @@ class CinemaController(
             id: String?
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dto = cinemaService.getCinemaById(id)
+        val dto = CinemaConverter.entityToDto(cinemaService.getCinemaById(id), true)
         val etag = dto.hashCode().toString()
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -89,7 +89,7 @@ class CinemaController(
     fun createCinema(
             @ApiParam("JSON object representing the Cinema")
             @RequestBody cinemaDto: CinemaDto
-    ): ResponseEntity<WrappedResponse<String>> {
+    ): ResponseEntity<WrappedResponse<CinemaDto>> {
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
@@ -98,6 +98,7 @@ class CinemaController(
         )
     }
 
+    // TODO: fix return no content
     @ApiOperation("Update partial information of a cinema by id ")
     @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
     fun updateGenre(@ApiParam("id of the cinema")
@@ -114,6 +115,7 @@ class CinemaController(
         )
     }
 
+    // TODO: fix return no content
     @ApiOperation("Update whole information of a cinema by id")
     @PutMapping(path = ["/{id}"])
     fun updateCinema(
@@ -127,13 +129,13 @@ class CinemaController(
     ): ResponseEntity<WrappedResponse<String?>> {
         return ResponseEntity.ok(
                 ResponseDto(
-                        code = HttpStatus.OK.value(),
+                        code = HttpStatus.NO_CONTENT.value(),
                         page = PageDto(mutableListOf(cinemaService.putUpdateCinema(id, cinemaDto)))
                 ).validated()
         )
     }
 
-
+    // TODO: check if all rooms are gone from database when delete a cinema
     @ApiOperation("Delete a cinema by id")
     @DeleteMapping(path = ["/{id}"])
     fun deleteCinema(
@@ -150,11 +152,13 @@ class CinemaController(
     }
 
 
+    // Rooms
+
     @ApiOperation("Get all rooms based on cinema id")
-    @GetMapping(path = ["/{id}/rooms"])
+    @GetMapping(path = ["/{cinema_id}/rooms"])
     fun getRoomsFromCinema(
             @ApiParam("id of cinema")
-            @PathVariable("id")
+            @PathVariable("cinema_id")
             id: String,
 
             @ApiParam("offset in the list of rooms")
@@ -171,6 +175,24 @@ class CinemaController(
 
         val pageDto = RoomConverter.dtoListToPageDto(roomsDto, offset, limit)
         return HalLinkGenerator<RoomDto>().generateHalLinks(roomsDto, pageDto, builder, limit, offset)
+    }
+
+    @ApiOperation("Create a room to specific cinema")
+    @PostMapping(path = ["/{cinema_id}/rooms/"])
+    fun createRoomToSpecificCinema(
+            @ApiParam("id of cinema")
+            @PathVariable("cinema_id")
+            cinemaId: String?,
+
+            @ApiParam("JSON object representing the Room")
+            @RequestBody roomDto: RoomDto
+    ): ResponseEntity<WrappedResponse<RoomDto>> {
+        return ResponseEntity.ok(
+                ResponseDto(
+                        code = HttpStatus.CREATED.value(),
+                        page = PageDto(mutableListOf(roomService.createRoomForSpecificCinema(cinemaId,roomDto)))
+                ).validated()
+        )
     }
 
     @ApiOperation("Get room by id and cinema id")
