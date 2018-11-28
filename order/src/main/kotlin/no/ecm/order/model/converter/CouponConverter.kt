@@ -47,12 +47,12 @@ object CouponConverter {
 		)
 	}
 	
-	fun entityListToDtoList(entities: Iterable<Coupon>): List<CouponDto> {
-		return entities.map { entityToDto(it) }
+	fun entityListToDtoList(entities: Iterable<Coupon>): MutableList<CouponDto> {
+		return entities.map { entityToDto(it) }.toMutableList()
 	}
 	
-	fun dtoListToEntityList(dto: Iterable<CouponDto>): List<Coupon> {
-		return dto.map { dtoToEntity(it) }
+	fun dtoListToEntityList(dto: Iterable<CouponDto>): MutableList<Coupon> {
+		return dto.map { dtoToEntity(it) }.toMutableList()
 	}
 	
 	fun dtoListToPageDto(couponDtoList: List<CouponDto>,

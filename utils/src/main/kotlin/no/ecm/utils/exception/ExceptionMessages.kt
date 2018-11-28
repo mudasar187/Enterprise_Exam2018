@@ -47,6 +47,10 @@ class ExceptionMessages{
         fun deleteEntity(type: String): String {
             return "Error while deleting $type"
         }
+    
+        fun updateEntity(type: String): String {
+            return "Error while updating $type"
+        }
 
         fun invalidParameter(required: String, received: String): String {
             return "Invalid parameter, expected: $required, but received: $received"
@@ -62,6 +66,10 @@ class ExceptionMessages{
 
         fun resourceAlreadyExists(type: String, paramValue: String, value: String): String {
             return "$type with $paramValue equal to: '$value' already exists."
+        }
+        
+        fun notMachingIds(): String {
+            return "The given id in DTO doesn't match the id in the database"
         }
 
     }
