@@ -135,24 +135,30 @@ class CouponService {
 		
 		val id = ValidationHandler.validateId(paramId)
 		
-		if (!updatedCouponDto.id.equals(id.toString())) {
-			throw UserInputValidationException(ExceptionMessages.notMachingIds(), 409)
+		when {
+			
+			updatedCouponDto.id.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("id"))
+			updatedCouponDto.code.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("code"))
+			updatedCouponDto.description.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("description"))
+			updatedCouponDto.expireAt.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("expireAt"))
+			
+			!updatedCouponDto.id.equals(id.toString()) -> throw UserInputValidationException(ExceptionMessages.notMachingIds(), 409)
+			!repository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
+			
+			else -> {
+				val formattedTime = "${updatedCouponDto.expireAt!!}.000000"
+				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
+				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
+				
+				try {
+					assert(repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!))
+				} catch (e: Exception) {
+					throw UserInputValidationException(ExceptionMessages.updateEntity("coupon"))
+				}
+				
+				return id.toString()
+			}
 		}
 		
-		if (!repository.existsById(id)) {
-			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
-		}
-		
-		val formattedTime = "${updatedCouponDto.expireAt!!}.000000"
-		val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
-		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
-		
-		try {
-			assert(repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!))
-		} catch (e: Exception) {
-			throw UserInputValidationException(ExceptionMessages.updateEntity("coupon"))
-		}
-		
-		return id.toString()
 	}
 }

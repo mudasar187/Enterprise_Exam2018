@@ -102,8 +102,8 @@ class CouponController {
 		)
 	}
 	
-	@ApiOperation("Uppdate all info for a given coupon")
-	@PutMapping("/{id}")
+	@ApiOperation("Update all info for a given coupon")
+	@PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 	fun updateCoupon(@ApiParam("Id of the coupon to be updated")
 					@PathVariable("id", required = true)
 					id: String,

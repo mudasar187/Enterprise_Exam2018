@@ -92,6 +92,52 @@ class CouponTests : CouponTestBase() {
 	}
 	
 	@Test
+	fun updateCouponTest() {
+		
+		val code = "0987654321"
+		val description = "DefaultDescription"
+		val expireAt = "2019-01-01 01:00:00"
+		
+		val id = createCoupon(code, description, expireAt)
+		
+		val updatedCode = "0987654321"
+		val updatedDescription = "UpdatedDescription"
+		val updatedExpireAt = "2018-12-24 20:30:30"
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
+			.put("/{id}")
+			.then()
+			.statusCode(201)
+		
+		given()
+			.get("/$id")
+			.then()
+			.statusCode(200)
+			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
+			.body("data.list[0].code", CoreMatchers.equalTo(updatedCode))
+			.body("data.list[0].description", CoreMatchers.equalTo(updatedDescription))
+	}
+	
+	@Test
+	fun updateNonExistingCoupon() {
+		val id = 22222
+		val updatedCode = "0987654321"
+		val updatedDescription = "UpdatedDescription"
+		val updatedExpireAt = "2018-12-24 20:30:30"
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
+			.put("/{id}")
+			.then()
+			.statusCode(404)
+	}
+	
+	@Test
 	fun createCouponWithGivenIdTest() {
 		
 		//TODO Expand to more test cases
@@ -138,7 +184,7 @@ class CouponTests : CouponTestBase() {
 	}
 	
 	@Test
-	fun cachingTest() {
+	fun cachingGetAllTest() {
 		
 		val etag = RestAssured.given().accept(ContentType.JSON)
 			.get()
@@ -150,6 +196,30 @@ class CouponTests : CouponTestBase() {
 		given().accept(ContentType.JSON)
 			.header("If-None-Match", etag)
 			.get()
+			.then()
+			.statusCode(304)
+			.content(CoreMatchers.equalTo(""))
+	}
+	
+	@Test
+	fun cachingGetByIdTest() {
+		
+		val code = "123412345"
+		val description = "DefaultDescription"
+		val expireAt = "2019-01-01 01:00:00"
+		
+		val id = createCoupon(code, description, expireAt)
+		
+		val etag = RestAssured.given().accept(ContentType.JSON)
+			.get("/$id")
+			.then()
+			.statusCode(200)
+			.header("ETag", CoreMatchers.notNullValue())
+			.extract().header("ETag")
+		
+		given().accept(ContentType.JSON)
+			.header("If-None-Match", etag)
+			.get("/$id")
 			.then()
 			.statusCode(304)
 			.content(CoreMatchers.equalTo(""))
