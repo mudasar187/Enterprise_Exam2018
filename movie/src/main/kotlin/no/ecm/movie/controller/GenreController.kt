@@ -83,10 +83,21 @@ class GenreController(
         )
     }
 
+    @ApiOperation("Update a Genre")
+    @PutMapping(path = ["/{id}"])
+    fun putGenre(@ApiParam("The id of the Genre")
+                 @PathVariable("id")
+                 id: String?,
+                 @ApiParam("JSON object representing the Genre")
+                 @RequestBody genreDto: GenreDto) : ResponseEntity.BodyBuilder {
+        genreService.putGenre(id, genreDto)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+    }
+    
 
-    @ApiOperation("Create a Genre")
+    @ApiOperation("Update a Genre using merge patch")
     @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
-    fun updateGenre(@ApiParam("The id of the Genre")
+    fun patchGenre(@ApiParam("The id of the Genre")
               @PathVariable("id")
               id: String?,
               @ApiParam("The partial patch")
