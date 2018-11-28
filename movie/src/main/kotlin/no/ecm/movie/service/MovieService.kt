@@ -24,9 +24,7 @@ class MovieService (
 
     val logger = logger<MovieService>()
 
-    fun getMovies(title: String?, offset: Int, limit: Int): MutableList<MovieDto> {
-
-        ValidationHandler.validateLimitAndOffset(offset, limit)
+    fun getMovies(title: String?): MutableList<MovieDto> {
 
         val movies = if (!title.isNullOrEmpty()){
             try {
@@ -153,6 +151,7 @@ class MovieService (
                     val genreDtos: Set<GenreDto> = mapper.readValue(genre.toString())
                     //movie.genre = genreDtos.asSequence().map { genreService.getGenre(it.id) }.toMutableSet()
                     //TODO need to replase not add
+                    movie.genre.forEach { it.movies.remove(movie) }
                     genreDtos.forEach { genreService.getGenre(it.id).movies.add(movie) }
 
                 }
