@@ -17,7 +17,7 @@ class RoomService(
 
     fun getAllRoomsFromCinema(paramId: String?): MutableList<RoomDto> {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         val rooms = if (!paramId.isNullOrEmpty()) {
             roomRepository.findAllByCinemaId(id).toMutableList()
@@ -34,8 +34,8 @@ class RoomService(
 
     fun getSingleRoomFromCinema(paramCinemaId: String?, paramRoomId: String?) : RoomDto {
 
-        val cinemaId = ValidationHandler.validateId(paramCinemaId)
-        val roomId = ValidationHandler.validateId(paramRoomId)
+        val cinemaId = ValidationHandler.validateId(paramCinemaId, "cinema id")
+        val roomId = ValidationHandler.validateId(paramRoomId, "room id")
 
         val room = if(paramCinemaId.isNullOrEmpty()) {
             throw UserInputValidationException(ExceptionMessages.invalidParameter("cinemaId", "$paramCinemaId"))

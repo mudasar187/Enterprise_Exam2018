@@ -39,7 +39,7 @@ class CouponTests : CouponTestBase() {
 		
 		val code = "1234554321"
 		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00.000000"
+		val expireAt = "2019-01-01 01:00:00"
 		
 		val id = createCoupon(code, description, expireAt)
 		
@@ -59,14 +59,14 @@ class CouponTests : CouponTestBase() {
 		
 		val code = "1234567899"
 		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00.000000"
+		val expireAt = "2019-01-01 01:00:00"
 		
 		createCoupon(code, description, expireAt)
 		
 		given()
 			.get("/x")
 			.then()
-			.statusCode(404)
+			.statusCode(400)
 			.body("message", CoreMatchers.notNullValue())
 			.body("status", CoreMatchers.equalTo("ERROR"))
 			.body("page", CoreMatchers.nullValue())
@@ -77,7 +77,7 @@ class CouponTests : CouponTestBase() {
 		
 		val code = "0987654321"
 		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00.000000"
+		val expireAt = "2019-01-01 01:00:00"
 		
 		val id = createCoupon(code, description, expireAt)
 		
@@ -98,7 +98,7 @@ class CouponTests : CouponTestBase() {
 		
 		val code = "45678123"
 		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00.000000"
+		val expireAt = "2019-01-01 01:00:00"
 		
 		val dto = CouponDto("1234", code, description, expireAt)
 		
@@ -121,7 +121,7 @@ class CouponTests : CouponTestBase() {
 		
 		val code = "123412345"
 		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00.000000"
+		val expireAt = "2019-01-01 01:00:00"
 		
 		val id = createCoupon(code, description, expireAt)
 		

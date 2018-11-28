@@ -45,7 +45,7 @@ class CinemaService(
 
     fun getCinemaById(paramId: String?): CinemaDto {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$paramId"), 404)
@@ -82,7 +82,7 @@ class CinemaService(
 
     fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto): String? {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
@@ -108,7 +108,7 @@ class CinemaService(
 
     fun patchUpdateCinema(paramId: String?, body: String?): CinemaDto {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
@@ -167,7 +167,7 @@ class CinemaService(
 
     fun deleteCinema(paramId: String?): String? {
 
-        val id = ValidationHandler.validateId(paramId)
+        val id = ValidationHandler.validateId(paramId, "id")
 
         if (!cinemaRepository.existsById(id)) {
             throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
