@@ -49,60 +49,13 @@ class GenreService (
             genreRepository.findAll().toMutableList()
         }
 
+        if (genres.isEmpty()){
+            throw NotFoundException(notFoundMessage("Genre", "name", name!!))
+        }
+
         return GenreConverter.entityListToDtoList(genres, false)
     }
 
-    fun getGenres(name: String?, offset: Int, limit: Int): ResponseEntity<WrappedResponse<GenreDto>> {
-
-        validateLimitAndOffset(offset, limit)
-
-        val builder = UriComponentsBuilder.fromPath("/genres")
-
-        if (!name.isNullOrEmpty()) {
-            builder.queryParam("name", name)
-        }
-
-        val genres = getGenres(name)
-
-        if (offset != 0 && offset >= genres.size) {
-            throw UserInputValidationException(toLargeOffset(offset))
-        }
-
-        builder.queryParam("limit", limit)
-
-        val dto = GenreConverter.dtoListToPageDto(genres, offset, limit)
-
-        // Build HalLinks
-        dto._self = HalLink(builder.cloneBuilder()
-                .queryParam("offset", offset)
-                .build().toString()
-        )
-
-        if (!genres.isEmpty() && offset > 0) {
-            dto.previous = HalLink(builder.cloneBuilder()
-                    .queryParam("offset", Math.max(offset - limit, 0))
-                    .build().toString()
-            )
-        }
-
-        if (offset + limit < genres.size) {
-            dto.next = HalLink(builder.cloneBuilder()
-                    .queryParam("offset", (offset + limit))
-                    .build().toString()
-            )
-        }
-        val etag = genres.hashCode().toString()
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .eTag(etag)
-                .body(ResponseDto(
-                        code = HttpStatus.OK.value(),
-                        page = dto
-                ).validated()
-                )
-    }
-
-    //TODO maybe return entity in stead of dto
     fun getGenre(stringId: String?): Genre {
 
         val id = validateId(stringId)
@@ -122,7 +75,7 @@ class GenreService (
         throw UserInputValidationException(errorMsg)
     }
 
-    fun createGenre(genreDto: GenreDto): String {
+    fun createGenre(genreDto: GenreDto): GenreDto {
 
         if (genreDto.name.isNullOrEmpty()) {
             val errorMsg = missingRequiredField("name")
@@ -143,14 +96,11 @@ class GenreService (
         genreDto.name = genreDto.name!!.capitalize()
 
         val genre = GenreConverter.dtoToEntity(genreDto)
-
-        return genreRepository.save(genre).id.toString()
+        return GenreDto(id = genreRepository.save(genre).id.toString())
     }
 
 
     fun deleteGenre(stringId: String?): String? {
-
-        //TODO sjekke movies med denne genre
         val id = validateId(stringId)
 
         if (!genreRepository.existsById(id)){
@@ -188,6 +138,14 @@ class GenreService (
 
         val genre = genreRepository.findById(id).get()
 
+        if (jsonNode.has("id")){
+            throw UserInputValidationException(illegalParameter("id"))
+        }
+
+        if (jsonNode.has("movies")){
+            throw UserInputValidationException(illegalParameter("movies"))
+        }
+
         if (jsonNode.has("name")) {
             val name = jsonNode.get("name")
             if (name.isTextual){
@@ -198,20 +156,6 @@ class GenreService (
                 throw UserInputValidationException(errorMsg)
             }
         }
-
-        //TODO kanskje ikke la Genre oppdatere dette? kun via movie
-//        if (jsonNode.has("movies")) {
-//            val movies = jsonNode.get("movies")
-//            when {
-//                movies.isNull -> genre.movies = mutableSetOf()
-//                movies.isArray -> {
-//                    val mapper = jacksonObjectMapper()
-//                    val tmp: Set<MovieDto> = mapper.readValue(movies.toString())
-//                    genre.movies = MovieConverter.dtoListToDtoList(tmp).toMutableSet()
-//                }
-//                else -> throw UserInputValidationException("Unable to handle field: 'movies'")
-//            }
-//        }
         genreRepository.save(genre)
 
         return GenreConverter.entityToDto(genre, true)

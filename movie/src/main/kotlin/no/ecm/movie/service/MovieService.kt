@@ -10,10 +10,11 @@ import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.exception.ConflictException
 import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.exception.ExceptionMessages.Companion.illegalParameter
+import no.ecm.utils.exception.ExceptionMessages.Companion.notFoundMessage
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
-import no.ecm.utils.validation.ValidationHandler
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.stereotype.Service
 
@@ -30,12 +31,16 @@ class MovieService (
             try {
                 movieRepository.findByTitleContainsIgnoreCase(title!!).toMutableList()
             } catch (e: Exception){
-                val errorMsg = ExceptionMessages.notFoundMessage("Movie", "title", title!!)
+                val errorMsg = notFoundMessage("Movie", "title", title!!)
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
             }
         } else {
             movieRepository.findAll().toMutableList()
+        }
+
+        if (movies.isEmpty()) {
+            throw NotFoundException(notFoundMessage("Movie", "title", title!!))
         }
 
         return MovieConverter.entityListToDtoList(movies)
@@ -62,7 +67,7 @@ class MovieService (
         throw UserInputValidationException(errorMsg)
     }
 
-    fun createMovie(movieDto: MovieDto): String {
+    fun createMovie(movieDto: MovieDto): MovieDto {
 
         if (movieDto.title.isNullOrEmpty()) {
             handleMissingField("title")
@@ -91,7 +96,7 @@ class MovieService (
             movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
         }
 
-        return movieRepository.save(movie).id.toString()
+        return MovieDto(id = movieRepository.save(movie).id.toString())
     }
 
     fun updateMovie(stringId: String?, body: String?): MovieDto {
@@ -117,6 +122,10 @@ class MovieService (
         }
 
         val movie = movieRepository.findById(id).get()
+
+        if (jsonNode.has("id")){
+            throw UserInputValidationException(illegalParameter("id"))
+        }
 
         if (jsonNode.has("title")) {
             val title = jsonNode.get("title")
@@ -149,10 +158,9 @@ class MovieService (
                 genre.isArray -> {
                     val mapper = jacksonObjectMapper()
                     val genreDtos: Set<GenreDto> = mapper.readValue(genre.toString())
-                    //movie.genre = genreDtos.asSequence().map { genreService.getGenre(it.id) }.toMutableSet()
-                    //TODO need to replase not add
                     movie.genre.forEach { it.movies.remove(movie) }
                     genreDtos.forEach { genreService.getGenre(it.id).movies.add(movie) }
+                    movie.genre = genreDtos.asSequence().map { genreService.getGenre(it.id) }.toMutableSet()
 
                 }
                 else -> throw UserInputValidationException("Unable to handle field: 'movies'")

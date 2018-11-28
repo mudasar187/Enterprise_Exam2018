@@ -73,7 +73,7 @@ class MovieController (
     @PostMapping(consumes = ["application/json"])
     fun createMovie(
             @ApiParam("JSON object representing the Movie")
-            @RequestBody movieDto: MovieDto): ResponseEntity<WrappedResponse<String>> {
+            @RequestBody movieDto: MovieDto): ResponseEntity<WrappedResponse<MovieDto>> {
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
