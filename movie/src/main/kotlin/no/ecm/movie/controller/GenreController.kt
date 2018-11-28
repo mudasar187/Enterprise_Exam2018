@@ -3,6 +3,7 @@ package no.ecm.movie.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import no.ecm.movie.model.converter.GenreConverter
 import no.ecm.movie.service.GenreService
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.hal.PageDto
@@ -45,7 +46,7 @@ class GenreController(
             @ApiParam("id of the Genre")
             @PathVariable("id") id: String): ResponseEntity<WrappedResponse<GenreDto>> {
 
-        val dto = genreService.getGenre(id)
+        val dto = GenreConverter.entityToDto(genreService.getGenre(id), true)
         val etag = dto.hashCode().toString()
 
         return ResponseEntity
