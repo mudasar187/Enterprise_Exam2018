@@ -89,9 +89,9 @@ class GenreController(
                  @PathVariable("id")
                  id: String?,
                  @ApiParam("JSON object representing the Genre")
-                 @RequestBody genreDto: GenreDto) : ResponseEntity.BodyBuilder {
+                 @RequestBody genreDto: GenreDto) : ResponseEntity<WrappedResponse<GenreDto>> {
         genreService.putGenre(id, genreDto)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build<WrappedResponse<GenreDto>>()
     }
     
 

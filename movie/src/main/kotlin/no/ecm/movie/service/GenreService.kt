@@ -80,6 +80,10 @@ class GenreService (
 
         validateGenreDto(genreDto)
 
+        if (!genreDto.id.isNullOrEmpty()){
+            handleIllegalField("id")
+        }
+
         if (genreRepository.existsByNameIgnoreCase(genreDto.name!!)){
             val errorMsg = (resourceAlreadyExists("Genre", "name", genreDto.name!!))
             logger.error(errorMsg)
@@ -154,10 +158,20 @@ class GenreService (
     }
 
     fun putGenre(stringId: String?, genreDto: GenreDto) {
-        validateGenreDto(genreDto)
+
+        validateId(stringId, "id")
         val genre = getGenre(stringId)
 
-        genre.name = genreDto.name
+        validateGenreDto(genreDto)
+        if (genreDto.id.isNullOrEmpty()){
+            throw UserInputValidationException(missingRequiredField("id"))
+        }
+
+        if (!stringId.equals(genreDto.id)){
+            throw UserInputValidationException(invalidParameter(stringId!!, genreDto.id!!))
+        }
+
+        genre.name = genreDto.name!!.capitalize()
         genreRepository.save(genre)
     }
 
@@ -166,8 +180,6 @@ class GenreService (
             val errorMsg = missingRequiredField("name")
             logger.warn(errorMsg)
             throw UserInputValidationException(errorMsg)
-        } else if (!genreDto.id.isNullOrEmpty()){
-            handleIllegalField("id")
         } else if (genreDto.movies != null){
             handleIllegalField("movies")
         }
