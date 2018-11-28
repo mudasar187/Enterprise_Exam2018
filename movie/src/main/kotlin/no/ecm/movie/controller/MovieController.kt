@@ -39,7 +39,7 @@ class MovieController (
                   @ApiParam("Limit of movies in a single retrieved page")
                   @RequestParam("limit", defaultValue = "10")
                   limit: Int): ResponseEntity<WrappedResponse<MovieDto>> {
-        val movieDtos =movieService.getMovies(title, offset, limit)
+        val movieDtos = movieService.getMovies(title)
 
         val builder = UriComponentsBuilder.fromPath("/movies")
         if (!title.isNullOrEmpty()) {
@@ -73,7 +73,7 @@ class MovieController (
     @PostMapping(consumes = ["application/json"])
     fun createMovie(
             @ApiParam("JSON object representing the Movie")
-            @RequestBody movieDto: MovieDto): ResponseEntity<WrappedResponse<String>> {
+            @RequestBody movieDto: MovieDto): ResponseEntity<WrappedResponse<MovieDto>> {
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),

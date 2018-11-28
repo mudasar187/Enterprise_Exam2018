@@ -64,7 +64,7 @@ class CouponService {
 		
 		//If only paramId are present, return coupon with given id
 		else {
-			val id = ValidationHandler.validateId(paramId)
+			val id = ValidationHandler.validateId(paramId, "id")
 			
 			couponResultList = try { mutableListOf(CouponConverter.entityToDto(repository.findById(id).get())) }
 			
@@ -114,7 +114,7 @@ class CouponService {
 	
 	fun delete(paramId: String): String {
 		
-		val id= ValidationHandler.validateId(paramId)
+		val id= ValidationHandler.validateId(paramId, "id")
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
@@ -133,7 +133,7 @@ class CouponService {
 	
 	fun put(paramId: String, updatedCouponDto: CouponDto): String {
 		
-		val id = ValidationHandler.validateId(paramId)
+		val id = ValidationHandler.validateId(paramId, "id")
 		
 		if (!updatedCouponDto.id.equals(id.toString())) {
 			throw UserInputValidationException(ExceptionMessages.notMachingIds(), 409)
