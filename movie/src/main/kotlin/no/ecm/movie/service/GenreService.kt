@@ -110,7 +110,7 @@ class GenreService (
         return id.toString()
     }
 
-    fun patchGenre(stringId: String?, body: String?): GenreDto {
+    fun patchGenre(stringId: String?, body: String?) {
 
         val id = validateId(stringId, "id")
 
@@ -153,8 +153,6 @@ class GenreService (
             }
         }
         genreRepository.save(genre)
-
-        return GenreConverter.entityToDto(genre, true)
     }
 
     fun putGenre(stringId: String?, genreDto: GenreDto) {

@@ -100,15 +100,11 @@ class GenreController(
     fun patchGenre(@ApiParam("The id of the Genre")
               @PathVariable("id")
               id: String?,
-              @ApiParam("The partial patch")
+              @ApiParam("JSON Representing fields in a GenreDto")
               @RequestBody
               jsonPatch: String) : ResponseEntity<WrappedResponse<GenreDto>> {
-        return ResponseEntity.ok(
-                ResponseDto(
-                        code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(genreService.patchGenre(id, jsonPatch)))
-                ).validated()
-        )
+        genreService.patchGenre(id, jsonPatch)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
 
