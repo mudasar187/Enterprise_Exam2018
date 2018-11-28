@@ -7,12 +7,15 @@ import kotlin.streams.toList
 
 object GenreConverter {
 	
-	fun entityToDto(entity: Genre) : GenreDto {
-		return GenreDto(
+	fun entityToDto(entity: Genre, loadMovies: Boolean) : GenreDto {
+		val genre = GenreDto(
 			id = entity.id.toString(),
-			name = entity.name,
-			movies = MovieConverter.genreEntityListToDtoList(entity.movies).toMutableSet()
+			name = entity.name
 		)
+		if (loadMovies){
+			genre.movies = MovieConverter.genreEntityListToDtoList(entity.movies).toMutableSet()
+		}
+		return genre
 	}
 	
 	fun dtoToEntity(dto: GenreDto) : Genre {
@@ -28,8 +31,8 @@ object GenreConverter {
 		)
 	}
 	
-	fun entityListToDtoList(entities: Iterable<Genre>): MutableList<GenreDto> {
-		return entities.map { entityToDto(it) }.toMutableList()
+	fun entityListToDtoList(entities: Iterable<Genre>, loadMovies: Boolean): MutableList<GenreDto> {
+		return entities.map { entityToDto(it, loadMovies) }.toMutableList()
 	}
 	
 	fun dtoListToEntityList(dto: Iterable<GenreDto>): List<Genre> {

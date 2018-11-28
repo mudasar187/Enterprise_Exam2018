@@ -53,6 +53,14 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
                 ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
     }
 
+    @ExceptionHandler(value = [ConflictException::class])
+    protected fun handleExplicitlyThrownExceptions(ex: ConflictException, request: WebRequest)
+            : ResponseEntity<Any> {
+
+        return handleExceptionInternal(
+                ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
+    }
+
     /*
        This is one case in which JEE is actually better than Spring.
        You might want to have constraints on user inputs directly

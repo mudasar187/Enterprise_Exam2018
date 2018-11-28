@@ -1,6 +1,7 @@
 package no.ecm.utils.validation
 
 import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.exception.ExceptionMessages.Companion.offsetAndLimitInvalid
 import no.ecm.utils.exception.UserInputValidationException
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -33,6 +34,12 @@ class ValidationHandler{
                 return paramExpireAt
             } else {
                 throw UserInputValidationException(ExceptionMessages.invalidTimeFormat())
+            }
+        }
+
+        fun validateLimitAndOffset(offset: Int, limit: Int) {
+            if(offset < 0 || limit < 1) {
+                throw UserInputValidationException(offsetAndLimitInvalid())
             }
         }
     }

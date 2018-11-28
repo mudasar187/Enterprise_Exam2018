@@ -112,7 +112,7 @@ class CouponService {
 		return ResponseEntity.status(HttpStatus.OK)
 			.eTag(etag)
 			.body(
-				ResponseDto<CouponDto>(
+				ResponseDto(
 					code = HttpStatus.OK.value(),
 					page = dto
 				).validated()
