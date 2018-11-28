@@ -16,12 +16,32 @@ class ExceptionMessages{
             return "Offset must be grater than 0 and limit must be greater than/or equal 1"
         }
 
+        fun toLargeOffset(offset: Int): String {
+            return "Too large offset: $offset"
+        }
+
         fun missingRequiredField(field: String): String {
             return "Missing required field: $field"
         }
 
         fun invalidIdParameter(): String {
             return "Invalid id parameter. This should be a numeric string"
+        }
+
+        fun invalidParameter(required: String, received: String): String {
+            return "Invalid parameter, expected: $required, but received: $received"
+        }
+
+        fun unableToParse(value: String): String {
+            return "Unable to parse object variable: $value"
+        }
+
+        fun illegalParameter(value: String) : String{
+            return "You should not provide parameter: $value in this request!"
+        }
+
+        fun resourceAlreadyExists(type: String, paramValue: String, value: String): String {
+            return "$type with $paramValue equal to: '$value' already exists."
         }
 
     }

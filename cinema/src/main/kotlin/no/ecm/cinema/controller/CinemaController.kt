@@ -26,10 +26,14 @@ class CinemaController {
 
     @ApiOperation("Get all cinemas")
     @GetMapping
-    fun get(
+    fun getCinemas(
             @ApiParam("search for cinema")
             @RequestParam("name", required = false)
             name: String?,
+
+            @ApiParam("search for location")
+            @RequestParam("location", required = false)
+            location: String?,
 
             @ApiParam("offset in the list of cinemas")
             @RequestParam("offset", defaultValue = "0")
@@ -40,7 +44,7 @@ class CinemaController {
             limit: Int
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dtos = cinemaService.get(name, null, offset, limit)
+        val dtos = cinemaService.get(name, location, offset, limit)
         val etag = dtos.hashCode().toString()
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -55,12 +59,12 @@ class CinemaController {
 
     @ApiOperation("Get cinema by id")
     @GetMapping(path = ["/{id}"])
-    fun get(
+    fun findBy(
             @PathVariable("id")
             id: String?
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
 
-        val dto = cinemaService.get(null, id, 0, 1)
+        val dto = cinemaService.getCinemaById(id)
         val etag = dto.hashCode().toString()
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -68,7 +72,7 @@ class CinemaController {
                 .body(
                         ResponseDto(
                                 code = HttpStatus.OK.value(),
-                                page = PageDto(list = dto, totalSize = dto.size)
+                                page = PageDto(list = mutableListOf(dto), totalSize = mutableListOf(dto).size)
                         ).validated()
                 )
     }
@@ -87,11 +91,49 @@ class CinemaController {
         )
     }
 
+    @ApiOperation("Update partial information of a cinema by id ")
+    @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
+    fun updateGenre(@ApiParam("id of the cinema")
+                    @PathVariable("id")
+                    id: String?,
+                    @ApiParam("The partial patch")
+                    @RequestBody
+                    jsonPatch: String) : ResponseEntity<WrappedResponse<CinemaDto>> {
+        return ResponseEntity.ok(
+                ResponseDto(
+                        code = HttpStatus.CREATED.value(),
+                        page = PageDto(mutableListOf(cinemaService.patchUpdateCinema(id, jsonPatch)))
+                ).validated()
+        )
+    }
+
+    @ApiOperation("Update whole information of a cinema by id")
+    @PutMapping(path = ["/{id}"])
+    fun updateCinema(
+            @ApiParam("id of the cinema")
+            @PathVariable("id")
+            id: String,
+
+            @ApiParam("Cinema data")
+            @RequestBody
+            cinemaDto: CinemaDto
+    ): ResponseEntity<WrappedResponse<String?>> {
+        return ResponseEntity.ok(
+                ResponseDto(
+                        code = HttpStatus.OK.value(),
+                        page = PageDto(mutableListOf(cinemaService.putUpdateCinema(id, cinemaDto)))
+                ).validated()
+        )
+    }
+
+
     @ApiOperation("Delete a cinema by id")
     @DeleteMapping(path = ["/{id}"])
-    fun deleteGenre(
+    fun deleteCinema(
             @ApiParam("id of the cinema")
-            @PathVariable("id") id: String): ResponseEntity<WrappedResponse<String?>> {
+            @PathVariable("id")
+            id: String
+    ): ResponseEntity<WrappedResponse<String?>> {
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.OK.value(),
