@@ -196,7 +196,7 @@ class CouponTest : CouponTestBase() {
 		given()
 			.delete("/$id")
 			.then()
-			.statusCode(204)
+			.statusCode(200)
 		
 		given()
 			.get("/$id")
