@@ -1,6 +1,5 @@
 package no.ecm.order.controller
 
-import com.sun.jndi.toolkit.url.Uri
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
@@ -102,8 +101,8 @@ class CouponController {
 		)
 	}
 	
-	@ApiOperation("Uppdate all info for a given coupon")
-	@PutMapping("/{id}")
+	@ApiOperation("Update all info for a given coupon")
+	@PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 	fun updateCoupon(@ApiParam("Id of the coupon to be updated")
 					@PathVariable("id", required = true)
 					id: String,
@@ -114,6 +113,26 @@ class CouponController {
 	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
 		val returnId = service.put(id, updatedCouponDto)
+		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(CouponDto(id = returnId)))
+			).validated()
+		)
+	}
+	
+	@ApiOperation("Update a coupon with the given id")
+	@PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
+	fun patchTicketSeat(@ApiParam("id of coupon")
+						@PathVariable("id", required = true)
+						id: String,
+						//
+						@ApiParam("The partial patch (descripotion only).")
+						@RequestBody jsonPatch: String
+	): ResponseEntity<WrappedResponse<CouponDto>> {
+		
+		val returnId = service.patchDescription(id, jsonPatch)
 		
 		return ResponseEntity.status(201).body(
 			ResponseDto(
@@ -139,13 +158,4 @@ class CouponController {
 			).validated()
 		)
 	}
-	
-	/*
-		api/coupons (under invoice modul men egen url) Enkel (MARKER) (Skriver tester selv)
-		GET -> alle coupons
-			?code=code -> henter coupons
-		GET /{id} -> henter coupon basert på id
-		POST -> Opprette coupon
-		DELETE /{id} -> Slette en invoice
-	*/
 }
