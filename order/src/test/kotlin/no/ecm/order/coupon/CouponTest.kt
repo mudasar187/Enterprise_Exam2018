@@ -8,7 +8,7 @@ import no.ecm.utils.response.CouponResponseDto
 import org.hamcrest.CoreMatchers
 import org.junit.Test
 
-class CouponTests : CouponTestBase() {
+class CouponTest : CouponTestBase() {
 	
 	//TODO Fix all sizes stuff after DELETE is done
 	/*

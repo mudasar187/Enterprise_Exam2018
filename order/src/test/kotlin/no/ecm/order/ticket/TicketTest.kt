@@ -8,7 +8,7 @@ import no.ecm.utils.response.TicketResponseDto
 import org.hamcrest.CoreMatchers
 import org.junit.Test
 
-class TicketTests : TicketTestBase() {
+class TicketTest : TicketTestBase() {
 	
 	@Test
 	fun getAllTicketsTest() {
