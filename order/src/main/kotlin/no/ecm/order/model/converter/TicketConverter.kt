@@ -21,12 +21,12 @@ object TicketConverter {
 		)
 	}
 	
-	fun entityListToDtoList(entities: Iterable<Ticket>): List<TicketDto> {
-		return entities.map { entityToDto(it) }
+	fun entityListToDtoList(entities: Iterable<Ticket>): MutableList<TicketDto> {
+		return entities.map { entityToDto(it) }.toMutableList()
 	}
 	
-	fun dtoListToEntityList(dto: Iterable<TicketDto>): List<Ticket> {
-		return dto.map { dtoToEntity(it) }
+	fun dtoListToEntityList(dto: Iterable<TicketDto>): MutableList<Ticket> {
+		return dto.map { dtoToEntity(it) }.toMutableList()
 	}
 	
 	fun dtoListToPageDto(ticketDtoList: List<TicketDto>,

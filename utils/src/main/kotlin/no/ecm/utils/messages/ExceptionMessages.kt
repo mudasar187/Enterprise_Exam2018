@@ -5,7 +5,7 @@ class ExceptionMessages{
     companion object {
 
         fun notFoundMessage (type: String, paramValue: String, value: String): String {
-            return "Can't find $type with $paramValue: $value"
+            return "Can't find ${type.capitalize()} with ${paramValue.capitalize()}: $value"
         }
 
         fun inputFilterInvalid() : String {
@@ -16,71 +16,53 @@ class ExceptionMessages{
             return "Offset must be grater than 0 and limit must be greater than/or equal 1"
         }
 
-        fun toLargeOffset(offset: Int): String {
+        fun tooLargeOffset(offset: Int): String {
             return "Too large offset: $offset"
         }
 
         fun missingRequiredField(field: String): String {
-            return "Missing required field: $field"
+            return "Missing required field: ${field.capitalize()}"
         }
 
         fun invalidIdParameter(): String {
             return "Invalid id parameter. This should be a numeric string"
         }
         
-        fun tooLargeOffset(size: Int): String {
-            return "Too large offset, size of result is $size"
-        }
-        
         fun invalidTimeFormat(): String {
-            return "Bad expireAt format!, this follows following formatting rules: \"yyyy-MM-dd HH:mm:ss\""
+            return "Bad time format, this follows following formatting rules: \"yyyy-MM-dd HH:mm:ss\""
         }
         
-        fun idInCreationDtoBody(type: String): String {
-            return "You cannot create a $type with predefined id"
+        fun invalidSeatFormat(): String {
+            return "Bad seat format, this follows following formatting rules: \"[A-Z][0-9]{1,2}\""
         }
         
-        fun createEntity(type: String): String {
-            return "Error while creating a $type"
-        }
-        
-        fun deleteEntity(type: String): String {
-            return "Error while deleting $type"
-        }
-    
-        fun updateEntity(type: String): String {
-            return "Error while updating $type"
+        fun invalidJsonFormat(): String {
+            return "Invalid JSON-format"
         }
 
         fun invalidParameter(required: String, received: String): String {
-            return "Invalid parameter, expected: $required, but received: $received"
+            return "Invalid parameter, expected: ${required.capitalize()}, but received: ${received.capitalize()}"
         }
 
         fun unableToParse(value: String): String {
-            return "Unable to parse object variable: $value"
+            return "Unable to parse object variable: ${value.capitalize()}"
         }
 
         fun illegalParameter(value: String) : String{
-            return "You should not provide parameter: $value in this request!"
+            return "You should not provide parameter: ${value.capitalize()} in this request"
         }
 
         fun resourceAlreadyExists(type: String, paramValue: String, value: String): String {
-            return "$type with $paramValue equal to: '$value' already exists."
-        }
-        
-        fun notMachingIds(): String {
-            return "The given id in DTO doesn't match the id in the database"
+            return "${type.capitalize()} with ${paramValue.capitalize()} equal to: '${value.capitalize()}' already exists."
         }
 
         fun notMachingIds(type: String): String {
-            return "The given $type in DTO doesn't match the $type in the database"
+            return "The given ${type.capitalize()} in DTO doesn't match the $type in the database"
         }
 
         fun subIdNotMatchingParentId(subId: String, parentId: String) : String {
-            return "foreign key '$subId' not match primary key '$parentId'"
+            return "foreign key '${subId.capitalize()}' not match primary key '${parentId.capitalize()}'"
         }
-
-
 
     }
 

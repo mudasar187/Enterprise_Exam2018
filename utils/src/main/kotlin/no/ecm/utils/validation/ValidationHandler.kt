@@ -39,5 +39,17 @@ class ValidationHandler{
                 throw UserInputValidationException(offsetAndLimitInvalid())
             }
         }
+        
+        fun validateSeatFormat(paramSeat: String): String {
+    
+            val regex = """^[A-Z][0-9]{1,2}""".toRegex()
+            
+            if (regex.matches(paramSeat)) {
+                return paramSeat
+            } else {
+                throw UserInputValidationException(ExceptionMessages.invalidSeatFormat())
+            }
+            
+        }
     }
 }

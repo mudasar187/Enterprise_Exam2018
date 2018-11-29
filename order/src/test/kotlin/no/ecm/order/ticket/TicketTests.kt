@@ -67,6 +67,30 @@ class TicketTests : TicketTestBase() {
 	}
 	
 	@Test
+	fun cachingGetByIdTest() {
+		
+		val price = 123.4
+		val seat = "A1"
+		
+		val id = createTicket(price, seat)
+		
+		val etag = given()
+			.accept(ContentType.JSON)
+			.get("/$id")
+			.then()
+			.statusCode(200)
+			.header("ETag", CoreMatchers.notNullValue())
+			.extract().header("ETag")
+		
+		given().accept(ContentType.JSON)
+			.header("If-None-Match", etag)
+			.get("/$id")
+			.then()
+			.statusCode(304)
+			.content(CoreMatchers.equalTo(""))
+	}
+	
+	@Test
 	fun createTicketWithInvalidSeatTest() {
 		
 		val list: MutableList<TicketDto> = mutableListOf()
@@ -103,6 +127,19 @@ class TicketTests : TicketTestBase() {
 	}
 	
 	@Test
+	fun deleteNonExistingTicketTest() {
+		val price = 200.5
+		val seat = "A12"
+		
+		val id = createTicket(price, seat)
+		
+		given()
+			.delete("/1234567")
+			.then()
+			.statusCode(404)
+	}
+	
+	@Test
 	fun updateSeatNumber() {
 		
 		val price = 200.5
@@ -115,7 +152,7 @@ class TicketTests : TicketTestBase() {
 			.body("{\"seat\": \"$updatedSeat\"}")
 			.patch("/$id")
 			.then()
-			.statusCode(204)
+			.statusCode(201)
 		
 		given()
 			.get("/$id")
@@ -160,5 +197,70 @@ class TicketTests : TicketTestBase() {
 			.patch("/666")
 			.then()
 			.statusCode(404)
+	}
+	
+	@Test
+	fun updateTicketTest() {
+		
+		val price = 200.5
+		val seat = "A10"
+		
+		val id = createTicket(price, seat)
+		
+		val updatedPrice = 100.5
+		val updatedSeat = "C12"
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
+			.put("/{id}")
+			.then()
+			.statusCode(201)
+		
+		given()
+			.get("/$id")
+			.then()
+			.statusCode(200)
+			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
+			//.body("data.list[0].price", CoreMatchers.equalTo(updatedPrice.toString().trim()))
+			.body("data.list[0].seat", CoreMatchers.equalTo(updatedSeat))
+	}
+	
+	@Test
+	fun updateNonExistingTicket() {
+		
+		val id = 3333
+		val updatedPrice = 150.0
+		val updatedSeat = "A1"
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
+			.put("/{id}")
+			.then()
+			.statusCode(404)
+	}
+	
+	@Test
+	fun updateTicketWithNonMatchingIdInPathAndBody() {
+		
+		val price = 200.5
+		val seat = "A10"
+		
+		val id = createTicket(price, seat)
+		
+		val updatedPrice = 100.5
+		val updatedSeat = "C12"
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", 8765)
+			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
+			.put("/{id}")
+			.then()
+			.statusCode(409)
+		
 	}
 }

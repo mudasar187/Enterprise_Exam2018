@@ -1,16 +1,20 @@
 package no.ecm.order.service
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.order.model.converter.CouponConverter
 import no.ecm.order.repository.coupon.CouponRepository
 import no.ecm.utils.converter.ConvertionHandler
 import no.ecm.utils.dto.order.CouponDto
-import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.ExceptionMessages
+import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import javax.sound.sampled.Line
 
 @Service
 class CouponService {
@@ -25,7 +29,6 @@ class CouponService {
 		ValidationHandler.validateLimitAndOffset(offset, limit)
 		
 		val couponResultList: MutableList<CouponDto>
-		//val builder = UriComponentsBuilder.fromPath("/coupons")
 		
 		//If NOT paramCode or paramId are present, return all coupons in DB
 		if (paramCode.isNullOrBlank() && paramId.isNullOrBlank()) {
@@ -67,33 +70,44 @@ class CouponService {
 		
 		
 		if (dto.id != null) {
-			throw UserInputValidationException(ExceptionMessages.idInCreationDtoBody("coupon"), 404)
+			val errorMsg = ExceptionMessages.illegalParameter("coupon")
+			logger.warn(errorMsg)
+			throw UserInputValidationException(errorMsg, 404)
 		}
 		
-		if (dto.code.isNullOrEmpty()) {
-			throw UserInputValidationException(ExceptionMessages.missingRequiredField("code"))
-		} else if (dto.description.isNullOrEmpty()) {
-			throw UserInputValidationException(ExceptionMessages.missingRequiredField("description"))
-		} else if (dto.expireAt == null) {
-			throw UserInputValidationException(ExceptionMessages.missingRequiredField("expireAt"))
+		when {
+			dto.code.isNullOrEmpty() -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("code")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg)
+			}
+			dto.description.isNullOrEmpty() -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("description")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg)
+			}
+			dto.expireAt == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("expireAt")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg)
+			}
+			
+			// New format for input = yyyy-MM-dd HH:mm:ss
+			
+			//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
+			//return repository.save(updated).id.toString()
+			else -> {
+				val formattedTime = "${dto.expireAt!!}.000000"
+				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
+				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
+				
+				val id = repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!)
+				logger.info(InfoMessages.entityCreatedSuccessfully("coupon", id.toString()))
+				
+				return id.toString()
+			}
 		}
 		
-		// New format for input = yyyy-MM-dd HH:mm:ss
-		val formattedTime = "${dto.expireAt!!}.000000"
-		val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
-		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
-		
-		//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
-		//return repository.save(updated).id.toString()
-		
-		
-		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!) }
-		
-		catch (e: Exception) {
-			UserInputValidationException(ExceptionMessages.createEntity("coupon"))
-		}
-		
-		return id.toString()
 		
 	}
 	
@@ -103,15 +117,18 @@ class CouponService {
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
+
+			val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId)
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg, 404)
 		}
 		
 		try {
 			repository.deleteById(id)
+		} finally {
+			logger.info(InfoMessages.entitySuccessfullyDeleted("coupon", paramId))
 		}
-		catch (e: Exception) {
-			throw UserInputValidationException(ExceptionMessages.deleteEntity("coupon"))
-		}
+
 		
 		return id.toString()
 	}
@@ -120,22 +137,96 @@ class CouponService {
 		
 		val id = ValidationHandler.validateId(paramId, "id")
 		
-		if (!updatedCouponDto.id.equals(id.toString())) {
-			throw UserInputValidationException(ExceptionMessages.notMachingIds(), 409)
+		when {
+			updatedCouponDto.id.isNullOrEmpty() -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("id")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg)
+			}
+			updatedCouponDto.code.isNullOrEmpty() -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("code")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg)
+			}
+			updatedCouponDto.description.isNullOrEmpty() -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("description")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg)
+			}
+			updatedCouponDto.expireAt.isNullOrEmpty() -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("expireAt")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg)
+			}
+
+			!updatedCouponDto.id.equals(id.toString()) -> {
+				val errorMsg = ExceptionMessages.notMachingIds("id")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 409)
+			}
+			!repository.existsById(id) -> {
+				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId)
+				logger.warn(errorMsg)
+				throw NotFoundException(errorMsg, 404)
+			}
+			
+			else -> {
+				val formattedTime = "${updatedCouponDto.expireAt!!}.000000"
+				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
+				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
+				
+				try {
+					repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!)
+				} finally {
+					//logger.info(InfoMessages.entitySuccessfullyUpdated("coupon"))
+				}
+				
+				return id.toString()
+			}
 		}
 		
+	}
+	
+	fun patchDescription(paramId: String, jsonPatch: String): String {
+		
+		val id = ValidationHandler.validateId(paramId, "id")
+		
+		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
+			val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId)
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg, 404)
 		}
 		
-		val formattedTime = "${updatedCouponDto.expireAt!!}.000000"
-		val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
-		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
+		val jacksonObjectMapper = ObjectMapper()
+		
+		val jsonNode = try { jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java) }
+		
+		catch (e: Exception) {
+
+			val errorMsg = ExceptionMessages.invalidJsonFormat()
+			logger.warn(errorMsg)
+			throw UserInputValidationException(errorMsg, 409)
+		}
+		
+		if (jsonNode.has("id")) {
+			val errorMsg = ExceptionMessages.illegalParameter("id")
+			logger.warn(errorMsg)
+			throw UserInputValidationException(errorMsg, 400)
+		}
+		
+		if (!jsonNode.has("description")) {
+			val errorMsg = ExceptionMessages.missingRequiredField("description")
+			logger.warn(errorMsg)
+			throw UserInputValidationException(errorMsg, 400)
+		}
+		
+		val descNodeValue = jsonNode.get("description").asText()
 		
 		try {
-			assert(repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!))
-		} catch (e: Exception) {
-			throw UserInputValidationException(ExceptionMessages.updateEntity("coupon"))
+			repository.updateDescription(id, descNodeValue)
+		} finally {
+			logger.info(InfoMessages.entityFieldUpdatedSuccessfully("coupon", paramId, "description"))
 		}
 		
 		return id.toString()

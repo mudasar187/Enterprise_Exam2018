@@ -2,6 +2,8 @@ package no.ecm.order.repository.coupon
 
 import no.ecm.order.model.entity.Coupon
 import no.ecm.order.model.entity.Invoice
+import no.ecm.order.service.CouponService
+import no.ecm.utils.logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -32,5 +34,15 @@ class CouponRepositoryCustomImpl : CouponRepositoryCustom {
 		entity.expireAt = expireAt
 		
 		return true
+	}
+	
+	override fun updateDescription(id: Long, description: String): Boolean {
+		
+		val entity = em.find(Coupon::class.java, id) ?: return false
+		
+		entity.description = description
+		
+		return true
+		
 	}
 }
