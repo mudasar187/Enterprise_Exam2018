@@ -7,26 +7,21 @@ import no.ecm.movie.model.entity.Genre
 import no.ecm.movie.repository.GenreRepository
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.exception.ConflictException
-import no.ecm.utils.exception.ExceptionMessages.Companion.illegalParameter
-import no.ecm.utils.exception.ExceptionMessages.Companion.invalidIdParameter
-import no.ecm.utils.exception.ExceptionMessages.Companion.invalidParameter
-import no.ecm.utils.exception.ExceptionMessages.Companion.missingRequiredField
-import no.ecm.utils.exception.ExceptionMessages.Companion.notFoundMessage
-import no.ecm.utils.exception.ExceptionMessages.Companion.resourceAlreadyExists
-import no.ecm.utils.exception.ExceptionMessages.Companion.toLargeOffset
-import no.ecm.utils.exception.ExceptionMessages.Companion.unableToParse
+import no.ecm.utils.messages.ExceptionMessages.Companion.illegalParameter
+import no.ecm.utils.messages.ExceptionMessages.Companion.invalidParameter
+import no.ecm.utils.messages.ExceptionMessages.Companion.missingRequiredField
+import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
+import no.ecm.utils.messages.ExceptionMessages.Companion.resourceAlreadyExists
+import no.ecm.utils.messages.ExceptionMessages.Companion.unableToParse
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
-import no.ecm.utils.hal.HalLink
 import no.ecm.utils.logger
-import no.ecm.utils.response.ResponseDto
-import no.ecm.utils.response.WrappedResponse
+import no.ecm.utils.messages.InfoMessages.Companion.entityCreatedSuccessfully
+import no.ecm.utils.messages.InfoMessages.Companion.entityFieldUpdatedSuccessfully
+import no.ecm.utils.messages.InfoMessages.Companion.entitySuccessfullyDeleted
+import no.ecm.utils.messages.InfoMessages.Companion.entitySuccessfullyUpdated
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
-import no.ecm.utils.validation.ValidationHandler.Companion.validateLimitAndOffset
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.util.UriComponentsBuilder
 
 
 @Service
@@ -94,7 +89,7 @@ class GenreService (
 
         val genre = GenreConverter.dtoToEntity(genreDto)
         val id = genreRepository.save(genre).id.toString()
-        logger.info("Genre with id: $id created.")
+        logger.info(entityCreatedSuccessfully("Genre", id))
         return GenreDto(id = id)
     }
 
@@ -108,7 +103,7 @@ class GenreService (
         }
         
         genreRepository.deleteById(id)
-        logger.info("Genre with id: $id deleted.")
+        logger.info(entitySuccessfullyDeleted("Genre", id.toString()))
 
         return id.toString()
     }
@@ -131,7 +126,7 @@ class GenreService (
             jsonNode = jackson.readValue(body, JsonNode::class.java)
         } catch (e: Exception) {
             val errorMsg = invalidParameter("JSON", "invalid JSON object")
-            logger.error(errorMsg)
+            logger.warn(errorMsg)
             throw UserInputValidationException(errorMsg)
         }
 
@@ -152,6 +147,7 @@ class GenreService (
                 val name = jsonNode.get("name")
                 if (name.isTextual){
                     genre.name = name.asText()
+                    logger.info(entityFieldUpdatedSuccessfully("Genre", genre.id.toString(), "name"))
                 } else {
                     val errorMsg = unableToParse("name")
                     logger.warn(errorMsg)
@@ -161,6 +157,7 @@ class GenreService (
         }
 
         genreRepository.save(genre)
+        logger.info(entitySuccessfullyUpdated("Genre", genre.id.toString()))
     }
 
     fun putGenre(stringId: String?, genreDto: GenreDto) {

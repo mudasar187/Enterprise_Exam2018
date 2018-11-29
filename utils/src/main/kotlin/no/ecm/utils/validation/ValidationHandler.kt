@@ -1,11 +1,8 @@
 package no.ecm.utils.validation
 
-import no.ecm.utils.exception.ExceptionMessages
-import no.ecm.utils.exception.ExceptionMessages.Companion.offsetAndLimitInvalid
+import no.ecm.utils.messages.ExceptionMessages
+import no.ecm.utils.messages.ExceptionMessages.Companion.offsetAndLimitInvalid
 import no.ecm.utils.exception.UserInputValidationException
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 class ValidationHandler{
     companion object {

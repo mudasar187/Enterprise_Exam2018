@@ -10,13 +10,13 @@ import no.ecm.movie.repository.MovieRepository
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.exception.ConflictException
-import no.ecm.utils.exception.ExceptionMessages
-import no.ecm.utils.exception.ExceptionMessages.Companion.illegalParameter
-import no.ecm.utils.exception.ExceptionMessages.Companion.invalidParameter
-import no.ecm.utils.exception.ExceptionMessages.Companion.notFoundMessage
+import no.ecm.utils.messages.ExceptionMessages
+import no.ecm.utils.messages.ExceptionMessages.Companion.illegalParameter
+import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.ExceptionMessages.Companion.invalidParameter
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.stereotype.Service
 

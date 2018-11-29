@@ -1,31 +1,16 @@
 package no.ecm.order.service
 
-import com.google.common.base.Throwables
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ErrorMessages
 import no.ecm.order.model.converter.CouponConverter
-import no.ecm.order.model.entity.Coupon
 import no.ecm.order.repository.coupon.CouponRepository
 import no.ecm.utils.converter.ConvertionHandler
 import no.ecm.utils.dto.order.CouponDto
-import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
-import no.ecm.utils.hal.HalLink
-import no.ecm.utils.hal.PageDto
 import no.ecm.utils.logger
-import no.ecm.utils.response.CouponResponseDto
-import no.ecm.utils.response.ResponseDto
-import no.ecm.utils.response.WrappedResponse
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.util.UriComponentsBuilder
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import javax.validation.ConstraintViolationException
 
 @Service
 class CouponService {
