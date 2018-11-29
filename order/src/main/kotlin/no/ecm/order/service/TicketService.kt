@@ -54,17 +54,17 @@ class TicketService {
 			dto.id != null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("id")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			dto.price!!.isNaN() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			dto.seat.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("seat")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			
 			else -> {
@@ -107,17 +107,17 @@ class TicketService {
 			updatedTicketDto.id.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("id")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			updatedTicketDto.seat.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("seat")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			updatedTicketDto.price!!.isNaN() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			
 			!updatedTicketDto.id.equals(paramId) -> {
@@ -151,7 +151,9 @@ class TicketService {
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			throw NotFoundException(ExceptionMessages.notFoundMessage("ticket", "id", paramId), 404)
+			val errorMsg = ExceptionMessages.notFoundMessage("ticket", "id", paramId)
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg, 404)
 		}
 		
 		val jacksonObjectMapper = ObjectMapper()

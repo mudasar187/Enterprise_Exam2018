@@ -110,16 +110,10 @@ class CouponController {
 					@ApiParam("The updated couponDto")
 					@RequestBody
 					updatedCouponDto: CouponDto
-	): ResponseEntity<WrappedResponse<CouponDto>> {
+	): ResponseEntity<Void> {
 		
-		val returnId = service.put(id, updatedCouponDto)
-		
-		return ResponseEntity.status(201).body(
-			ResponseDto(
-				code = 201,
-				page = PageDto(list = mutableListOf(CouponDto(id = returnId)))
-			).validated()
-		)
+		service.put(id, updatedCouponDto)
+		return ResponseEntity.noContent().build()
 	}
 	
 	@ApiOperation("Update a coupon with the given id")
@@ -130,16 +124,10 @@ class CouponController {
 						//
 						@ApiParam("The partial patch (descripotion only).")
 						@RequestBody jsonPatch: String
-	): ResponseEntity<WrappedResponse<CouponDto>> {
+	): ResponseEntity<Void> {
 		
-		val returnId = service.patchDescription(id, jsonPatch)
-		
-		return ResponseEntity.status(201).body(
-			ResponseDto(
-				code = 201,
-				page = PageDto(list = mutableListOf(CouponDto(id = returnId)))
-			).validated()
-		)
+		service.patchDescription(id, jsonPatch)
+		return ResponseEntity.noContent().build()
 	}
 	
 	@ApiOperation("Delete a coupon with the given paramId")
@@ -151,9 +139,9 @@ class CouponController {
 		
 		val returnId = service.delete(paramId)
 		
-		return ResponseEntity.status(204).body(
+		return ResponseEntity.status(200).body(
 			ResponseDto<CouponDto>(
-				code = 204,
+				code = 200,
 				message = "Coupon with paramId: $returnId successfully deleted"
 			).validated()
 		)

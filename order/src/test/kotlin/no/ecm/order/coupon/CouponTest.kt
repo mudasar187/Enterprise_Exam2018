@@ -110,7 +110,7 @@ class CouponTest : CouponTestBase() {
 			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
 			.put("/{id}")
 			.then()
-			.statusCode(201)
+			.statusCode(204)
 		
 		given()
 			.get("/$id")
@@ -174,7 +174,7 @@ class CouponTest : CouponTestBase() {
 			.body(dto)
 			.post()
 			.then()
-			.statusCode(404)
+			.statusCode(400)
 			.body("message", CoreMatchers.notNullValue())
 			.body("status", CoreMatchers.equalTo("ERROR"))
 			.body("page", CoreMatchers.nullValue())
@@ -261,7 +261,7 @@ class CouponTest : CouponTestBase() {
 			.body("{\"description\": \"$updatedDescription\"}")
 			.patch("/$id")
 			.then()
-			.statusCode(201)
+			.statusCode(204)
 		
 		given()
 			.get("/$id")
