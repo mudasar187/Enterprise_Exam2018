@@ -1,23 +1,20 @@
 package no.ecm.utils.validation
 
-import no.ecm.utils.exception.ExceptionMessages
-import no.ecm.utils.exception.ExceptionMessages.Companion.offsetAndLimitInvalid
+import no.ecm.utils.messages.ExceptionMessages
+import no.ecm.utils.messages.ExceptionMessages.Companion.offsetAndLimitInvalid
 import no.ecm.utils.exception.UserInputValidationException
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 class ValidationHandler{
     companion object {
 
-        fun validateId(paramId: String?): Long {
+        fun validateId(paramId: String?, paramName: String?): Long {
             val id: Long
 
             try {
                 id = paramId!!.toLong()
             } catch (e: Exception) {
                 val errorMsg: String = if (paramId.equals("undefined")) {
-                    ExceptionMessages.missingRequiredField("$paramId")
+                    ExceptionMessages.missingRequiredField("$paramName")
                 } else {
                     ExceptionMessages.invalidIdParameter()
                 }

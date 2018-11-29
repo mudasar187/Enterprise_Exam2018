@@ -1,6 +1,6 @@
 package no.ecm.utils.converter
 
-import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.UserInputValidationException
 import java.time.ZoneId
 import java.time.ZonedDateTime
