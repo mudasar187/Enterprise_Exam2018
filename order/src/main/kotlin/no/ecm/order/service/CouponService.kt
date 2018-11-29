@@ -6,13 +6,15 @@ import no.ecm.order.model.converter.CouponConverter
 import no.ecm.order.repository.coupon.CouponRepository
 import no.ecm.utils.converter.ConvertionHandler
 import no.ecm.utils.dto.order.CouponDto
-import no.ecm.utils.exception.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.ExceptionMessages
+import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import javax.sound.sampled.Line
 
 @Service
 class CouponService {
@@ -32,6 +34,7 @@ class CouponService {
 		if (paramCode.isNullOrBlank() && paramId.isNullOrBlank()) {
 			
 			couponResultList = CouponConverter.entityListToDtoList(repository.findAll())
+			
 		}
 		
 		//If only paramCode are present, return coupon with given code
@@ -40,6 +43,7 @@ class CouponService {
 			couponResultList = try { mutableListOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!))) }
 			
 			catch (e: Exception) {
+				
 				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "code", paramCode!!)
 				logger.warn(errorMsg)
 				throw NotFoundException(errorMsg, 404)
@@ -48,7 +52,7 @@ class CouponService {
 		
 		//If only paramId are present, return coupon with given id
 		else {
-			val id = ValidationHandler.validateId(paramId)
+			val id = ValidationHandler.validateId(paramId, "id")
 			
 			couponResultList = try { mutableListOf(CouponConverter.entityToDto(repository.findById(id).get())) }
 			
@@ -98,6 +102,7 @@ class CouponService {
 				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 				
 				val id = repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!)
+				logger.info(InfoMessages.entityCreatedSuccessfully("coupon", id.toString()))
 				
 				return id.toString()
 			}
@@ -108,7 +113,7 @@ class CouponService {
 	
 	fun delete(paramId: String): String {
 		
-		val id= ValidationHandler.validateId(paramId)
+		val id= ValidationHandler.validateId(paramId, "id")
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
@@ -118,14 +123,19 @@ class CouponService {
 			throw NotFoundException(errorMsg, 404)
 		}
 		
-		repository.deleteById(id)
+		try {
+			repository.deleteById(id)
+		} finally {
+			logger.info(InfoMessages.entitySuccessfullyDeleted("coupon", paramId))
+		}
+		
 		
 		return id.toString()
 	}
 	
 	fun put(paramId: String, updatedCouponDto: CouponDto): String {
 		
-		val id = ValidationHandler.validateId(paramId)
+		val id = ValidationHandler.validateId(paramId, "id")
 		
 		when {
 			updatedCouponDto.id.isNullOrEmpty() -> {
@@ -165,7 +175,11 @@ class CouponService {
 				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
 				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 				
-				repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!)
+				try {
+					repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!)
+				} finally {
+					logger.info(InfoMessages.entitySuccessfullyUpdated("coupon"))
+				}
 				
 				return id.toString()
 			}
@@ -175,7 +189,7 @@ class CouponService {
 	
 	fun patchDescription(paramId: String, jsonPatch: String): String {
 		
-		val id = ValidationHandler.validateId(paramId)
+		val id = ValidationHandler.validateId(paramId, "id")
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
@@ -209,9 +223,12 @@ class CouponService {
 		
 		val descNodeValue = jsonNode.get("description").asText()
 		
-		repository.updateDescription(id, descNodeValue)
+		try {
+			repository.updateDescription(id, descNodeValue)
+		} finally {
+			logger.info(InfoMessages.entityFieldUpdatedSuccessfully("coupon", paramId, "description"))
+		}
 		
 		return id.toString()
-		
 	}
 }

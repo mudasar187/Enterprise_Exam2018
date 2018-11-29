@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiParam
 import no.ecm.movie.model.converter.GenreConverter
 import no.ecm.movie.service.GenreService
 import no.ecm.utils.dto.movie.GenreDto
+import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.util.UriComponentsBuilder
 
 @Api(value = "/genres", description = "API for genre entity")
 @RequestMapping(
@@ -37,7 +39,16 @@ class GenreController(
                   @ApiParam("Limit of genres in a single retrieved page")
                   @RequestParam("limit", defaultValue = "10")
                   limit: Int): ResponseEntity<WrappedResponse<GenreDto>> {
-        return genreService.getGenres(name, offset, limit)
+        val genreDtos = genreService.getGenres(name)
+
+        val builder = UriComponentsBuilder.fromPath("/genres")
+
+        if (!name.isNullOrEmpty()) {
+            builder.queryParam("name", name)
+        }
+
+        val pageDto = GenreConverter.dtoListToPageDto(genreDtos, offset, limit)
+        return HalLinkGenerator<GenreDto>().generateHalLinks(genreDtos, pageDto, builder, limit, offset)
     }
 
     @ApiOperation("Get a Genre by the id")
@@ -64,7 +75,7 @@ class GenreController(
     @PostMapping(consumes = ["application/json"])
     fun createGenre(
             @ApiParam("JSON object representing the Genre")
-            @RequestBody genreDto: GenreDto): ResponseEntity<WrappedResponse<String>> {
+            @RequestBody genreDto: GenreDto): ResponseEntity<WrappedResponse<GenreDto>> {
         return ResponseEntity.ok(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),

@@ -3,6 +3,7 @@ package no.ecm.movie.model.converter
 import no.ecm.movie.model.entity.Movie
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.validation.ValidationHandler
 import kotlin.streams.toList
 
 object MovieConverter {
@@ -66,6 +67,8 @@ object MovieConverter {
 	fun dtoListToPageDto(genreList: List<MovieDto>,
 						 offset: Int,
 						 limit: Int): PageDto<MovieDto> {
+
+		ValidationHandler.validateLimitAndOffset(offset, limit)
 
 		val dtoList: MutableList<MovieDto> =
 				genreList.stream()
