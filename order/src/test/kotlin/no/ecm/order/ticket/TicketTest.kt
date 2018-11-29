@@ -108,6 +108,21 @@ class TicketTest : TicketTestBase() {
 	}
 	
 	@Test
+	fun createTicketWitInvalidDataTest() {
+		val size = RestAssured.given().accept(ContentType.JSON).get()
+			.then()
+			.statusCode(200)
+			.extract()
+			.`as`(TicketResponseDto::class.java).data!!.list.size
+		
+		val price = 123.4
+		val seat = "A1"
+		
+		createInvalidTicket(price, "", 400)
+		assertResultSize(size)
+	}
+	
+	@Test
 	fun deleteUnusedTicketTest() {
 		
 		val price = 200.5

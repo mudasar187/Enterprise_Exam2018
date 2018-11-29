@@ -73,6 +73,18 @@ abstract class CouponTestBase {
 			.jsonPath().getLong("data.list[0].id")
 	}
 	
+	fun createInvalidCoupon(code: String, description: String, expireAt: String, statusCode: Int) {
+		
+		val dto = CouponDto(null, code, description, expireAt)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(dto)
+			.post()
+			.then()
+			.statusCode(statusCode)
+	}
+	
 	fun assertResultSize(size: Int) {
 		given().get().then().statusCode(200).body("data.list.size()", CoreMatchers.equalTo(size))
 	}

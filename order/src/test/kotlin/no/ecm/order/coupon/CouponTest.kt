@@ -55,6 +55,26 @@ class CouponTest : CouponTestBase() {
 	}
 	
 	@Test
+	fun createWithInvalidDataTest() {
+		val size = given().accept(ContentType.JSON).get()
+			.then()
+			.statusCode(200)
+			.extract()
+			.`as`(CouponResponseDto::class.java).data!!.list.size
+		val code = "1234554321"
+		val description = "DefaultDescription"
+		val expireAt = "2019-01-01 01:00:00"
+		
+		createInvalidCoupon("", description, expireAt, 400)
+		assertResultSize(size)
+		createInvalidCoupon(code, "", expireAt, 400)
+		assertResultSize(size)
+		createInvalidCoupon(code, description, "", 400)
+		assertResultSize(size)
+		
+	}
+	
+	@Test
 	fun getWithInvalidIdTest() {
 		
 		val code = "1234567899"
