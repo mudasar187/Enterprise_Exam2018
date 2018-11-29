@@ -10,4 +10,6 @@ interface CouponRepositoryCustom {
 	
 	fun updateCoupon(id: Long, code: String, description: String, expireAt: ZonedDateTime): Boolean
 	
+	fun updateDescription(id: Long, description: String): Boolean
+	
 }

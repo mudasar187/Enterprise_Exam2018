@@ -164,7 +164,7 @@ class CinemaService(
                 try {
                     jsonNode = jackson.readValue(body, JsonNode::class.java)
                 } catch (e: Exception) {
-                    val errorMsg = "Invalid JSON object"
+                    val errorMsg = ExceptionMessages.invalidJsonFormat()
                     logger.warn(errorMsg)
                     throw UserInputValidationException(errorMsg)
                 }

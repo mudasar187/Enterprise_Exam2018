@@ -21,6 +21,17 @@ class TicketRepositoryCustomImpl : TicketRepositoryCustom {
 		return entity.id!!
 	}
 	
+	override fun updateTicket(id: Long, price: Double, seat: String): Boolean {
+		
+		val entity = em.find(Ticket::class.java, id) ?: return false
+		
+		entity.price = price
+		entity.seat = seat
+		
+		return true
+		
+	}
+	
 	override fun updateSeat(paramId: Long, newSeat: String): Boolean {
 		
 		val entity = em.find(Ticket::class.java, paramId) ?: return false

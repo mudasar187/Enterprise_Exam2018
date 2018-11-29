@@ -152,20 +152,29 @@ class RoomService(
                 try {
                     jsonNode = jackson.readValue(body, JsonNode::class.java)
                 } catch (e: Exception) {
-                    val errorMsg = 
-                    throw UserInputValidationException("Invalid JSON object")
+                    val errorMsg = ExceptionMessages.invalidJsonFormat()
+                    logger.warn(errorMsg)
+                    throw UserInputValidationException(errorMsg)
                 }
 
                 val room = cinema.rooms.first { it.id == roomId }
 
                 when {
-                    jsonNode.has("id") -> throw UserInputValidationException(ExceptionMessages.illegalParameter("id"))
+                    jsonNode.has("id") -> {
+                        val errorMsg = ExceptionMessages.illegalParameter("id")
+                        logger.warn(errorMsg)
+                        throw UserInputValidationException(errorMsg)
+                    }
                     jsonNode.has("name") -> {
                         val name = jsonNode.get("name")
                         if (name.isTextual) {
                             room.name = name.asText()
+                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("room", "${room.id}", "name")
+                            logger.info(infoMsg)
                         } else {
-                            throw UserInputValidationException(ExceptionMessages.illegalParameter("Unable to handle field: 'name'"))
+                            val errorMsg = ExceptionMessages.unableToParse("name")
+                            logger.warn(errorMsg)
+                            throw UserInputValidationException(errorMsg)
 
                         }
                     }
@@ -180,12 +189,20 @@ class RoomService(
                             val seatsDto: Set<String> = mapper.readValue(seats.toString())
 
                             room.seats = seatsDto.toMutableSet()
+                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("room", "${room.id}", "seats")
+                            logger.info(infoMsg)
 
-                        } else throw UserInputValidationException("Unable to handle field: 'seats'")
+                        } else {
+                            val errorMsg = ExceptionMessages.unableToParse("seats")
+                            logger.warn(errorMsg)
+                            throw UserInputValidationException(errorMsg)
+                        }
                     }
                 }
 
                 roomRepository.save(room)
+                val infoMsg = InfoMessages.entitySuccessfullyUpdated("room", "${room.id}")
+                logger.info(infoMsg)
             }
         }
 
@@ -200,9 +217,21 @@ class RoomService(
         val isExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
 
         when {
-            !isExists -> throw NotFoundException(ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId"))
-            roomDto.id != paramRoomId -> throw UserInputValidationException(ExceptionMessages.notMachingIds("room id"))
-            roomDto.cinemaId != paramCinemaId -> throw UserInputValidationException(ExceptionMessages.notMachingIds("cinema id"))
+            !isExists -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
+            roomDto.id != paramRoomId -> {
+                val errorMsg = ExceptionMessages.notMachingIds("room id")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            roomDto.cinemaId != paramCinemaId -> {
+                val errorMsg = ExceptionMessages.notMachingIds("cinema id")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
             else -> {
                 val room = cinema.rooms.first { it.id == roomId }
 
@@ -212,6 +241,8 @@ class RoomService(
                 room.cinema = cinema
 
                 roomRepository.save(room)
+                val infoMsg = InfoMessages.entitySuccessfullyUpdated("room", "${room.id}")
+                logger.info(infoMsg)
             }
         }
 
@@ -226,12 +257,19 @@ class RoomService(
         val isExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
 
         when {
-            !isExists -> throw NotFoundException(ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId"))
+            !isExists -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
             else -> {
                 val room = cinema.rooms.first { it.id == roomId }
                 cinema.rooms.remove(room)
 
                 roomRepository.deleteById(roomId)
+
+                val infoMsg = InfoMessages.entitySuccessfullyDeleted("room", "${room.id}")
+                logger.info(infoMsg)
 
                 return roomId.toString()
             }

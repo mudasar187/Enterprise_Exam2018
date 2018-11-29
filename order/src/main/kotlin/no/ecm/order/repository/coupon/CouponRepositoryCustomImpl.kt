@@ -33,4 +33,14 @@ class CouponRepositoryCustomImpl : CouponRepositoryCustom {
 		
 		return true
 	}
+	
+	override fun updateDescription(id: Long, description: String): Boolean {
+		
+		val entity = em.find(Coupon::class.java, id) ?: return false
+		
+		entity.description = description
+		
+		return true
+		
+	}
 }
