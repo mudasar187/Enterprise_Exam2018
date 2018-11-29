@@ -2,26 +2,16 @@ package no.ecm.order.service
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.base.Throwables
 import no.ecm.order.model.converter.TicketConverter
 import no.ecm.order.repository.ticket.TicketRepository
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.exception.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
-import no.ecm.utils.hal.HalLink
-import no.ecm.utils.hal.PageDto
 import no.ecm.utils.logger
-import no.ecm.utils.response.ResponseDto
-import no.ecm.utils.response.TicketResponseDto
-import no.ecm.utils.response.WrappedResponse
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.util.UriComponentsBuilder
-import javax.validation.ConstraintViolationException
 
 @Service
 class TicketService {
@@ -29,14 +19,13 @@ class TicketService {
 	@Autowired
 	private lateinit var repository: TicketRepository
 	
-	val logger = logger<CouponService>()
+	val logger = logger<TicketService>()
 	
 	fun get(paramId: String?, offset: Int, limit: Int): MutableList<TicketDto> {
 		
 		ValidationHandler.validateLimitAndOffset(offset, limit)
 		
 		val ticketResultList: MutableList<TicketDto>
-		//val builder = UriComponentsBuilder.fromPath("/tickets")
 		
 		if (paramId.isNullOrBlank()) {
 			
@@ -53,7 +42,6 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw NotFoundException(errorMsg, 404)
 			}
-			
 		}
 		
 		return ticketResultList
@@ -63,7 +51,6 @@ class TicketService {
 		
 		when {
 			dto.id != null -> throw UserInputValidationException(ExceptionMessages.idInCreationDtoBody("ticket"), 404)
-			
 			dto.price!!.isNaN() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("price"))
 			dto.seat.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("seat"))
 			
