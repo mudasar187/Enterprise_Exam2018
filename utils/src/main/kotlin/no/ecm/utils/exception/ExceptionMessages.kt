@@ -36,6 +36,10 @@ class ExceptionMessages{
             return "Bad expireAt format!, this follows following formatting rules: \"yyyy-MM-dd HH:mm:ss\""
         }
         
+        fun invalidSeatFormat(): String {
+            return "Bad seat format!, this follows following formatting rules: \"[A-Z][0-9]{1,2}\""
+        }
+        
         fun invalidJsonFormat(): String {
             return "Invalid JSON-format"
         }

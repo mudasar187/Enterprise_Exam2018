@@ -3,13 +3,18 @@ package no.ecm.order.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import no.ecm.order.model.converter.TicketConverter
 import no.ecm.order.service.TicketService
 import no.ecm.utils.dto.order.TicketDto
+import no.ecm.utils.hal.HalLinkGenerator
+import no.ecm.utils.hal.PageDto
+import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.util.UriComponentsBuilder
 
 @Api(value = "/tickets", description = "API for ticket entity")
 @RequestMapping(
@@ -31,7 +36,11 @@ class TicketController {
 		@RequestParam("limit", defaultValue = "10")
 		limit: Int
 	): ResponseEntity<WrappedResponse<TicketDto>> {
-		return service.get(null, offset, limit)
+		val ticketResultList = service.get(null, offset, limit)
+		
+		val builder = UriComponentsBuilder.fromPath("/tickets")
+		val pageDto = TicketConverter.dtoListToPageDto(ticketResultList, offset, limit)
+		return HalLinkGenerator<TicketDto>().generateHalLinks(ticketResultList, pageDto, builder, limit, offset)
 	}
 	
 	@ApiOperation("Get a ticket by its ID")
@@ -50,7 +59,13 @@ class TicketController {
 		limit: Int
 	): ResponseEntity<WrappedResponse<TicketDto>> {
 		
-		return service.get(id, offset, limit)
+		val ticketResultList =  service.get(id, offset, limit)
+		
+		val builder = UriComponentsBuilder.fromPath("/tickets")
+		builder.queryParam("id", id)
+		
+		val pageDto = TicketConverter.dtoListToPageDto(ticketResultList, offset, limit)
+		return HalLinkGenerator<TicketDto>().generateHalLinks(ticketResultList, pageDto, builder, limit, offset)
 	}
 	
 	@ApiOperation("Create a new ticket")
@@ -60,8 +75,35 @@ class TicketController {
 		@RequestBody dto: TicketDto
 	) : ResponseEntity<WrappedResponse<TicketDto>> {
 		
-		return service.create(dto)
+		val returnId = service.create(dto)
 		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
+			).validated()
+		)
+	}
+	
+	@ApiOperation("Update all info for a given ticket")
+	@PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+	fun updateTicket(@ApiParam("Id of the ticket to be updated")
+					 @PathVariable("id", required = true)
+					 id: String,
+					//
+					 @ApiParam("The updated ticketDto")
+					 @RequestBody
+					 updatedTicketDto: TicketDto
+	): ResponseEntity<WrappedResponse<TicketDto>> {
+		
+		val returnId = service.put(id, updatedTicketDto)
+		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
+			).validated()
+		)
 	}
 	
 	@ApiOperation("Update a ticket with the given id")
@@ -73,7 +115,15 @@ class TicketController {
 						@ApiParam("The partial patch (seat only).")
 						@RequestBody jsonPatch: String
 	): ResponseEntity<WrappedResponse<TicketDto>> {
-		return service.patchSeat(id, jsonPatch)
+		
+		val returnId = service.patchSeat(id, jsonPatch)
+		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
+			).validated()
+		)
 	}
 	
 	
@@ -83,17 +133,13 @@ class TicketController {
 					  @PathVariable("id", required = true)
 					  id: String
 	): ResponseEntity<WrappedResponse<TicketDto>> {
-		return service.delete(id)
+		val returnId = service.delete(id)
+		
+		return ResponseEntity.status(204).body(
+			ResponseDto<TicketDto>(
+				code = 204,
+				message = "Coupon with paramId: $returnId successfully deleted"
+			).validated()
+		)
 	}
-	
-	/*
-	# GET -> alle tickets
-	# GET /{id} -> henter ticket basert på id
-	# POST -> Opprette ticket
-	PATCH /{id} -> Oppdatere ticket, f.eks. oppdatere seatNumber.
-	# DELETE /{id} -> Slette en invoice
-	*/
-	
-	
-	
 }
