@@ -55,7 +55,7 @@ class MovieController (
             @ApiParam("id of the Movie")
             @PathVariable("id") id: String): ResponseEntity<WrappedResponse<MovieDto>> {
 
-        val dto = movieService.getMovie(id)
+        val dto = MovieConverter.entityToDto(movieService.getMovie(id))
         val etag = dto.hashCode().toString()
 
         return ResponseEntity
@@ -83,23 +83,30 @@ class MovieController (
     }
 
 
-    @ApiOperation("Update a Movie")
+    @ApiOperation("Update a Movie using merge patch")
     @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
-    fun updateMovie(@ApiParam("The id of the Movie")
+    fun patchMovie(@ApiParam("The id of the Movie")
                     @PathVariable("id")
                     id: String?,
                     @ApiParam("The partial patch")
                     @RequestBody
-                    jsonPatch: String) : ResponseEntity<WrappedResponse<MovieDto>> {
-        return ResponseEntity.ok(
-                ResponseDto(
-                        code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(movieService.updateMovie(id, jsonPatch)))
-                ).validated()
-        )
+                    jsonPatch: String) : ResponseEntity<Void> {
+        movieService.patchMovie(id, jsonPatch)
+        return ResponseEntity.noContent().build()
     }
 
 
+    @ApiOperation("Update a Movie")
+    @PutMapping(path = ["/{id}"])
+    fun putMovie(@ApiParam("The id of the Movie")
+                 @PathVariable("id")
+                 id: String?,
+                 @ApiParam("JSON object representing the Movie")
+                 @RequestBody
+                 movieDto: MovieDto): ResponseEntity<Void> {
+        movieService.putMovie(id, movieDto)
+        return ResponseEntity.noContent().build()
+    }
 
     @ApiOperation("Delete a Movie by the id")
     @DeleteMapping(path = ["/{id}"])

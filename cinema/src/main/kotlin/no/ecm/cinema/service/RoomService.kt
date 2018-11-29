@@ -12,6 +12,8 @@ import no.ecm.utils.exception.ConflictException
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
+import no.ecm.utils.logger
+import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.stereotype.Service
 
@@ -22,17 +24,27 @@ class RoomService(
         private var cinemaService: CinemaService
 ) {
 
+    val logger = logger<RoomService>()
+
     fun getAllRoomsFromCinemaByCinemaId(paramId: String?): MutableList<RoomDto> {
 
         val id = ValidationHandler.validateId(paramId, "id")
 
         val rooms = when {
             !paramId.isNullOrBlank() -> roomRepository.findAllByCinemaId(id).toMutableList()
-            else -> throw NotFoundException(ExceptionMessages.notFoundMessage("room", "cinema id", "$paramId"), 404)
+            else -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("room", "cinema id", "$paramId")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
         }
 
         when {
-            rooms.size == 0 -> throw NotFoundException(ExceptionMessages.notFoundMessage("room", "cinema id", "$paramId"), 404)
+            rooms.size == 0 -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("room", "cinema id", "$paramId")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
             else -> return RoomConverter.entityListToDtoList(rooms)
         }
 
@@ -44,12 +56,22 @@ class RoomService(
         val roomId = ValidationHandler.validateId(paramRoomId, "room id")
 
         val room = when {
-            paramCinemaId.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.invalidParameter("cinemaId", "$paramCinemaId"))
-            paramRoomId.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.invalidParameter("roomId", "$paramRoomId"))
+            paramCinemaId.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.invalidParameter("cinemaId", "$paramCinemaId")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            paramRoomId.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.invalidParameter("roomId", "$paramRoomId")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
             else -> try {
                 roomRepository.findByIdAndCinemaId(roomId, cinemaId)
             } catch (e: Exception) {
-                throw NotFoundException(ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId"))
+                val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
             }
         }
 
@@ -62,20 +84,43 @@ class RoomService(
         val cinema = cinemaService.getCinemaById(paramCinemaId)
 
         when {
-            roomDto.cinemaId != paramCinemaId -> throw UserInputValidationException(ExceptionMessages.subIdNotMatchingParentId("cinema_id", "cinema id"))
-            !roomDto.id.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.illegalParameter("id"))
-            roomDto.name.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
-            roomDto.seats == null -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("seats"))
+            roomDto.cinemaId != paramCinemaId -> {
+                val errorMsg = ExceptionMessages.subIdNotMatchingParentId("cinema_id", "cinema id")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            !roomDto.id.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.subIdNotMatchingParentId("cinema_id", "cinema id")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            roomDto.name.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.missingRequiredField("name")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            roomDto.seats == null -> {
+                val errorMsg = ExceptionMessages.missingRequiredField("seats")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
             else -> {
                 val isExists = roomRepository.existsByName(roomDto.name.toString())
 
                 when {
-                    isExists -> throw ConflictException(ExceptionMessages.resourceAlreadyExists("Room", "name", "${roomDto.name}"))
+                    isExists -> {
+                        val errorMsg = ExceptionMessages.resourceAlreadyExists("Room", "name", "${roomDto.name}")
+                        logger.warn(errorMsg)
+                        throw ConflictException(errorMsg)
+                    }
                     else -> {
                         val room: Room = RoomConverter.dtoToEntity(roomDto)
                         room.cinema = cinema
 
-                        return RoomDto(id = roomRepository.save(room).id.toString())
+                        val id = roomRepository.save(room).id.toString()
+                        val infoMsg = InfoMessages.entityCreatedSuccessfully("room", "$id")
+                        logger.info(infoMsg)
+                        return RoomDto(id = id)
 
                     }
                 }
@@ -94,7 +139,11 @@ class RoomService(
         val isExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
 
         when {
-            !isExists -> throw NotFoundException(ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId"))
+            !isExists -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
             else -> {
                 val jackson = ObjectMapper()
 
@@ -103,6 +152,7 @@ class RoomService(
                 try {
                     jsonNode = jackson.readValue(body, JsonNode::class.java)
                 } catch (e: Exception) {
+                    val errorMsg = 
                     throw UserInputValidationException("Invalid JSON object")
                 }
 

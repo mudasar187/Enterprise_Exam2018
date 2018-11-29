@@ -10,7 +10,6 @@ import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
-import no.ecm.utils.validation.ValidationHandler.Companion.validateLimitAndOffset
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -76,7 +75,7 @@ class GenreController(
     fun createGenre(
             @ApiParam("JSON object representing the Genre")
             @RequestBody genreDto: GenreDto): ResponseEntity<WrappedResponse<GenreDto>> {
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
                         page = PageDto(mutableListOf(genreService.createGenre(genreDto)))
@@ -84,21 +83,28 @@ class GenreController(
         )
     }
 
+    @ApiOperation("Update a Genre")
+    @PutMapping(path = ["/{id}"])
+    fun putGenre(@ApiParam("The id of the Genre")
+                 @PathVariable("id")
+                 id: String?,
+                 @ApiParam("JSON object representing the Genre")
+                 @RequestBody genreDto: GenreDto) : ResponseEntity<Void> {
+        genreService.putGenre(id, genreDto)
+        return ResponseEntity.noContent().build()
+    }
+    
 
-    @ApiOperation("Create a Genre")
+    @ApiOperation("Update a Genre using merge patch")
     @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
-    fun updateGenre(@ApiParam("The id of the Genre")
+    fun patchGenre(@ApiParam("The id of the Genre")
               @PathVariable("id")
               id: String?,
-              @ApiParam("The partial patch")
+              @ApiParam("JSON Representing fields in a GenreDto")
               @RequestBody
-              jsonPatch: String) : ResponseEntity<WrappedResponse<GenreDto>> {
-        return ResponseEntity.ok(
-                ResponseDto(
-                        code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(genreService.updateGenre(id, jsonPatch)))
-                ).validated()
-        )
+              jsonPatch: String) : ResponseEntity<Void> {
+        genreService.patchGenre(id, jsonPatch)
+        return ResponseEntity.noContent().build()
     }
 
 

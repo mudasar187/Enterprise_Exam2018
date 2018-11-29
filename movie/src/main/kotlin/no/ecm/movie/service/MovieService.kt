@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.ecm.movie.model.converter.MovieConverter
+import no.ecm.movie.model.entity.Movie
 import no.ecm.movie.repository.MovieRepository
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
@@ -15,6 +16,7 @@ import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.ExceptionMessages.Companion.invalidParameter
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.stereotype.Service
 
@@ -27,7 +29,7 @@ class MovieService (
 
     fun getMovies(title: String?): MutableList<MovieDto> {
 
-        val movies = if (!title.isNullOrEmpty()){
+        val movies = if (!title.isNullOrBlank()){
             try {
                 movieRepository.findByTitleContainsIgnoreCase(title!!).toMutableList()
             } catch (e: Exception){
@@ -39,14 +41,14 @@ class MovieService (
             movieRepository.findAll().toMutableList()
         }
 
-        if (movies.isEmpty()) {
+        if (movies.isEmpty() && !title.isNullOrBlank()) {
             throw NotFoundException(notFoundMessage("Movie", "title", title!!))
         }
 
         return MovieConverter.entityListToDtoList(movies)
     }
 
-    fun getMovie(stringId: String?): MovieDto {
+    fun getMovie(stringId: String?): Movie {
 
         val id = validateId(stringId, "id")
 
@@ -56,9 +58,7 @@ class MovieService (
             throw NotFoundException(errorMsg)
         }
 
-        val movie = movieRepository.findById(id).get()
-
-        return MovieConverter.entityToDto(movie)
+        return movieRepository.findById(id).get()
     }
 
     private fun handleMissingField(fieldName: String){
@@ -99,7 +99,7 @@ class MovieService (
         return MovieDto(id = movieRepository.save(movie).id.toString())
     }
 
-    fun updateMovie(stringId: String?, body: String?): MovieDto {
+    fun patchMovie(stringId: String?, body: String?) {
 
         val id = validateId(stringId, "id")
 
@@ -167,8 +167,27 @@ class MovieService (
             }
         }
         movieRepository.save(movie)
+    }
 
-        return MovieConverter.entityToDto(movie)
+    fun putMovie(stringId: String?, movieDto: MovieDto) {
+
+        validateId(stringId, "id")
+        validateMovieDto(movieDto)
+        val movie = getMovie(stringId)
+
+        if (!stringId.equals(movieDto.id)){
+            throw UserInputValidationException(invalidParameter(stringId!!, movieDto.id!!))
+        }
+
+        movie.title = movieDto.title
+        movie.posterUrl = movieDto.posterUrl
+        movie.ageLimit = movieDto.ageLimit
+        movie.ageLimit = movieDto.ageLimit
+        movie.genre.forEach { it.movies.remove(movie) }
+        if (movieDto.genre != null){
+            movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
+        }
+        movieRepository.save(movie)
     }
 
     fun deleteMovie(stringId: String?): String? {
@@ -187,5 +206,13 @@ class MovieService (
         movieRepository.deleteById(id)
 
         return id.toString()
+    }
+
+    fun validateMovieDto(movieDto: MovieDto) {
+        when {
+            movieDto.title.isNullOrEmpty() -> handleMissingField("title")
+            movieDto.movieDuration == null -> handleMissingField("movieDuration")
+            movieDto.posterUrl.isNullOrEmpty() -> handleMissingField("posterUrl")
+        }
     }
 }
