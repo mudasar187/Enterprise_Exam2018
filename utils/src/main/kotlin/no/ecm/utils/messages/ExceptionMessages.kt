@@ -1,4 +1,4 @@
-package no.ecm.utils.exception
+package no.ecm.utils.messages
 
 class ExceptionMessages{
 
@@ -72,9 +72,15 @@ class ExceptionMessages{
             return "The given id in DTO doesn't match the id in the database"
         }
 
+        fun notMachingIds(type: String): String {
+            return "The given $type in DTO doesn't match the $type in the database"
+        }
+
         fun subIdNotMatchingParentId(subId: String, parentId: String) : String {
             return "foreign key '$subId' not match primary key '$parentId'"
         }
+
+
 
     }
 

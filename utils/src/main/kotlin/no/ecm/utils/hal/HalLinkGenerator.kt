@@ -1,6 +1,6 @@
 package no.ecm.utils.hal
 
-import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse

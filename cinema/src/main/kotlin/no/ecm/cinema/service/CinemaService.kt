@@ -7,11 +7,11 @@ import no.ecm.cinema.model.entity.Cinema
 import no.ecm.cinema.repository.CinemaRepository
 import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.exception.ConflictException
-import no.ecm.utils.exception.ExceptionMessages
+import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
+import no.ecm.utils.logger
 import no.ecm.utils.validation.ValidationHandler
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,25 +19,31 @@ class CinemaService(
         private var cinemaRepository: CinemaRepository
 ) {
 
+    val logger = logger<CinemaService>()
+
     fun get(paramName: String?, paramLocation: String?): MutableList<CinemaDto> {
 
-        val cinemas = if (!paramName.isNullOrEmpty() && !paramLocation.isNullOrEmpty()) {
-            throw UserInputValidationException(ExceptionMessages.inputFilterInvalid())
-        } else if (paramName.isNullOrEmpty() && !paramLocation.isNullOrEmpty()) {
-            try {
+        val cinemas = when {
+            !paramName.isNullOrBlank() && !paramLocation.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.inputFilterInvalid()
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            paramName.isNullOrBlank() && !paramLocation.isNullOrBlank() -> try {
                 cinemaRepository.findAllByLocationContainingIgnoreCase(paramLocation!!).toMutableList()
             } catch (e: Exception) {
-                throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "location", "$paramLocation"))
+                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "location", "$paramLocation")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
             }
-        } else if (!paramName.isNullOrEmpty() && paramLocation.isNullOrEmpty()) {
-            try {
+            !paramName.isNullOrBlank() && paramLocation.isNullOrBlank() -> try {
                 cinemaRepository.findAllByNameContainingIgnoreCase(paramName!!).toMutableList()
             } catch (e: Exception) {
-                throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "name", "$paramName"), 404)
+                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "name", "$paramName")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
             }
-
-        } else {
-            cinemaRepository.findAll().toMutableList()
+            else -> cinemaRepository.findAll().toMutableList()
         }
 
         return CinemaConverter.entityListToDtoList(cinemas, false)
@@ -47,131 +53,152 @@ class CinemaService(
 
         val id = ValidationHandler.validateId(paramId, "id")
 
-        if (!cinemaRepository.existsById(id)) {
-            throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$paramId"), 404)
+        when {
+            !cinemaRepository.existsById(id) -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$paramId")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
+            else -> return cinemaRepository.findById(id).get()
         }
-
-        return cinemaRepository.findById(id).get()
 
     }
 
     fun createCinema(cinemaDto: CinemaDto): CinemaDto {
 
-        if (cinemaDto.name.isNullOrEmpty()) {
-            throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
-        } else if (cinemaDto.location.isNullOrEmpty()) {
-            throw UserInputValidationException(ExceptionMessages.missingRequiredField("location"))
-        } else if (cinemaDto.rooms != null) {
-            throw UserInputValidationException(ExceptionMessages.illegalParameter("rooms"))
-        } else if (!cinemaDto.id.isNullOrEmpty()) {
-            throw UserInputValidationException(ExceptionMessages.illegalParameter("id"))
-        }
+        when {
+            cinemaDto.name.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.missingRequiredField("name")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            cinemaDto.location.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.missingRequiredField("location")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            cinemaDto.rooms != null -> {
+                val errorMsg = ExceptionMessages.illegalParameter("rooms")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            !cinemaDto.id.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.illegalParameter("id")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            else -> {
+                val isExists = cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString())
 
-        val isExists = cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString())
+                when {
+                    isExists -> {
+                        val errorMsg = ExceptionMessages.resourceAlreadyExists("Cinema", "name & location", "${cinemaDto.name}, ${cinemaDto.location}")
+                        logger.warn(errorMsg)
+                        throw ConflictException(errorMsg)
+                    }
+                    else ->  {
+                        val id = cinemaRepository.save(CinemaConverter.dtoToEntity(cinemaDto)).id.toString()
+                        val errorMsg = "hei"
+                        return CinemaDto(id = id)
+                    }
+                }
 
-        if (isExists) {
-            throw ConflictException(ExceptionMessages.resourceAlreadyExists("Cinema", "name & location", "${cinemaDto.name}, ${cinemaDto.location}"))
-        }
-
-        return CinemaDto(id = cinemaRepository.save(CinemaConverter.dtoToEntity(cinemaDto)).id.toString())
-    }
-
-    fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto): String? {
-
-        val id = ValidationHandler.validateId(paramId, "id")
-
-        if (!cinemaRepository.existsById(id)) {
-            throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
-        }
-
-        if (cinemaDto.name.isNullOrEmpty()) {
-            throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
-        } else if (cinemaDto.location.isNullOrEmpty()) {
-            throw UserInputValidationException(ExceptionMessages.missingRequiredField("location"))
-        } else if (cinemaDto.rooms != null) {
-            throw UserInputValidationException(ExceptionMessages.illegalParameter("rooms"))
-        } else if (!cinemaDto.id.isNullOrEmpty()) {
-            throw UserInputValidationException(ExceptionMessages.illegalParameter("id"))
-        }
-
-        val cinema = cinemaRepository.findById(id).get()
-
-        cinema.name = cinemaDto.name!!
-        cinema.location = cinemaDto.location!!
-
-        return cinemaRepository.save(cinema).id.toString()
-    }
-
-    fun patchUpdateCinema(paramId: String?, body: String?): CinemaDto {
-
-        val id = ValidationHandler.validateId(paramId, "id")
-
-        if (!cinemaRepository.existsById(id)) {
-            throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
-        }
-
-        val jackson = ObjectMapper()
-
-        val jsonNode: JsonNode
-
-        try {
-            jsonNode = jackson.readValue(body, JsonNode::class.java)
-        } catch (e: Exception) {
-            throw UserInputValidationException("Invalid JSON object")
-        }
-
-        val cinema = cinemaRepository.findById(id).get()
-
-        if (jsonNode.has("id")) {
-            val id = jsonNode.get("id")
-            if (id.isTextual) {
-                throw UserInputValidationException(ExceptionMessages.illegalParameter("id"))
             }
         }
-
-        if (jsonNode.has("rooms")) {
-            val rooms = jsonNode.get("rooms")
-            if (!rooms.isNull) {
-                throw UserInputValidationException(ExceptionMessages.illegalParameter("room"))
-            }
-        }
-
-        if (jsonNode.has("name")) {
-            val name = jsonNode.get("name")
-            if (name.isTextual) {
-                cinema.name = name.asText()
-            } else {
-                throw UserInputValidationException("Unable to handle field: 'name'")
-            }
-        }
-
-        if (jsonNode.has("location")) {
-            val location = jsonNode.get("location")
-            if (location.isTextual) {
-                cinema.location = location.asText()
-            } else {
-                throw UserInputValidationException("Unable to handle field: 'location")
-            }
-        }
-
-        cinemaRepository.save(cinema)
-
-        return CinemaConverter.entityToDto(cinema, false)
-
 
     }
 
-    fun deleteCinema(paramId: String?): String? {
+    fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto) {
 
         val id = ValidationHandler.validateId(paramId, "id")
 
-        if (!cinemaRepository.existsById(id)) {
-            throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+        when {
+            !cinemaRepository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+            cinemaDto.id != paramId -> throw UserInputValidationException(ExceptionMessages.notMachingIds(), 400)
+            cinemaDto.name.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
+            cinemaDto.location.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("location"))
+            cinemaDto.rooms != null -> throw UserInputValidationException(ExceptionMessages.illegalParameter("rooms"))
+            else -> {
+                val cinema = cinemaRepository.findById(id).get()
+
+                cinema.name = cinemaDto.name!!
+                cinema.location = cinemaDto.location!!
+
+                cinemaRepository.save(cinema)
+            }
         }
 
-        cinemaRepository.deleteById(id)
+    }
 
-        return id.toString()
+    fun patchUpdateCinema(paramId: String?, body: String?) {
+
+        val id = ValidationHandler.validateId(paramId, "id")
+
+        when {
+            !cinemaRepository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+            else -> {
+                val jackson = ObjectMapper()
+
+                val jsonNode: JsonNode
+
+                try {
+                    jsonNode = jackson.readValue(body, JsonNode::class.java)
+                } catch (e: Exception) {
+                    throw UserInputValidationException("Invalid JSON object")
+                }
+
+                val cinema = cinemaRepository.findById(id).get()
+
+                when {
+                    jsonNode.has("id") -> throw UserInputValidationException(ExceptionMessages.illegalParameter("id"))
+                    jsonNode.has("rooms") -> {
+                        val rooms = jsonNode.get("rooms")
+                        if (!rooms.isNull) {
+                            throw UserInputValidationException(ExceptionMessages.illegalParameter("room"))
+                        }
+                    }
+                }
+
+                when {
+                    jsonNode.has("name") -> {
+                        val name = jsonNode.get("name")
+                        if (name.isTextual) {
+                            cinema.name = name.asText()
+                        } else {
+                            throw UserInputValidationException("Unable to handle field: 'name'")
+                        }
+                    }
+                }
+
+                when {
+                    jsonNode.has("location") -> {
+                        val location = jsonNode.get("location")
+                        if (location.isTextual) {
+                            cinema.location = location.asText()
+                        } else {
+                            throw UserInputValidationException("Unable to handle field: 'location")
+                        }
+                    }
+                }
+
+                cinemaRepository.save(cinema)
+            }
+        }
+    }
+
+    fun deleteCinemaById(paramId: String?): String? {
+
+        val id = ValidationHandler.validateId(paramId, "id")
+
+        when {
+            !cinemaRepository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+            else -> {
+                cinemaRepository.deleteById(id)
+
+                return id.toString()
+            }
+        }
+
     }
 
 }
