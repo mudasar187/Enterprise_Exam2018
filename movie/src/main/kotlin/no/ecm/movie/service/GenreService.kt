@@ -130,6 +130,11 @@ class GenreService (
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }
+            !jsonNode.has("name") -> {
+                val errorMsg = missingRequiredField("name")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
             jsonNode.has("name") -> {
                 val name = jsonNode.get("name")
                 if (name.isTextual){

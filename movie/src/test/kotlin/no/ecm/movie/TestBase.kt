@@ -4,6 +4,7 @@ import io.restassured.RestAssured
 import io.restassured.RestAssured.*
 import io.restassured.http.ContentType
 import no.ecm.movie.response.GenreResponse
+import no.ecm.movie.response.MovieResponse
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -23,6 +24,7 @@ abstract class TestBase {
     protected var port = 0
 
     val genresUrl = "/genres"
+    val moviesUrl = "/movies"
 
     @Before
     @After
@@ -37,6 +39,11 @@ abstract class TestBase {
            one by one (DELETE)
          */
 
+        cleanGenres()
+        cleanMovies()
+    }
+
+    private fun cleanGenres() {
         val response = given().accept(ContentType.JSON)
                 .param("limit", 100)
                 .get(genresUrl)
@@ -51,6 +58,32 @@ abstract class TestBase {
                 .statusCode(200) }
 
         assertEquals(0, getGenreCount())
+    }
+
+    private fun cleanMovies() {
+        val response = given().accept(ContentType.JSON)
+                .param("limit", 100)
+                .get(moviesUrl)
+                .then()
+                .statusCode(200)
+                .extract()
+                .`as`(MovieResponse::class.java)
+
+        response.data!!.list.forEach { given()
+                .delete("$moviesUrl/${ it.id }")
+                .then()
+                .statusCode(200) }
+
+        assertEquals(0, getMovieCount())
+    }
+
+    fun getMovieCount(): Int {
+        return given().accept(ContentType.JSON)
+                .get(moviesUrl)
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath().getInt("data.totalSize")
     }
 
     fun getGenreCount(): Int {
