@@ -108,6 +108,21 @@ class TicketTest : TicketTestBase() {
 	}
 	
 	@Test
+	fun createTicketWitInvalidDataTest() {
+		val size = RestAssured.given().accept(ContentType.JSON).get()
+			.then()
+			.statusCode(200)
+			.extract()
+			.`as`(TicketResponseDto::class.java).data!!.list.size
+		
+		val price = 123.4
+		val seat = "A1"
+		
+		createInvalidTicket(price, "", 400)
+		assertResultSize(size)
+	}
+	
+	@Test
 	fun deleteUnusedTicketTest() {
 		
 		val price = 200.5
@@ -118,7 +133,7 @@ class TicketTest : TicketTestBase() {
 		given()
 			.delete("/$id")
 			.then()
-			.statusCode(204)
+			.statusCode(200)
 		
 		given()
 			.get("/$id")
@@ -152,7 +167,7 @@ class TicketTest : TicketTestBase() {
 			.body("{\"seat\": \"$updatedSeat\"}")
 			.patch("/$id")
 			.then()
-			.statusCode(201)
+			.statusCode(204)
 		
 		given()
 			.get("/$id")
@@ -216,14 +231,14 @@ class TicketTest : TicketTestBase() {
 			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
 			.put("/{id}")
 			.then()
-			.statusCode(201)
+			.statusCode(204)
 		
 		given()
 			.get("/$id")
 			.then()
 			.statusCode(200)
 			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
-			//.body("data.list[0].price", CoreMatchers.equalTo(updatedPrice.toString().trim()))
+			//.body("data.list[0].price", CoreMatchers.equalTo(updatedPrice.toString()))
 			.body("data.list[0].seat", CoreMatchers.equalTo(updatedSeat))
 	}
 	
