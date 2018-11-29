@@ -75,7 +75,7 @@ class CouponTests : CouponTestBase() {
 	@Test
 	fun getByCodeTest() {
 		
-		val code = "0987654321"
+		val code = "1209348756"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
 		

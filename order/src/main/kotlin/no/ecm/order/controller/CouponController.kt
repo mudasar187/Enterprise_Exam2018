@@ -1,6 +1,5 @@
 package no.ecm.order.controller
 
-import com.sun.jndi.toolkit.url.Uri
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
@@ -123,6 +122,26 @@ class CouponController {
 		)
 	}
 	
+	@ApiOperation("Update a coupon with the given id")
+	@PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
+	fun patchTicketSeat(@ApiParam("id of coupon")
+						@PathVariable("id", required = true)
+						id: String,
+						//
+						@ApiParam("The partial patch (descripotion only).")
+						@RequestBody jsonPatch: String
+	): ResponseEntity<WrappedResponse<CouponDto>> {
+		
+		val returnId = service.patchDescription(id, jsonPatch)
+		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(CouponDto(id = returnId)))
+			).validated()
+		)
+	}
+	
 	@ApiOperation("Delete a coupon with the given paramId")
 	@DeleteMapping(path = ["/{id}"])
 	fun deleteCoupon(@ApiParam("paramId of coupon")
@@ -139,13 +158,4 @@ class CouponController {
 			).validated()
 		)
 	}
-	
-	/*
-		api/coupons (under invoice modul men egen url) Enkel (MARKER) (Skriver tester selv)
-		GET -> alle coupons
-			?code=code -> henter coupons
-		GET /{id} -> henter coupon basert på id
-		POST -> Opprette coupon
-		DELETE /{id} -> Slette en invoice
-	*/
 }

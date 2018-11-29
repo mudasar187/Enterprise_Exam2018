@@ -36,8 +36,16 @@ class ExceptionMessages{
             return "Bad expireAt format!, this follows following formatting rules: \"yyyy-MM-dd HH:mm:ss\""
         }
         
+        fun invalidJsonFormat(): String {
+            return "Invalid JSON-format"
+        }
+        
         fun idInCreationDtoBody(type: String): String {
             return "You cannot create a $type with predefined id"
+        }
+        
+        fun idInPatchDtoBody(): String {
+            return "Updating the id is not allowed"
         }
         
         fun createEntity(type: String): String {
