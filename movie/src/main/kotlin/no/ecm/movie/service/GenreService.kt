@@ -16,6 +16,10 @@ import no.ecm.utils.messages.ExceptionMessages.Companion.unableToParse
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.InfoMessages.Companion.entityCreatedSuccessfully
+import no.ecm.utils.messages.InfoMessages.Companion.entityFieldUpdatedSuccessfully
+import no.ecm.utils.messages.InfoMessages.Companion.entitySuccessfullyDeleted
+import no.ecm.utils.messages.InfoMessages.Companion.entitySuccessfullyUpdated
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.stereotype.Service
 
@@ -29,7 +33,7 @@ class GenreService (
 
     fun getGenres(name: String?): MutableList<GenreDto> {
 
-        val genres = if (!name.isNullOrEmpty()){
+        val genres = if (!name.isNullOrBlank()){
             try {
                 genreRepository.findByNameContainsIgnoreCase(name!!).toMutableList()
             } catch (e: Exception){
@@ -41,7 +45,7 @@ class GenreService (
             genreRepository.findAll().toMutableList()
         }
 
-        if (genres.isEmpty()){
+        if (genres.isEmpty() && !name.isNullOrBlank()){
             throw NotFoundException(notFoundMessage("Genre", "name", name!!))
         }
 
@@ -69,28 +73,25 @@ class GenreService (
 
     fun createGenre(genreDto: GenreDto): GenreDto {
 
-        if (genreDto.name.isNullOrEmpty()) {
-            val errorMsg = missingRequiredField("name")
-            logger.warn(errorMsg)
-            throw UserInputValidationException(errorMsg)
-        } else if (!genreDto.id.isNullOrEmpty()){
+        validateGenreDto(genreDto)
+
+        if (!genreDto.id.isNullOrEmpty()){
             handleIllegalField("id")
-        } else if (genreDto.movies != null){
-            handleIllegalField("movies")
         }
 
         if (genreRepository.existsByNameIgnoreCase(genreDto.name!!)){
-            val errorMsg = (resourceAlreadyExists("Genre", "name", genreDto.name!!))
-            logger.error(errorMsg)
+            val errorMsg = resourceAlreadyExists("Genre", "name", genreDto.name!!)
+            logger.warn(errorMsg)
             throw ConflictException(errorMsg)
         }
 
         genreDto.name = genreDto.name!!.capitalize()
 
         val genre = GenreConverter.dtoToEntity(genreDto)
-        return GenreDto(id = genreRepository.save(genre).id.toString())
+        val id = genreRepository.save(genre).id.toString()
+        logger.info(entityCreatedSuccessfully("Genre", id))
+        return GenreDto(id = id)
     }
-
 
     fun deleteGenre(stringId: String?): String? {
         val id = validateId(stringId, "id")
@@ -102,11 +103,12 @@ class GenreService (
         }
         
         genreRepository.deleteById(id)
-        
+        logger.info(entitySuccessfullyDeleted("Genre", id.toString()))
+
         return id.toString()
     }
 
-    fun updateGenre(stringId: String?, body: String?): GenreDto {
+    fun patchGenre(stringId: String?, body: String?) {
 
         val id = validateId(stringId, "id")
 
@@ -124,32 +126,65 @@ class GenreService (
             jsonNode = jackson.readValue(body, JsonNode::class.java)
         } catch (e: Exception) {
             val errorMsg = invalidParameter("JSON", "invalid JSON object")
-            logger.error(errorMsg)
+            logger.warn(errorMsg)
             throw UserInputValidationException(errorMsg)
         }
 
         val genre = genreRepository.findById(id).get()
 
-        if (jsonNode.has("id")){
-            throw UserInputValidationException(illegalParameter("id"))
-        }
-
-        if (jsonNode.has("movies")){
-            throw UserInputValidationException(illegalParameter("movies"))
-        }
-
-        if (jsonNode.has("name")) {
-            val name = jsonNode.get("name")
-            if (name.isTextual){
-                genre.name = name.asText()
-            } else {
-                val errorMsg = unableToParse("name")
+        when {
+            jsonNode.has("id") -> {
+                val errorMsg = illegalParameter("id")
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }
+            jsonNode.has("movies") -> {
+                val errorMsg = illegalParameter("movies")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            jsonNode.has("name") -> {
+                val name = jsonNode.get("name")
+                if (name.isTextual){
+                    genre.name = name.asText()
+                    logger.info(entityFieldUpdatedSuccessfully("Genre", genre.id.toString(), "name"))
+                } else {
+                    val errorMsg = unableToParse("name")
+                    logger.warn(errorMsg)
+                    throw UserInputValidationException(errorMsg)
+                }
+            }
         }
-        genreRepository.save(genre)
 
-        return GenreConverter.entityToDto(genre, true)
+        genreRepository.save(genre)
+        logger.info(entitySuccessfullyUpdated("Genre", genre.id.toString()))
+    }
+
+    fun putGenre(stringId: String?, genreDto: GenreDto) {
+
+        validateId(stringId, "id")
+        val genre = getGenre(stringId)
+
+        validateGenreDto(genreDto)
+        if (genreDto.id.isNullOrEmpty()){
+            throw UserInputValidationException(missingRequiredField("id"))
+        }
+
+        if (!stringId.equals(genreDto.id)){
+            throw UserInputValidationException(invalidParameter(stringId!!, genreDto.id!!))
+        }
+
+        genre.name = genreDto.name!!.capitalize()
+        genreRepository.save(genre)
+    }
+
+    private fun validateGenreDto(genreDto: GenreDto) {
+        if (genreDto.name.isNullOrEmpty()) {
+            val errorMsg = missingRequiredField("name")
+            logger.warn(errorMsg)
+            throw UserInputValidationException(errorMsg)
+        } else if (genreDto.movies != null){
+            handleIllegalField("movies")
+        }
     }
 }

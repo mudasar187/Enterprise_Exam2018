@@ -11,6 +11,7 @@ import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.stereotype.Service
 
@@ -29,20 +30,12 @@ class CinemaService(
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }
-            paramName.isNullOrBlank() && !paramLocation.isNullOrBlank() -> try {
+            paramName.isNullOrBlank() && !paramLocation.isNullOrBlank() ->
                 cinemaRepository.findAllByLocationContainingIgnoreCase(paramLocation!!).toMutableList()
-            } catch (e: Exception) {
-                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "location", "$paramLocation")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
-            !paramName.isNullOrBlank() && paramLocation.isNullOrBlank() -> try {
+
+            !paramName.isNullOrBlank() && paramLocation.isNullOrBlank() ->
                 cinemaRepository.findAllByNameContainingIgnoreCase(paramName!!).toMutableList()
-            } catch (e: Exception) {
-                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "name", "$paramName")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
+
             else -> cinemaRepository.findAll().toMutableList()
         }
 
@@ -96,9 +89,10 @@ class CinemaService(
                         logger.warn(errorMsg)
                         throw ConflictException(errorMsg)
                     }
-                    else ->  {
+                    else -> {
                         val id = cinemaRepository.save(CinemaConverter.dtoToEntity(cinemaDto)).id.toString()
-                        val errorMsg = "hei"
+                        val infoMsg = InfoMessages.entityCreatedSuccessfully("cinema", "$id")
+                        logger.info(infoMsg)
                         return CinemaDto(id = id)
                     }
                 }
@@ -113,11 +107,31 @@ class CinemaService(
         val id = ValidationHandler.validateId(paramId, "id")
 
         when {
-            !cinemaRepository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
-            cinemaDto.id != paramId -> throw UserInputValidationException(ExceptionMessages.notMachingIds(), 400)
-            cinemaDto.name.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("name"))
-            cinemaDto.location.isNullOrBlank() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("location"))
-            cinemaDto.rooms != null -> throw UserInputValidationException(ExceptionMessages.illegalParameter("rooms"))
+            !cinemaRepository.existsById(id) -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
+            cinemaDto.id != paramId -> {
+                val errorMsg = ExceptionMessages.notMachingIds()
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            cinemaDto.name.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.missingRequiredField("name")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            cinemaDto.location.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.missingRequiredField("location")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            cinemaDto.rooms != null -> {
+                val errorMsg = ExceptionMessages.illegalParameter("rooms")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
             else -> {
                 val cinema = cinemaRepository.findById(id).get()
 
@@ -125,6 +139,8 @@ class CinemaService(
                 cinema.location = cinemaDto.location!!
 
                 cinemaRepository.save(cinema)
+                val infoMsg = InfoMessages.entitySuccessfullyUpdated("cinema", "${cinema.id}")
+                logger.info(infoMsg)
             }
         }
 
@@ -135,7 +151,11 @@ class CinemaService(
         val id = ValidationHandler.validateId(paramId, "id")
 
         when {
-            !cinemaRepository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+            !cinemaRepository.existsById(id) -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
             else -> {
                 val jackson = ObjectMapper()
 
@@ -144,17 +164,25 @@ class CinemaService(
                 try {
                     jsonNode = jackson.readValue(body, JsonNode::class.java)
                 } catch (e: Exception) {
-                    throw UserInputValidationException("Invalid JSON object")
+                    val errorMsg = ExceptionMessages.invalidJsonFormat()
+                    logger.warn(errorMsg)
+                    throw UserInputValidationException(errorMsg)
                 }
 
                 val cinema = cinemaRepository.findById(id).get()
 
                 when {
-                    jsonNode.has("id") -> throw UserInputValidationException(ExceptionMessages.illegalParameter("id"))
+                    jsonNode.has("id") -> {
+                        val errorMsg = ExceptionMessages.illegalParameter("id")
+                        logger.warn(errorMsg)
+                        throw UserInputValidationException(errorMsg)
+                    }
                     jsonNode.has("rooms") -> {
                         val rooms = jsonNode.get("rooms")
                         if (!rooms.isNull) {
-                            throw UserInputValidationException(ExceptionMessages.illegalParameter("room"))
+                            val errorMsg = ExceptionMessages.illegalParameter("room")
+                            logger.warn(errorMsg)
+                            throw UserInputValidationException(errorMsg)
                         }
                     }
                 }
@@ -164,8 +192,12 @@ class CinemaService(
                         val name = jsonNode.get("name")
                         if (name.isTextual) {
                             cinema.name = name.asText()
+                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("cinema", "${cinema.id}", "name")
+                            logger.info(infoMsg)
                         } else {
-                            throw UserInputValidationException("Unable to handle field: 'name'")
+                            val errorMsg = ExceptionMessages.unableToParse("name")
+                            logger.warn(errorMsg)
+                            throw UserInputValidationException(errorMsg)
                         }
                     }
                 }
@@ -175,13 +207,19 @@ class CinemaService(
                         val location = jsonNode.get("location")
                         if (location.isTextual) {
                             cinema.location = location.asText()
+                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("cinema", "${cinema.id}", "location")
+                            logger.info(infoMsg)
                         } else {
-                            throw UserInputValidationException("Unable to handle field: 'location")
+                            val errorMsg = ExceptionMessages.unableToParse("location")
+                            logger.warn(errorMsg)
+                            throw UserInputValidationException(errorMsg)
                         }
                     }
                 }
 
                 cinemaRepository.save(cinema)
+                val infoMsg = InfoMessages.entitySuccessfullyUpdated("cinema", "${cinema.id}")
+                logger.info(infoMsg)
             }
         }
     }
@@ -191,9 +229,15 @@ class CinemaService(
         val id = ValidationHandler.validateId(paramId, "id")
 
         when {
-            !cinemaRepository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("cinema", "id", "$id"))
+            !cinemaRepository.existsById(id) -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
             else -> {
                 cinemaRepository.deleteById(id)
+                val infoMsg = InfoMessages.entitySuccessfullyDeleted("cinema", "$id")
+                logger.info(infoMsg)
 
                 return id.toString()
             }

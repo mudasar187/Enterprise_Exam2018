@@ -117,7 +117,7 @@ class CouponService {
 		
 		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			
+
 			val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId)
 			logger.warn(errorMsg)
 			throw NotFoundException(errorMsg, 404)
@@ -128,7 +128,7 @@ class CouponService {
 		} finally {
 			logger.info(InfoMessages.entitySuccessfullyDeleted("coupon", paramId))
 		}
-		
+
 		
 		return id.toString()
 	}
@@ -158,7 +158,7 @@ class CouponService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg)
 			}
-			
+
 			!updatedCouponDto.id.equals(id.toString()) -> {
 				val errorMsg = ExceptionMessages.notMachingIds()
 				logger.warn(errorMsg)
@@ -203,7 +203,7 @@ class CouponService {
 		val jsonNode = try { jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java) }
 		
 		catch (e: Exception) {
-			
+
 			val errorMsg = ExceptionMessages.invalidJsonFormat()
 			logger.warn(errorMsg)
 			throw UserInputValidationException(errorMsg, 409)

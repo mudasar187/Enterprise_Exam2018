@@ -1,6 +1,7 @@
 package no.ecm.utils.exception
 
 import com.google.common.base.Throwables
+import no.ecm.utils.logger
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -15,7 +16,6 @@ import javax.validation.ConstraintViolationException
 class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
 
     companion object {
-
         /**
          * For security reasons, we should not leak internal details, like
          * class names, or even the fact we are using Spring
@@ -101,6 +101,8 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(Exception::class)
     fun handleBugsForUnexpectedExceptions(ex: Exception, request: WebRequest): ResponseEntity<Any> {
 
+        ex.printStackTrace()
+
         return handleExceptionInternal(
                 RuntimeException(INTERNAL_SERVER_ERROR_MESSAGE),
                 null, HttpHeaders(),
@@ -115,6 +117,8 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
             status: HttpStatus,
             request: WebRequest
     ) : ResponseEntity<Any> {
+
+        logger<RestResponseEntityExceptionHandler>().warn(ex.message)
 
         val dto = WrappedResponse<Any>(
                 code = status.value(),
