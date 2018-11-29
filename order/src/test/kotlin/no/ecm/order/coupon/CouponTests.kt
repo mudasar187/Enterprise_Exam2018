@@ -289,7 +289,7 @@ class CouponTests : CouponTestBase() {
 		
 		//Update with id in JSON Merge Patch body
 		given().contentType("application/merge-patch+json")
-			.body("{\"id\": $id,\"seat\": \"$updatedDescription\"}")
+			.body("{\"id\": \"$id\",\"seat\": \"$updatedDescription\"}")
 			.patch("/$id")
 			.then()
 			.statusCode(400)
