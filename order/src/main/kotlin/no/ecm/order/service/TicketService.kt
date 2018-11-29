@@ -137,7 +137,7 @@ class TicketService {
 				try {
 					repository.updateTicket(id, updatedTicketDto.price!!, validatedSeat)
 				} finally {
-					logger.info(InfoMessages.entitySuccessfullyUpdated("ticket"))
+					//logger.info(InfoMessages.entitySuccessfullyUpdated("ticket"))
 				}
 				
 				return id.toString()

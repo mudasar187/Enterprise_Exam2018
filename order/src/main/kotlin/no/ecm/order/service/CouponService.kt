@@ -178,7 +178,7 @@ class CouponService {
 				try {
 					repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!)
 				} finally {
-					logger.info(InfoMessages.entitySuccessfullyUpdated("coupon"))
+					//logger.info(InfoMessages.entitySuccessfullyUpdated("coupon"))
 				}
 				
 				return id.toString()
