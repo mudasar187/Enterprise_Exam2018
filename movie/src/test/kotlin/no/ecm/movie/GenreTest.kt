@@ -34,6 +34,55 @@ class GenreTest: TestBase() {
         assertEquals(createdGenre.name, genreResponse.data!!.list.first().name)
     }
 
+    @Test
+    fun testPatchGenre() {
+        val createdGenre = getGenreById(createDefaultGenre().toLong())
+
+        val name = createdGenre.name + " test"
+
+        given().contentType("application/merge-patch+json")
+                .body("{\"name\": \"$name\"}")
+                .patch("$genresUrl/${createdGenre.id}")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+
+        val patchedGenre = getGenreById(createdGenre.id!!.toLong())
+
+        assertEquals(name, patchedGenre.name)
+    }
+
+    @Test
+    fun testFailingPatchRequests() {
+
+        val createdGenre = getGenreById(createDefaultGenre().toLong())
+
+        val name = createdGenre.name + " test"
+
+        val id = createdGenre.id!!
+
+        //Invalid JSON Merge Patch syntax
+        given().contentType("application/merge-patch+json")
+                .body("{name: \"$name\"}")
+                .patch("$genresUrl/$id")
+                .then()
+                .statusCode(400)
+
+        //Update with id in JSON Merge Patch body
+        given().contentType("application/merge-patch+json")
+                .body("{\"id\": \"$id\",\"name\": \"$name\"}")
+                .patch("$genresUrl/$id")
+                .then()
+                .statusCode(400)
+
+        //Update non existing ticket
+        given().contentType("application/merge-patch+json")
+                .body("{\"name\": \"$name\"}")
+                .patch("$genresUrl/7777")
+                .then()
+                .statusCode(404)
+
+    }
+
     private fun getGenreById(id: Long): GenreDto {
         val response = given().contentType(ContentType.JSON)
                 .get("$genresUrl/$id")

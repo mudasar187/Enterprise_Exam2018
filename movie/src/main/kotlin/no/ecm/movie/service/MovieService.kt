@@ -30,19 +30,9 @@ class MovieService (
     fun getMovies(title: String?): MutableList<MovieDto> {
 
         val movies = if (!title.isNullOrBlank()){
-            try {
-                movieRepository.findByTitleContainsIgnoreCase(title!!).toMutableList()
-            } catch (e: Exception){
-                val errorMsg = notFoundMessage("Movie", "title", title!!)
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
+            movieRepository.findAllByTitleContainsIgnoreCase(title!!).toMutableList()
         } else {
             movieRepository.findAll().toMutableList()
-        }
-
-        if (movies.isEmpty() && !title.isNullOrBlank()) {
-            throw NotFoundException(notFoundMessage("Movie", "title", title!!))
         }
 
         return MovieConverter.entityListToDtoList(movies)

@@ -32,28 +32,15 @@ class GenreService (
     val logger = logger<GenreService>()
 
     fun getGenres(name: String?): MutableList<GenreDto> {
-
         val genres = if (!name.isNullOrBlank()){
-            try {
-                genreRepository.findByNameContainsIgnoreCase(name!!).toMutableList()
-            } catch (e: Exception){
-                val errorMsg = notFoundMessage("Genre", "name", name!!)
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
+            genreRepository.findAllByNameContainsIgnoreCase(name!!).toMutableList()
         } else {
             genreRepository.findAll().toMutableList()
         }
-
-        if (genres.isEmpty() && !name.isNullOrBlank()){
-            throw NotFoundException(notFoundMessage("Genre", "name", name!!))
-        }
-
         return GenreConverter.entityListToDtoList(genres, false)
     }
 
     fun getGenre(stringId: String?): Genre {
-
         val id = validateId(stringId, "id")
 
         if (!genreRepository.existsById(id)){
@@ -167,15 +154,20 @@ class GenreService (
 
         validateGenreDto(genreDto)
         if (genreDto.id.isNullOrEmpty()){
-            throw UserInputValidationException(missingRequiredField("id"))
+            val errorMsg = missingRequiredField("id")
+            logger.warn(errorMsg)
+            throw UserInputValidationException(errorMsg)
         }
 
         if (!stringId.equals(genreDto.id)){
-            throw UserInputValidationException(invalidParameter(stringId!!, genreDto.id!!))
+            val errorMsg = invalidParameter(stringId!!, genreDto.id!!)
+            logger.warn(errorMsg)
+            throw UserInputValidationException(errorMsg)
         }
 
         genre.name = genreDto.name!!.capitalize()
         genreRepository.save(genre)
+        logger.info(entitySuccessfullyUpdated("Genre", genre.id.toString()))
     }
 
     private fun validateGenreDto(genreDto: GenreDto) {
