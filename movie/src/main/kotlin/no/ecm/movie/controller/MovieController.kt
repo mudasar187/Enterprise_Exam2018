@@ -90,9 +90,9 @@ class MovieController (
                     id: String?,
                     @ApiParam("The partial patch")
                     @RequestBody
-                    jsonPatch: String) : ResponseEntity<WrappedResponse<MovieDto>> {
+                    jsonPatch: String) : ResponseEntity<Void> {
         movieService.patchMovie(id, jsonPatch)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+        return ResponseEntity.noContent().build()
     }
 
 
@@ -103,9 +103,9 @@ class MovieController (
                  id: String?,
                  @ApiParam("JSON object representing the Movie")
                  @RequestBody
-                 movieDto: MovieDto): ResponseEntity<WrappedResponse<MovieDto>> {
+                 movieDto: MovieDto): ResponseEntity<Void> {
         movieService.putMovie(id, movieDto)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+        return ResponseEntity.noContent().build()
     }
 
     @ApiOperation("Delete a Movie by the id")

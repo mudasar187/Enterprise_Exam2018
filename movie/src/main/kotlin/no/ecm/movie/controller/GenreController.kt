@@ -75,7 +75,7 @@ class GenreController(
     fun createGenre(
             @ApiParam("JSON object representing the Genre")
             @RequestBody genreDto: GenreDto): ResponseEntity<WrappedResponse<GenreDto>> {
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
                         page = PageDto(mutableListOf(genreService.createGenre(genreDto)))
@@ -89,9 +89,9 @@ class GenreController(
                  @PathVariable("id")
                  id: String?,
                  @ApiParam("JSON object representing the Genre")
-                 @RequestBody genreDto: GenreDto) : ResponseEntity<WrappedResponse<GenreDto>> {
+                 @RequestBody genreDto: GenreDto) : ResponseEntity<Void> {
         genreService.putGenre(id, genreDto)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build<WrappedResponse<GenreDto>>()
+        return ResponseEntity.noContent().build()
     }
     
 
@@ -102,9 +102,9 @@ class GenreController(
               id: String?,
               @ApiParam("JSON Representing fields in a GenreDto")
               @RequestBody
-              jsonPatch: String) : ResponseEntity<WrappedResponse<GenreDto>> {
+              jsonPatch: String) : ResponseEntity<Void> {
         genreService.patchGenre(id, jsonPatch)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+        return ResponseEntity.noContent().build()
     }
 
 

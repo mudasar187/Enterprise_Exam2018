@@ -38,7 +38,7 @@ class GenreService (
 
     fun getGenres(name: String?): MutableList<GenreDto> {
 
-        val genres = if (!name.isNullOrEmpty()){
+        val genres = if (!name.isNullOrBlank()){
             try {
                 genreRepository.findByNameContainsIgnoreCase(name!!).toMutableList()
             } catch (e: Exception){
@@ -50,7 +50,7 @@ class GenreService (
             genreRepository.findAll().toMutableList()
         }
 
-        if (genres.isEmpty()){
+        if (genres.isEmpty() && !name.isNullOrBlank()){
             throw NotFoundException(notFoundMessage("Genre", "name", name!!))
         }
 
@@ -85,15 +85,17 @@ class GenreService (
         }
 
         if (genreRepository.existsByNameIgnoreCase(genreDto.name!!)){
-            val errorMsg = (resourceAlreadyExists("Genre", "name", genreDto.name!!))
-            logger.error(errorMsg)
+            val errorMsg = resourceAlreadyExists("Genre", "name", genreDto.name!!)
+            logger.warn(errorMsg)
             throw ConflictException(errorMsg)
         }
 
         genreDto.name = genreDto.name!!.capitalize()
 
         val genre = GenreConverter.dtoToEntity(genreDto)
-        return GenreDto(id = genreRepository.save(genre).id.toString())
+        val id = genreRepository.save(genre).id.toString()
+        logger.info("Genre with id: $id created.")
+        return GenreDto(id = id)
     }
 
     fun deleteGenre(stringId: String?): String? {
@@ -106,7 +108,8 @@ class GenreService (
         }
         
         genreRepository.deleteById(id)
-        
+        logger.info("Genre with id: $id deleted.")
+
         return id.toString()
     }
 
@@ -134,24 +137,29 @@ class GenreService (
 
         val genre = genreRepository.findById(id).get()
 
-        if (jsonNode.has("id")){
-            throw UserInputValidationException(illegalParameter("id"))
-        }
-
-        if (jsonNode.has("movies")){
-            throw UserInputValidationException(illegalParameter("movies"))
-        }
-
-        if (jsonNode.has("name")) {
-            val name = jsonNode.get("name")
-            if (name.isTextual){
-                genre.name = name.asText()
-            } else {
-                val errorMsg = unableToParse("name")
+        when {
+            jsonNode.has("id") -> {
+                val errorMsg = illegalParameter("id")
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }
+            jsonNode.has("movies") -> {
+                val errorMsg = illegalParameter("movies")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            jsonNode.has("name") -> {
+                val name = jsonNode.get("name")
+                if (name.isTextual){
+                    genre.name = name.asText()
+                } else {
+                    val errorMsg = unableToParse("name")
+                    logger.warn(errorMsg)
+                    throw UserInputValidationException(errorMsg)
+                }
+            }
         }
+
         genreRepository.save(genre)
     }
 
