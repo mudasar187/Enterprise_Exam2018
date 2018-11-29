@@ -14,6 +14,7 @@ class InfoMessages{
             return "Updated ${field.capitalize()} on ${type.capitalize()} with id: $id"
         }
 
+        // PUT
         fun entitySuccessfullyUpdated(type: String, id: String): String {
             return "$type with id: $id successfully updated"
         }

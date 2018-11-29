@@ -20,7 +20,7 @@ class HalLinkGenerator<T> {
         builder.queryParam("limit", limit)
 
         if (offset != 0 && offset >= totalList.size) {
-            throw UserInputValidationException(ExceptionMessages.toLargeOffset(offset))
+            throw UserInputValidationException(ExceptionMessages.tooLargeOffset(offset))
         }
 
         // Build HalLinks

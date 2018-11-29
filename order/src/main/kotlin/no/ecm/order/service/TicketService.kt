@@ -121,7 +121,7 @@ class TicketService {
 			}
 			
 			!updatedTicketDto.id.equals(paramId) -> {
-				val errorMsg = ExceptionMessages.notMachingIds()
+				val errorMsg = ExceptionMessages.notMachingIds("id")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 409)
 			}
@@ -165,7 +165,7 @@ class TicketService {
 		}
 		
 		if (jsonNode.has("id")) {
-			val errorMsg = ExceptionMessages.idInPatchDtoBody()
+			val errorMsg = ExceptionMessages.illegalParameter("id")
 			logger.warn(errorMsg)
 			throw UserInputValidationException(errorMsg, 400)
 		}

@@ -113,7 +113,7 @@ class CinemaService(
                 throw NotFoundException(errorMsg)
             }
             cinemaDto.id != paramId -> {
-                val errorMsg = ExceptionMessages.notMachingIds()
+                val errorMsg = ExceptionMessages.notMachingIds("id")
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }

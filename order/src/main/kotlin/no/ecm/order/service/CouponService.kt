@@ -70,7 +70,7 @@ class CouponService {
 		
 		
 		if (dto.id != null) {
-			val errorMsg = ExceptionMessages.idInCreationDtoBody("coupon")
+			val errorMsg = ExceptionMessages.illegalParameter("coupon")
 			logger.warn(errorMsg)
 			throw UserInputValidationException(errorMsg, 404)
 		}
@@ -160,7 +160,7 @@ class CouponService {
 			}
 
 			!updatedCouponDto.id.equals(id.toString()) -> {
-				val errorMsg = ExceptionMessages.notMachingIds()
+				val errorMsg = ExceptionMessages.notMachingIds("id")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 409)
 			}
@@ -210,7 +210,7 @@ class CouponService {
 		}
 		
 		if (jsonNode.has("id")) {
-			val errorMsg = ExceptionMessages.idInPatchDtoBody()
+			val errorMsg = ExceptionMessages.illegalParameter("id")
 			logger.warn(errorMsg)
 			throw UserInputValidationException(errorMsg, 400)
 		}
