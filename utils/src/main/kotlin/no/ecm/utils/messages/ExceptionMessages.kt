@@ -5,7 +5,7 @@ class ExceptionMessages{
     companion object {
 
         fun notFoundMessage (type: String, paramValue: String, value: String): String {
-            return "Can't find $type with $paramValue: $value"
+            return "Can't find ${type.capitalize()} with $paramValue: $value"
         }
 
         fun inputFilterInvalid() : String {
@@ -21,7 +21,7 @@ class ExceptionMessages{
         }
 
         fun missingRequiredField(field: String): String {
-            return "Missing required field: $field"
+            return "Missing required field: ${field.capitalize()}"
         }
 
         fun invalidIdParameter(): String {
@@ -37,35 +37,35 @@ class ExceptionMessages{
         }
         
         fun idInCreationDtoBody(type: String): String {
-            return "You cannot create a $type with predefined id"
+            return "You cannot create a ${type.capitalize()} with predefined id"
         }
         
         fun createEntity(type: String): String {
-            return "Error while creating a $type"
+            return "Error while creating a ${type.capitalize()}"
         }
         
         fun deleteEntity(type: String): String {
-            return "Error while deleting $type"
+            return "Error while deleting ${type.capitalize()}"
         }
     
         fun updateEntity(type: String): String {
-            return "Error while updating $type"
+            return "Error while updating ${type.capitalize()}"
         }
 
         fun invalidParameter(required: String, received: String): String {
-            return "Invalid parameter, expected: $required, but received: $received"
+            return "Invalid parameter, expected: ${required.capitalize()}, but received: ${received.capitalize()}"
         }
 
         fun unableToParse(value: String): String {
-            return "Unable to parse object variable: $value"
+            return "Unable to parse object variable: ${value.capitalize()}"
         }
 
         fun illegalParameter(value: String) : String{
-            return "You should not provide parameter: $value in this request!"
+            return "You should not provide parameter: ${value.capitalize()} in this request!"
         }
 
         fun resourceAlreadyExists(type: String, paramValue: String, value: String): String {
-            return "$type with $paramValue equal to: '$value' already exists."
+            return "${type.capitalize()} with ${paramValue.capitalize()} equal to: '${value.capitalize()}' already exists."
         }
         
         fun notMachingIds(): String {
@@ -73,11 +73,11 @@ class ExceptionMessages{
         }
 
         fun notMachingIds(type: String): String {
-            return "The given $type in DTO doesn't match the $type in the database"
+            return "The given ${type.capitalize()} in DTO doesn't match the $type in the database"
         }
 
         fun subIdNotMatchingParentId(subId: String, parentId: String) : String {
-            return "foreign key '$subId' not match primary key '$parentId'"
+            return "foreign key '${subId.capitalize()}' not match primary key '${parentId.capitalize()}'"
         }
 
 
