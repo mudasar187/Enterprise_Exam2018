@@ -88,30 +88,35 @@ class CouponService {
 			throw UserInputValidationException(ExceptionMessages.idInCreationDtoBody("coupon"), 404)
 		}
 		
-		if (dto.code.isNullOrEmpty()) {
-			throw UserInputValidationException(ExceptionMessages.missingRequiredField("code"))
-		} else if (dto.description.isNullOrEmpty()) {
-			throw UserInputValidationException(ExceptionMessages.missingRequiredField("description"))
-		} else if (dto.expireAt == null) {
-			throw UserInputValidationException(ExceptionMessages.missingRequiredField("expireAt"))
+		when {
+			dto.code.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("code"))
+			dto.description.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("description"))
+			dto.expireAt == null -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("expireAt"))
+			
+			// New format for input = yyyy-MM-dd HH:mm:ss
+			
+			//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
+			//return repository.save(updated).id.toString()
+			else -> {
+				val formattedTime = "${dto.expireAt!!}.000000"
+				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
+				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
+				
+				//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
+				//return repository.save(updated).id.toString()
+				
+				
+				val id = try {
+					repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!)
+				} catch (e: Exception) {
+					UserInputValidationException(ExceptionMessages.createEntity("coupon"))
+				}
+				
+				return id.toString()
+				
+			}
 		}
 		
-		// New format for input = yyyy-MM-dd HH:mm:ss
-		val formattedTime = "${dto.expireAt!!}.000000"
-		val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
-		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
-		
-		//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
-		//return repository.save(updated).id.toString()
-		
-		
-		val id = try { repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!) }
-		
-		catch (e: Exception) {
-			UserInputValidationException(ExceptionMessages.createEntity("coupon"))
-		}
-		
-		return id.toString()
 		
 	}
 	
