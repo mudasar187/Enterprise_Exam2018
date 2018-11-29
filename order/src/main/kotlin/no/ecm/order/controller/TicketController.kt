@@ -83,7 +83,27 @@ class TicketController {
 				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
 			).validated()
 		)
+	}
+	
+	@ApiOperation("Update all info for a given ticket")
+	@PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+	fun updateTicket(@ApiParam("Id of the ticket to be updated")
+					 @PathVariable("id", required = true)
+					 id: String,
+					//
+					 @ApiParam("The updated ticketDto")
+					 @RequestBody
+					 updatedTicketDto: TicketDto
+	): ResponseEntity<WrappedResponse<TicketDto>> {
 		
+		val returnId = service.put(id, updatedTicketDto)
+		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
+			).validated()
+		)
 	}
 	
 	@ApiOperation("Update a ticket with the given id")
@@ -95,7 +115,15 @@ class TicketController {
 						@ApiParam("The partial patch (seat only).")
 						@RequestBody jsonPatch: String
 	): ResponseEntity<WrappedResponse<TicketDto>> {
-		return service.patchSeat(id, jsonPatch)
+		
+		val returnId = service.patchSeat(id, jsonPatch)
+		
+		return ResponseEntity.status(201).body(
+			ResponseDto(
+				code = 201,
+				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
+			).validated()
+		)
 	}
 	
 	
@@ -105,17 +133,13 @@ class TicketController {
 					  @PathVariable("id", required = true)
 					  id: String
 	): ResponseEntity<WrappedResponse<TicketDto>> {
-		return service.delete(id)
+		val returnId = service.delete(id)
+		
+		return ResponseEntity.status(204).body(
+			ResponseDto<TicketDto>(
+				code = 204,
+				message = "Coupon with paramId: $returnId successfully deleted"
+			).validated()
+		)
 	}
-	
-	/*
-	# GET -> alle tickets
-	# GET /{id} -> henter ticket basert på id
-	# POST -> Opprette ticket
-	PATCH /{id} -> Oppdatere ticket, f.eks. oppdatere seatNumber.
-	# DELETE /{id} -> Slette en invoice
-	*/
-	
-	
-	
 }

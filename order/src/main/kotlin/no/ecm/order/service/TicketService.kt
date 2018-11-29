@@ -79,58 +79,49 @@ class TicketService {
 		}
 	}
 	
-	fun delete(paramId: String): ResponseEntity<WrappedResponse<TicketDto>> {
+	fun delete(paramId: String): String {
 		
-		val id = try { paramId.toLong() }
+		val id = ValidationHandler.validateId(paramId)
 		
-		catch (e: Exception) {
-			return ResponseEntity.status(400).body(
-				ResponseDto<TicketDto>(
-					code = 400,
-					message = "Invalid id: $paramId"
-				).validated()
-			)
-		}
-		
-		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			return ResponseEntity.status(404).body(
-				ResponseDto<TicketDto>(
-					code = 404,
-					message = "Could not find coupon with id: $id"
-				).validated()
-			)
+			throw NotFoundException(ExceptionMessages.notFoundMessage("coupon", "id", paramId), 404)
 		}
 		
 		repository.deleteById(id)
-		return ResponseEntity.status(204).body(
-			ResponseDto<TicketDto>(
-				code = 204,
-				message = "Coupon with id: $id successfully deleted"
-			).validated()
-		)
+		
+		return id.toString()
 	}
 	
-	fun patchSeat(paramId: String, jsonPatch: String): ResponseEntity<WrappedResponse<TicketDto>> {
+	fun put(paramId: String, updatedTicketDto: TicketDto): String {
 		
-		val id = try { paramId.toLong() }
+		val id = ValidationHandler.validateId(paramId)
 		
-		catch (e: Exception) {
-			return ResponseEntity.status(400).body(
-				ResponseDto<TicketDto>(
-					code = 400,
-					message = "Invalid id: $paramId"
-				).validated()
-			)
+		when {
+			
+			updatedTicketDto.id.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("id"))
+			updatedTicketDto.seat.isNullOrEmpty() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("seat"))
+			updatedTicketDto.price!!.isNaN() -> throw UserInputValidationException(ExceptionMessages.missingRequiredField("price"))
+			
+			!updatedTicketDto.id.equals(paramId) -> throw UserInputValidationException(ExceptionMessages.notMachingIds(), 409)
+			!repository.existsById(id) -> throw NotFoundException(ExceptionMessages.notFoundMessage("ticket", "id", paramId), 404)
+			
+			else -> {
+				val validatedSeat = ValidationHandler.validateSeatFormat(updatedTicketDto.seat!!)
+				
+				repository.updateTicket(id, updatedTicketDto.price!!, updatedTicketDto.seat!!)
+				
+				return id.toString()
+			}
 		}
+	}
+	
+	fun patchSeat(paramId: String, jsonPatch: String): String {
 		
+		val id = ValidationHandler.validateId(paramId)
+		
+		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-			return ResponseEntity.status(404).body(
-				ResponseDto<TicketDto>(
-					code = HttpStatus.NOT_FOUND.value(),
-					message = "could not find ticket with ID: $id"
-				).validated()
-			)
+			throw NotFoundException(ExceptionMessages.notFoundMessage("ticket", "id", paramId), 404)
 		}
 		
 		val jacksonObjectMapper = ObjectMapper()
@@ -138,61 +129,23 @@ class TicketService {
 		val jsonNode = try { jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java) }
 		
 		catch (e: Exception) {
-			
-			//Invalid JSON data
-			return ResponseEntity.status(409).body(
-				ResponseDto<TicketDto>(
-					code = 409,
-					message = "Invalid JSON data"
-				).validated()
-			)
+			throw UserInputValidationException(ExceptionMessages.invalidJsonFormat(), 409)
 		}
 		
-		// Updating the id is not allowed
 		if (jsonNode.has("id")) {
-			return ResponseEntity.status(400).body(
-				ResponseDto<TicketDto>(
-					code = 400,
-					message = "Updating the id is not allowed"
-				).validated()
-			)
+			throw UserInputValidationException(ExceptionMessages.idInPatchDtoBody(), 400)
 		}
 		
 		if (!jsonNode.has("seat")) {
-			return ResponseEntity.status(400).body(
-				ResponseDto<TicketDto>(
-					code = 400,
-					message = "You need to specify a seat in the jsonPatch data"
-				).validated()
-			)
+			
+			throw UserInputValidationException(ExceptionMessages.missingRequiredField("seat"), 400)
 		}
 		
 		val seatNodeValue = jsonNode.get("seat").asText()
+		val validatedSeatValue = ValidationHandler.validateSeatFormat(seatNodeValue)
 		
-		if(!checkSeatRegex(seatNodeValue)){
-			return ResponseEntity.status(400).body(
-				ResponseDto<TicketDto>(
-					code = 400,
-					message = "Wrong formatting of seat, please see documentation for RegEx"
-				).validated()
-			)
-		}
+		repository.updateSeat(id, validatedSeatValue)
 		
-		repository.updateSeat(id, seatNodeValue)
-		
-		return ResponseEntity.status(204).body(
-			ResponseDto<TicketDto>(
-				code = 204,
-				message = "Ticket with id: $id successfully patched"
-			).validated()
-		)
-		
-	}
-	
-	private fun checkSeatRegex(text: String): Boolean {
-		
-		val regex = "^[A-Z][0-9]{1,2}".toRegex()
-		return regex.matches(text)
-		
+		return id.toString()
 	}
 }
