@@ -14,7 +14,6 @@ import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import javax.sound.sampled.Line
 
 @Service
 class CouponService {
@@ -40,10 +39,11 @@ class CouponService {
 		//If only paramCode are present, return coupon with given code
 		else if (!paramCode.isNullOrBlank() && paramId.isNullOrBlank()){
 			
-			couponResultList = try { mutableListOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!))) }
-			
-			catch (e: Exception) {
+			couponResultList = try {
 				
+				mutableListOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!)))
+			
+			} catch (e: Exception) {
 				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "code", paramCode!!)
 				logger.warn(errorMsg)
 				throw NotFoundException(errorMsg, 404)
@@ -54,48 +54,45 @@ class CouponService {
 		else {
 			val id = ValidationHandler.validateId(paramId, "id")
 			
-			couponResultList = try { mutableListOf(CouponConverter.entityToDto(repository.findById(id).get())) }
-			
-			catch (e: Exception) {
+			couponResultList = try {
+				
+				mutableListOf(CouponConverter.entityToDto(repository.findById(id).get()))
+				
+			} catch (e: Exception) {
 				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
 				logger.warn(errorMsg)
 				throw NotFoundException(errorMsg, 404)
 			}
 		}
-		
 		return couponResultList
 	}
 	
 	fun create(dto: CouponDto): String {
 		
-		
 		if (dto.id != null) {
-			val errorMsg = ExceptionMessages.illegalParameter("coupon")
+			val errorMsg = ExceptionMessages.illegalParameter("id")
 			logger.warn(errorMsg)
-			throw UserInputValidationException(errorMsg, 404)
+			throw UserInputValidationException(errorMsg, 400)
 		}
 		
 		when {
 			dto.code.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("code")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			dto.description.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("description")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			dto.expireAt == null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("expireAt")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			
 			// New format for input = yyyy-MM-dd HH:mm:ss
-			
-			//val updated = Coupon(null, dto.code!!, dto.description!!, parsedDateTime!!)
-			//return repository.save(updated).id.toString()
 			else -> {
 				val formattedTime = "${dto.expireAt!!}.000000"
 				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
@@ -107,17 +104,13 @@ class CouponService {
 				return id.toString()
 			}
 		}
-		
-		
 	}
 	
 	fun delete(paramId: String): String {
 		
 		val id= ValidationHandler.validateId(paramId, "id")
 		
-		//if the given is is not registred in the DB
 		if (!repository.existsById(id)) {
-
 			val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId)
 			logger.warn(errorMsg)
 			throw NotFoundException(errorMsg, 404)
@@ -128,7 +121,6 @@ class CouponService {
 		} finally {
 			logger.info(InfoMessages.entitySuccessfullyDeleted("coupon", paramId))
 		}
-
 		
 		return id.toString()
 	}
@@ -141,22 +133,22 @@ class CouponService {
 			updatedCouponDto.id.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("id")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			updatedCouponDto.code.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("code")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			updatedCouponDto.description.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("description")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 			updatedCouponDto.expireAt.isNullOrEmpty() -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("expireAt")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
 			}
 
 			!updatedCouponDto.id.equals(id.toString()) -> {
@@ -184,7 +176,6 @@ class CouponService {
 				return id.toString()
 			}
 		}
-		
 	}
 	
 	fun patchDescription(paramId: String, jsonPatch: String): String {
@@ -200,10 +191,11 @@ class CouponService {
 		
 		val jacksonObjectMapper = ObjectMapper()
 		
-		val jsonNode = try { jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java) }
-		
-		catch (e: Exception) {
-
+		val jsonNode = try {
+			
+			jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java)
+			
+		} catch (e: Exception) {
 			val errorMsg = ExceptionMessages.invalidJsonFormat()
 			logger.warn(errorMsg)
 			throw UserInputValidationException(errorMsg, 409)

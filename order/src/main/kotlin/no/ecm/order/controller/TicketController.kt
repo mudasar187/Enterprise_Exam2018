@@ -94,16 +94,10 @@ class TicketController {
 					 @ApiParam("The updated ticketDto")
 					 @RequestBody
 					 updatedTicketDto: TicketDto
-	): ResponseEntity<WrappedResponse<TicketDto>> {
+	): ResponseEntity<Void> {
 		
-		val returnId = service.put(id, updatedTicketDto)
-		
-		return ResponseEntity.status(201).body(
-			ResponseDto(
-				code = 201,
-				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
-			).validated()
-		)
+		service.put(id, updatedTicketDto)
+		return ResponseEntity.noContent().build()
 	}
 	
 	@ApiOperation("Update a ticket with the given id")
@@ -114,18 +108,11 @@ class TicketController {
 						//
 						@ApiParam("The partial patch (seat only).")
 						@RequestBody jsonPatch: String
-	): ResponseEntity<WrappedResponse<TicketDto>> {
+	): ResponseEntity<Void> {
 		
-		val returnId = service.patchSeat(id, jsonPatch)
-		
-		return ResponseEntity.status(201).body(
-			ResponseDto(
-				code = 201,
-				page = PageDto(list = mutableListOf(TicketDto(id = returnId)))
-			).validated()
-		)
+		service.patchSeat(id, jsonPatch)
+		return ResponseEntity.noContent().build()
 	}
-	
 	
 	@ApiOperation("Delete a ticket with the given id")
 	@DeleteMapping(path = ["/{id}"])
@@ -135,9 +122,9 @@ class TicketController {
 	): ResponseEntity<WrappedResponse<TicketDto>> {
 		val returnId = service.delete(id)
 		
-		return ResponseEntity.status(204).body(
+		return ResponseEntity.status(200).body(
 			ResponseDto<TicketDto>(
-				code = 204,
+				code = 200,
 				message = "Coupon with paramId: $returnId successfully deleted"
 			).validated()
 		)

@@ -75,6 +75,18 @@ abstract class TicketTestBase {
 			.jsonPath().getLong("data.list[0].id")
 	}
 	
+	fun createInvalidTicket(price: Double, seat: String, statusCode: Int) {
+		
+		val dto = TicketDto(null, price, seat)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body(dto)
+			.post()
+			.then()
+			.statusCode(statusCode)
+	}
+	
 	fun assertResultSize(size: Int) {
 		given().get().then().statusCode(200).body("data.list.size()", CoreMatchers.equalTo(size))
 	}
