@@ -83,6 +83,24 @@ class GenreTest: TestBase() {
 
     }
 
+    @Test
+    fun testPutGenreAndGetBadRequest() {
+        val createdGenre = getGenreById(createDefaultGenre().toLong())
+
+        createdGenre.name = createdGenre.name + " test"
+        val id = createdGenre.id!!
+
+        given().contentType(ContentType.JSON)
+                .body(createdGenre)
+                .put("$genresUrl/$id")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+
+        //val updatedGenre = getGenreById(createdGenre.id!!.toLong())
+
+        //assertEquals(createdGenre.name, updatedGenre.name)
+    }
+
     private fun getGenreById(id: Long): GenreDto {
         val response = given().contentType(ContentType.JSON)
                 .get("$genresUrl/$id")
