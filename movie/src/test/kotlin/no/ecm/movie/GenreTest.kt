@@ -5,6 +5,7 @@ import io.restassured.http.ContentType
 import no.ecm.movie.response.GenreResponse
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
+import org.hamcrest.CoreMatchers
 import org.junit.Assert.*
 import org.junit.Test
 import org.springframework.http.HttpStatus
@@ -66,17 +67,12 @@ class GenreTest: TestBase() {
     fun testGetGenreByName() {
         val createdGenre = getGenreById(createDefaultGenre().toLong())
 
-        val genreResponse = given().contentType(ContentType.JSON)
+        given().contentType(ContentType.JSON)
                 .queryParam("name", createdGenre.name)
                 .get(genresUrl)
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .extract()
-                .`as`(GenreResponse::class.java)
-
-        assertNotNull(genreResponse.data)
-
-        assertEquals(createdGenre.name, genreResponse.data!!.list.first().name)
+                .body("data.list[0].name", CoreMatchers.equalTo(createdGenre.name))
     }
 
     @Test
@@ -260,24 +256,5 @@ class GenreTest: TestBase() {
         return response
     }
 
-    private fun createDefaultGenre() : String {
-        val response = given().contentType(ContentType.JSON)
-                        .body(createDefaultGenreDto())
-                        .post(genresUrl)
-                        .then()
-                        .statusCode(HttpStatus.CREATED.value())
-                        .extract()
-                        .`as`(GenreResponse::class.java)
 
-        assertNotNull(response.data)
-        assertEquals(1, response.data!!.list.size)
-        assertNotNull(response.data!!.list.first().id!!)
-
-        return response.data!!.list.first().id!!
-    }
-
-    private fun createDefaultGenreDto() : GenreDto{
-        return GenreDto(
-                name = "horror")
-    }
 }

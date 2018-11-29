@@ -74,7 +74,7 @@ class MovieController (
     fun createMovie(
             @ApiParam("JSON object representing the Movie")
             @RequestBody movieDto: MovieDto): ResponseEntity<WrappedResponse<MovieDto>> {
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
                         page = PageDto(mutableListOf(movieService.createMovie(movieDto)))
