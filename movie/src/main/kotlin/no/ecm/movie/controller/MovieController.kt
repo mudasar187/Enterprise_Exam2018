@@ -32,6 +32,10 @@ class MovieController (
                   @RequestParam("title", required = false)
                   title : String?,
 
+                  @ApiParam("Age limit of the Movie")
+                  @RequestParam("ageLimit", required = false)
+                  ageLimit : Int?,
+
                   @ApiParam("Offset in the list of movies")
                   @RequestParam("offset", defaultValue = "0")
                   offset: Int,
@@ -39,7 +43,7 @@ class MovieController (
                   @ApiParam("Limit of movies in a single retrieved page")
                   @RequestParam("limit", defaultValue = "10")
                   limit: Int): ResponseEntity<WrappedResponse<MovieDto>> {
-        val movieDtos = movieService.getMovies(title)
+        val movieDtos = movieService.getMovies(title, ageLimit)
 
         val builder = UriComponentsBuilder.fromPath("/movies")
         if (!title.isNullOrEmpty()) {
@@ -74,7 +78,7 @@ class MovieController (
     fun createMovie(
             @ApiParam("JSON object representing the Movie")
             @RequestBody movieDto: MovieDto): ResponseEntity<WrappedResponse<MovieDto>> {
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
                         page = PageDto(mutableListOf(movieService.createMovie(movieDto)))

@@ -42,7 +42,7 @@ class GenreController(
 
         val builder = UriComponentsBuilder.fromPath("/genres")
 
-        if (!name.isNullOrEmpty()) {
+        if (!name.isNullOrBlank()) {
             builder.queryParam("name", name)
         }
 
