@@ -28,12 +28,44 @@ class MovieTest: TestBase() {
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("data.list[0].title", CoreMatchers.equalTo(movie.title))
+    }
 
+    @Test
+    fun testGetMovieByAgeLimit() {
+        val movie = getMovieById(createDefaultMovie())
+
+        given().contentType(ContentType.JSON)
+                .queryParam("ageLimit", movie.ageLimit)
+                .get(moviesUrl)
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("data.list.size()", CoreMatchers.not(0))
+    }
+
+    @Test
+    fun cachingTest() {
+
+        val etag =
+                given()
+                        .accept(ContentType.JSON)
+                        .get(moviesUrl)
+                        .then()
+                        .statusCode(200)
+                        .header("ETag", CoreMatchers.notNullValue())
+                        .extract().header("ETag")
+
+        given()
+                .accept(ContentType.JSON)
+                .header("If-None-Match", etag)
+                .get(moviesUrl)
+                .then()
+                .statusCode(304)
+                .content(CoreMatchers.equalTo(""))
     }
 
     private fun getMovieById(id: String) : MovieDto{
         return given().contentType(ContentType.JSON)
-                .get(moviesUrl)
+                .get("$moviesUrl/$id")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()

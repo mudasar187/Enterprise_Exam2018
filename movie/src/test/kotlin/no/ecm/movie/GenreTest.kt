@@ -44,6 +44,27 @@ class GenreTest: TestBase() {
     }
 
     @Test
+    fun cachingTest() {
+
+        val etag =
+                given()
+                        .accept(ContentType.JSON)
+                        .get(genresUrl)
+                        .then()
+                        .statusCode(200)
+                        .header("ETag", CoreMatchers.notNullValue())
+                        .extract().header("ETag")
+
+        given()
+                .accept(ContentType.JSON)
+                .header("If-None-Match", etag)
+                .get(genresUrl)
+                .then()
+                .statusCode(304)
+                .content(CoreMatchers.equalTo(""))
+    }
+
+    @Test
     fun testCreateGenreWithEmptyName() {
         given().contentType(ContentType.JSON)
                 .body(GenreDto())
