@@ -8,7 +8,7 @@ import no.ecm.utils.response.CouponResponseDto
 import org.hamcrest.CoreMatchers
 import org.junit.Test
 
-class CouponTests : CouponTestBase() {
+class CouponTest : CouponTestBase() {
 	
 	//TODO Fix all sizes stuff after DELETE is done
 	/*
@@ -52,6 +52,26 @@ class CouponTests : CouponTestBase() {
 			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
 			.body("data.list[0].code", CoreMatchers.equalTo(code))
 			.body("data.list[0].description", CoreMatchers.equalTo(description))
+	}
+	
+	@Test
+	fun createWithInvalidDataTest() {
+		val size = given().accept(ContentType.JSON).get()
+			.then()
+			.statusCode(200)
+			.extract()
+			.`as`(CouponResponseDto::class.java).data!!.list.size
+		val code = "1234554321"
+		val description = "DefaultDescription"
+		val expireAt = "2019-01-01 01:00:00"
+		
+		createInvalidCoupon("", description, expireAt, 400)
+		assertResultSize(size)
+		createInvalidCoupon(code, "", expireAt, 400)
+		assertResultSize(size)
+		createInvalidCoupon(code, description, "", 400)
+		assertResultSize(size)
+		
 	}
 	
 	@Test
@@ -110,7 +130,7 @@ class CouponTests : CouponTestBase() {
 			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
 			.put("/{id}")
 			.then()
-			.statusCode(201)
+			.statusCode(204)
 		
 		given()
 			.get("/$id")
@@ -174,7 +194,7 @@ class CouponTests : CouponTestBase() {
 			.body(dto)
 			.post()
 			.then()
-			.statusCode(404)
+			.statusCode(400)
 			.body("message", CoreMatchers.notNullValue())
 			.body("status", CoreMatchers.equalTo("ERROR"))
 			.body("page", CoreMatchers.nullValue())
@@ -196,7 +216,7 @@ class CouponTests : CouponTestBase() {
 		given()
 			.delete("/$id")
 			.then()
-			.statusCode(204)
+			.statusCode(200)
 		
 		given()
 			.get("/$id")
@@ -261,7 +281,7 @@ class CouponTests : CouponTestBase() {
 			.body("{\"description\": \"$updatedDescription\"}")
 			.patch("/$id")
 			.then()
-			.statusCode(201)
+			.statusCode(204)
 		
 		given()
 			.get("/$id")
