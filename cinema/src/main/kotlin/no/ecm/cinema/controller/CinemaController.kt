@@ -172,7 +172,7 @@ class CinemaController(
     }
 
     @ApiOperation("Create a room to specific cinema")
-    @PostMapping(path = ["/{cinema_id}/rooms/"])
+    @PostMapping(path = ["/{cinema_id}/rooms"])
     fun createRoomToSpecificCinemaByCinemaId(
             @ApiParam("id of cinema")
             @PathVariable("cinema_id")
@@ -189,7 +189,7 @@ class CinemaController(
         )
     }
 
-    @ApiOperation("Get room by id and cinema id")
+    @ApiOperation("Get single room by id and cinema id")
     @GetMapping(path = ["/{cinema_id}/rooms/{room_id}"])
     fun getRoomByIdAndCinemaId(
             @ApiParam("id of cinema")
@@ -230,7 +230,7 @@ class CinemaController(
             @RequestBody
             jsonPatch: String
     ): ResponseEntity<Void> {
-        roomService.patchUpdateRoomByIdAndCinemaId(cinemaId,roomId, jsonPatch)
+        roomService.patchUpdateRoomByIdAndCinemaId(cinemaId, roomId, jsonPatch)
         return ResponseEntity.noContent().build()
     }
 
@@ -270,19 +270,6 @@ class CinemaController(
                         code = HttpStatus.OK.value(),
                         page = PageDto(mutableListOf(roomService.deleteRoomByIdAndCinemaId(roomId, cinemaId)))
                 ).validated()
-        )
-    }
-
-    @Deprecated("Only for check if room exists when delete room")
-    @ApiOperation("Check if room exists")
-    @GetMapping("/getroom/{id}")
-    fun getRoomById(
-            @ApiParam("id of room")
-            @PathVariable("id")
-            id: String
-    ): ResponseEntity<RoomDto> {
-        return ResponseEntity.ok(
-                RoomConverter.entityToDto(roomRepository.findById(id!!.toLong()).get())
         )
     }
 }

@@ -28,51 +28,25 @@ class RoomService(
 
     fun getAllRoomsFromCinemaByCinemaId(paramId: String?): MutableList<RoomDto> {
 
-        val id = ValidationHandler.validateId(paramId, "id")
+        val cinemaId = cinemaService.getCinemaById(paramId).id
 
-        val rooms = when {
-            !paramId.isNullOrBlank() -> roomRepository.findAllByCinemaId(id).toMutableList()
-            else -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("room", "cinema id", "$paramId")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
-        }
+        val rooms = roomRepository.findAllByCinemaId(cinemaId!!.toLong()).toMutableList()
 
-        when {
-            rooms.size == 0 -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("room", "cinema id", "$paramId")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
-            else -> return RoomConverter.entityListToDtoList(rooms)
-        }
+        return RoomConverter.entityListToDtoList(rooms)
 
     }
 
     fun getRoomByIdAndCinemaId(paramCinemaId: String?, paramRoomId: String?): RoomDto {
 
-        val cinemaId = ValidationHandler.validateId(paramCinemaId, "cinema id")
+        val cinemaId = cinemaService.getCinemaById(paramCinemaId).id
         val roomId = ValidationHandler.validateId(paramRoomId, "room id")
 
-        val room = when {
-            paramCinemaId.isNullOrBlank() -> {
-                val errorMsg = ExceptionMessages.invalidParameter("cinemaId", "$paramCinemaId")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
-            }
-            paramRoomId.isNullOrBlank() -> {
-                val errorMsg = ExceptionMessages.invalidParameter("roomId", "$paramRoomId")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
-            }
-            else -> try {
-                roomRepository.findByIdAndCinemaId(roomId, cinemaId)
-            } catch (e: Exception) {
-                val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
+        val room = try {
+            roomRepository.findByIdAndCinemaId(roomId, cinemaId!!.toLong())
+        } catch (e: Exception) {
+            val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
+            logger.warn(errorMsg)
+            throw NotFoundException(errorMsg)
         }
 
         return RoomConverter.entityToDto(room)
@@ -85,7 +59,7 @@ class RoomService(
 
         when {
             roomDto.cinemaId != paramCinemaId -> {
-                val errorMsg = ExceptionMessages.subIdNotMatchingParentId("cinema_id", "cinema id")
+                val errorMsg = ExceptionMessages.subIdNotMatchingParentId("cinemaId", "cinema id")
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }
@@ -105,10 +79,10 @@ class RoomService(
                 throw UserInputValidationException(errorMsg)
             }
             else -> {
-                val isExists = roomRepository.existsByName(roomDto.name.toString())
+                val roomExists = roomRepository.existsByName(roomDto.name.toString())
 
                 when {
-                    isExists -> {
+                    roomExists -> {
                         val errorMsg = ExceptionMessages.resourceAlreadyExists("Room", "name", "${roomDto.name}")
                         logger.warn(errorMsg)
                         throw ConflictException(errorMsg)
@@ -137,10 +111,10 @@ class RoomService(
 
         val cinema = cinemaService.getCinemaById(paramCinemaId)
 
-        val isExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
+        val roomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
 
         when {
-            !isExists -> {
+            !roomExists -> {
                 val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
@@ -216,10 +190,10 @@ class RoomService(
 
         val cinema = cinemaService.getCinemaById(paramCinemaId)
 
-        val isExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
+        val roomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
 
         when {
-            !isExists -> {
+            !roomExists -> {
                 val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
@@ -258,10 +232,10 @@ class RoomService(
 
         val cinema = cinemaService.getCinemaById(paramCinemaId)
 
-        val isExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
+        val roomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
 
         when {
-            !isExists -> {
+            !roomExists -> {
                 val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
@@ -280,8 +254,5 @@ class RoomService(
         }
 
     }
-
-
-
 
 }

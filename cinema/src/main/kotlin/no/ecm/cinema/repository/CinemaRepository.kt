@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CinemaRepository : CrudRepository<Cinema, Long>{
+interface CinemaRepository : CrudRepository<Cinema, Long> {
 
     fun findAllByNameContainingIgnoreCase(name: String): Iterable<Cinema>
 
