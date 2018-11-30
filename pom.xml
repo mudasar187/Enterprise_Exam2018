@@ -105,7 +105,7 @@
 		<version.graphql-spring>4.2.0</version.graphql-spring>
 
 		<!-- JACOCO REPORT -->
-		<version.jacoco>0.7.9</version.jacoco>
+		<version.jacoco>0.8.2</version.jacoco>
 
 	</properties>
 
