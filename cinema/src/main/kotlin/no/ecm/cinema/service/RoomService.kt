@@ -90,7 +90,7 @@ class RoomService(
                 throw UserInputValidationException(errorMsg)
             }
             !roomDto.id.isNullOrBlank() -> {
-                val errorMsg = ExceptionMessages.subIdNotMatchingParentId("cinema_id", "cinema id")
+                val errorMsg = ExceptionMessages.illegalParameter("id")
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }
@@ -114,6 +114,7 @@ class RoomService(
                         throw ConflictException(errorMsg)
                     }
                     else -> {
+                        roomDto.seats!!.forEach { ValidationHandler.validateSeatFormat(it) }
                         val room: Room = RoomConverter.dtoToEntity(roomDto)
                         room.cinema = cinema
 
@@ -188,6 +189,7 @@ class RoomService(
                             val mapper = jacksonObjectMapper()
                             val seatsDto: Set<String> = mapper.readValue(seats.toString())
 
+                            seatsDto.forEach { ValidationHandler.validateSeatFormat(it) }
                             room.seats = seatsDto.toMutableSet()
                             val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("room", "${room.id}", "seats")
                             logger.info(infoMsg)
@@ -234,6 +236,8 @@ class RoomService(
             }
             else -> {
                 val room = cinema.rooms.first { it.id == roomId }
+
+                roomDto.seats!!.forEach { ValidationHandler.validateSeatFormat(it) }
 
                 room.name = roomDto.name!!
                 room.seats = roomDto.seats!!.toMutableSet()
