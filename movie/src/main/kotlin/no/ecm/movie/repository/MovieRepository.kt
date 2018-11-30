@@ -10,4 +10,6 @@ interface MovieRepository : CrudRepository<Movie, Long> {
     fun findAllByTitleContainsIgnoreCase(title: String): Iterable<Movie>
 
     fun existsByTitleAndPosterUrlIgnoreCase(title: String, posterUrl: String): Boolean
+
+    fun findAllByAgeLimitGreaterThanEqual(ageLimit: Int): Iterable<Movie>
 }

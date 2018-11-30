@@ -16,6 +16,7 @@ import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.ExceptionMessages.Companion.inputFilterInvalid
 import no.ecm.utils.messages.ExceptionMessages.Companion.invalidParameter
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.stereotype.Service
@@ -27,10 +28,15 @@ class MovieService (
 
     val logger = logger<MovieService>()
 
-    fun getMovies(title: String?): MutableList<MovieDto> {
+    fun getMovies(title: String?, ageLimit: Int?): MutableList<MovieDto> {
 
-        val movies = if (!title.isNullOrBlank()){
+        val movies = if (!title.isNullOrBlank() && ageLimit != null){
+            logger.warn(inputFilterInvalid())
+            throw UserInputValidationException(inputFilterInvalid())
+        }else if (!title.isNullOrBlank()){
             movieRepository.findAllByTitleContainsIgnoreCase(title!!).toMutableList()
+        }else if (ageLimit != null){
+            movieRepository.findAllByAgeLimitGreaterThanEqual(ageLimit).toMutableList()
         } else {
             movieRepository.findAll().toMutableList()
         }
