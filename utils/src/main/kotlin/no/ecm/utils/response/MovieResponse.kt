@@ -1,4 +1,4 @@
-package no.ecm.movie.response
+package no.ecm.utils.response
 
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.hal.PageDto

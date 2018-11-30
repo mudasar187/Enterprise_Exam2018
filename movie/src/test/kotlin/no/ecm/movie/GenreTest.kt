@@ -2,7 +2,7 @@ package no.ecm.movie
 
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import no.ecm.movie.response.GenreResponse
+import no.ecm.utils.response.GenreResponse
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
 import org.hamcrest.CoreMatchers

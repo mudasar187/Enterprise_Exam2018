@@ -2,11 +2,10 @@ package no.ecm.movie
 
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import no.ecm.movie.response.MovieResponse
+import no.ecm.utils.response.MovieResponse
 import no.ecm.utils.dto.movie.MovieDto
 import org.hamcrest.CoreMatchers
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.springframework.http.HttpStatus
 
