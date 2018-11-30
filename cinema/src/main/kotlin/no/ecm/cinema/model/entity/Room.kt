@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
-class Room (
+class Room(
 
         @get:Id @get:GeneratedValue
         var id: Long? = null,
@@ -16,7 +16,7 @@ class Room (
 
         @get:ElementCollection
         @get:NotNull
-        var seats : MutableSet<String>,
+        var seats: MutableSet<String>,
 
         @get:ManyToOne(fetch = FetchType.EAGER)
         @get:JoinColumn(name = "cinema_id")
