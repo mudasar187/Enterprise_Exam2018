@@ -12,7 +12,6 @@ import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.exception.ConflictException
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.messages.ExceptionMessages.Companion.illegalParameter
-import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
@@ -65,13 +64,9 @@ class MovieService (
 
     fun createMovie(movieDto: MovieDto): MovieDto {
 
-        if (movieDto.title.isNullOrEmpty()) {
-            handleMissingField("title")
-        }  else if (movieDto.movieDuration == null){
-            handleMissingField("movieDuration")
-        } else if (movieDto.posterUrl.isNullOrEmpty()){
-            handleMissingField("posterUrl")
-        } else if (!movieDto.id.isNullOrEmpty()){
+        validateMovieDto(movieDto)
+
+        if (!movieDto.id.isNullOrEmpty()){
             val errorMsg = ExceptionMessages.illegalParameter("id")
             logger.warn(errorMsg)
             throw UserInputValidationException(errorMsg)
@@ -145,7 +140,27 @@ class MovieService (
             }
         }
 
+        if (jsonNode.has("ageLimit")) {
+            val ageLimit = jsonNode.get("ageLimit")
+            if (ageLimit.isInt){
+                movie.ageLimit = ageLimit.asInt()
+            } else {
+                val errorMsg = ExceptionMessages.unableToParse("ageLimit")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+        }
 
+        if (jsonNode.has("movieDuration")) {
+            val movieDuration = jsonNode.get("movieDuration")
+            if (movieDuration.isInt){
+                movie.movieDuration = movieDuration.asInt()
+            } else {
+                val errorMsg = ExceptionMessages.unableToParse("movieDuration")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+        }
 
         if (jsonNode.has("genre")) {
             val genre = jsonNode.get("genre")
@@ -209,6 +224,9 @@ class MovieService (
             movieDto.title.isNullOrEmpty() -> handleMissingField("title")
             movieDto.movieDuration == null -> handleMissingField("movieDuration")
             movieDto.posterUrl.isNullOrEmpty() -> handleMissingField("posterUrl")
+            movieDto.ageLimit == null -> handleMissingField("ageLimit")
+            movieDto.genre == null -> handleMissingField("genre")
+            movieDto.genre!!.isEmpty() -> handleMissingField("genre")
         }
     }
 }

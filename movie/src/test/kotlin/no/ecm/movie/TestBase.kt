@@ -99,9 +99,9 @@ abstract class TestBase {
                 .jsonPath().getInt("data.totalSize")
     }
 
-    fun createDefaultGenre() : String {
+    fun createGenre(genreDto: GenreDto): String {
         val response = given().contentType(ContentType.JSON)
-                .body(createDefaultGenreDto())
+                .body(genreDto)
                 .post(genresUrl)
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
@@ -115,26 +115,28 @@ abstract class TestBase {
         return response.data!!.list.first().id!!
     }
 
+    fun createDefaultGenre() : String {
+        return createGenre(createDefaultGenreDto())
+    }
+
     fun createDefaultGenreDto() : GenreDto {
         return GenreDto(
                 name = "horror")
     }
 
-    fun createDefaultMovieDto(): MovieDto {
+    fun createDefaultMovieDto(genreDtos: MutableSet<GenreDto>?): MovieDto {
         return MovieDto(
                 title = "My Movie Title",
                 posterUrl = "url.com",
                 movieDuration = 120,
                 ageLimit = 10,
-                genre = mutableSetOf(GenreDto(id = createDefaultGenre()))
+                genre = genreDtos
         )
     }
 
-    fun createDefaultMovie() : String {
-        val dto = createDefaultMovieDto()
-
+    fun createMovie(movieDto: MovieDto) : String {
         return given().contentType(ContentType.JSON)
-                .body(dto)
+                .body(movieDto)
                 .post(moviesUrl)
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
