@@ -44,17 +44,9 @@ class CinemaService(
 
     fun getCinemaById(paramId: String?): Cinema {
 
-        val id = ValidationHandler.validateId(paramId, "cinema id")
+        val id = checkIfCinemaExists(paramId)
 
-        when {
-            !cinemaRepository.existsById(id) -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$paramId")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
-            else -> return cinemaRepository.findById(id).get()
-        }
-
+        return cinemaRepository.findById(id).get()
     }
 
     fun createCinema(cinemaDto: CinemaDto): CinemaDto {
@@ -81,10 +73,9 @@ class CinemaService(
                 throw UserInputValidationException(errorMsg)
             }
             else -> {
-                val cinemaExists = cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString())
 
                 when {
-                    cinemaExists -> {
+                    cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString()) -> {
                         val errorMsg = ExceptionMessages.resourceAlreadyExists("Cinema", "name & location", "${cinemaDto.name}, ${cinemaDto.location}")
                         logger.warn(errorMsg)
                         throw ConflictException(errorMsg)
@@ -104,14 +95,9 @@ class CinemaService(
 
     fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto) {
 
-        val id = ValidationHandler.validateId(paramId, "cinema id")
+        val id = checkIfCinemaExists(paramId)
 
         when {
-            !cinemaRepository.existsById(id) -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
             cinemaDto.id != paramId -> {
                 val errorMsg = ExceptionMessages.notMachingIds("id")
                 logger.warn(errorMsg)
@@ -148,101 +134,96 @@ class CinemaService(
 
     fun patchUpdateCinema(paramId: String?, body: String?) {
 
-        val id = ValidationHandler.validateId(paramId, "cinema id")
+        val id = checkIfCinemaExists(paramId)
+
+        val jackson = ObjectMapper()
+
+        val jsonNode: JsonNode
+
+        try {
+            jsonNode = jackson.readValue(body, JsonNode::class.java)
+        } catch (e: Exception) {
+            val errorMsg = ExceptionMessages.invalidJsonFormat()
+            logger.warn(errorMsg)
+            throw UserInputValidationException(errorMsg)
+        }
+
+        val cinema = cinemaRepository.findById(id).get()
 
         when {
-            !cinemaRepository.existsById(id) -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
+            jsonNode.has("id") -> {
+                val errorMsg = ExceptionMessages.illegalParameter("id")
                 logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
+                throw UserInputValidationException(errorMsg)
             }
-            else -> {
-                val jackson = ObjectMapper()
-
-                val jsonNode: JsonNode
-
-                try {
-                    jsonNode = jackson.readValue(body, JsonNode::class.java)
-                } catch (e: Exception) {
-                    val errorMsg = ExceptionMessages.invalidJsonFormat()
+            jsonNode.has("rooms") -> {
+                val rooms = jsonNode.get("rooms")
+                if (!rooms.isNull) {
+                    val errorMsg = ExceptionMessages.illegalParameter("room")
                     logger.warn(errorMsg)
                     throw UserInputValidationException(errorMsg)
                 }
-
-                val cinema = cinemaRepository.findById(id).get()
-
-                when {
-                    jsonNode.has("id") -> {
-                        val errorMsg = ExceptionMessages.illegalParameter("id")
-                        logger.warn(errorMsg)
-                        throw UserInputValidationException(errorMsg)
-                    }
-                    jsonNode.has("rooms") -> {
-                        val rooms = jsonNode.get("rooms")
-                        if (!rooms.isNull) {
-                            val errorMsg = ExceptionMessages.illegalParameter("room")
-                            logger.warn(errorMsg)
-                            throw UserInputValidationException(errorMsg)
-                        }
-                    }
-                }
-
-                when {
-                    jsonNode.has("name") -> {
-                        val name = jsonNode.get("name")
-                        if (name.isTextual) {
-                            cinema.name = name.asText()
-                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("cinema", "${cinema.id}", "name")
-                            logger.info(infoMsg)
-                        } else {
-                            val errorMsg = ExceptionMessages.unableToParse("name")
-                            logger.warn(errorMsg)
-                            throw UserInputValidationException(errorMsg)
-                        }
-                    }
-                }
-
-                when {
-                    jsonNode.has("location") -> {
-                        val location = jsonNode.get("location")
-                        if (location.isTextual) {
-                            cinema.location = location.asText()
-                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("cinema", "${cinema.id}", "location")
-                            logger.info(infoMsg)
-                        } else {
-                            val errorMsg = ExceptionMessages.unableToParse("location")
-                            logger.warn(errorMsg)
-                            throw UserInputValidationException(errorMsg)
-                        }
-                    }
-                }
-
-                cinemaRepository.save(cinema)
-                val infoMsg = InfoMessages.entitySuccessfullyUpdated("cinema", "${cinema.id}")
-                logger.info(infoMsg)
             }
         }
+
+        when {
+            jsonNode.has("name") -> {
+                val name = jsonNode.get("name")
+                if (name.isTextual) {
+                    cinema.name = name.asText()
+                    val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("cinema", "${cinema.id}", "name")
+                    logger.info(infoMsg)
+                } else {
+                    val errorMsg = ExceptionMessages.unableToParse("name")
+                    logger.warn(errorMsg)
+                    throw UserInputValidationException(errorMsg)
+                }
+            }
+        }
+
+        when {
+            jsonNode.has("location") -> {
+                val location = jsonNode.get("location")
+                if (location.isTextual) {
+                    cinema.location = location.asText()
+                    val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("cinema", "${cinema.id}", "location")
+                    logger.info(infoMsg)
+                } else {
+                    val errorMsg = ExceptionMessages.unableToParse("location")
+                    logger.warn(errorMsg)
+                    throw UserInputValidationException(errorMsg)
+                }
+            }
+        }
+
+        cinemaRepository.save(cinema)
+        val infoMsg = InfoMessages.entitySuccessfullyUpdated("cinema", "${cinema.id}")
+        logger.info(infoMsg)
     }
 
     fun deleteCinemaById(paramId: String?): String? {
 
+        val id = checkIfCinemaExists(paramId)
+
+        cinemaRepository.deleteById(id)
+        val infoMsg = InfoMessages.entitySuccessfullyDeleted("cinema", "$id")
+        logger.info(infoMsg)
+
+        return id.toString()
+
+    }
+
+    private fun checkIfCinemaExists(paramId: String?): Long {
+
         val id = ValidationHandler.validateId(paramId, "cinema id")
 
-        when {
-            !cinemaRepository.existsById(id) -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
-            else -> {
-                cinemaRepository.deleteById(id)
-                val infoMsg = InfoMessages.entitySuccessfullyDeleted("cinema", "$id")
-                logger.info(infoMsg)
-
-                return id.toString()
-            }
+        if (!cinemaRepository.existsById(id)) {
+            val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
+            logger.warn(errorMsg)
+            throw NotFoundException(errorMsg)
         }
 
+        return id
     }
 
 }

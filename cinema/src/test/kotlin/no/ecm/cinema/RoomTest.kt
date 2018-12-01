@@ -102,12 +102,14 @@ class RoomTest : TestBase() {
         checkRoomData("$cinemaId", "$roomId", roomName, "A1", "A2")
 
 
+        // Patch update name with new room name
         given().contentType("application/merge-patch+json")
                 .body("{\"name\": \"$newRoomName\"}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
                 .then()
                 .statusCode(204)
 
+        // Patch update seats with new seats
         given().contentType("application/merge-patch+json")
                 .body("{\"seats\": [\"B1\", \"B2\"]}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -171,6 +173,7 @@ class RoomTest : TestBase() {
 
         val roomId = createRoomForSpecificCinema("$cinemaId", roomName, roomSeats)
 
+        // Update the entity with new room name and new seats
         given().contentType(ContentType.JSON)
                 .body(RoomDto("$roomId", newRoomName, newRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -246,6 +249,7 @@ class RoomTest : TestBase() {
 
         val roomId = createRoomForSpecificCinema("$cinemaId", roomName, roomSeats)
 
+        // Create room with invalid seats
         given().contentType(ContentType.JSON)
                 .body(RoomDto("$roomId", newRoomName, invalidRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
