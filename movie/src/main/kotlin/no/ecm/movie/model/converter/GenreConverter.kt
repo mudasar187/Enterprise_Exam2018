@@ -35,10 +35,6 @@ object GenreConverter {
 	fun entityListToDtoList(entities: Iterable<Genre>, loadMovies: Boolean): MutableList<GenreDto> {
 		return entities.map { entityToDto(it, loadMovies) }.toMutableList()
 	}
-	
-	fun dtoListToEntityList(dto: Iterable<GenreDto>): List<Genre> {
-		return dto.map { dtoToEntity(it) }
-	}
 
 	fun movieEntityListToDtoList(entities: Iterable<Genre>): List<GenreDto> {
 		return entities.map { movieEntityToDto(it) }
