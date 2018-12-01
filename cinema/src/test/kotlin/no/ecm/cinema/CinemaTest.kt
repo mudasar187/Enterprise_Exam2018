@@ -64,6 +64,7 @@ class CinemaTest : TestBase() {
                 .then()
                 .statusCode(400)
 
+        // Get all cinemas with name: 'Test Cinema 1'
         given().accept(ContentType.JSON)
                 .queryParam("name", "Test Cinema 1")
                 .get(cinemasUrl)
@@ -71,6 +72,7 @@ class CinemaTest : TestBase() {
                 .statusCode(200)
                 .body("data.list.size()", CoreMatchers.equalTo(2))
 
+        // Get all cinemas with location: 'Oslo'
         given().accept(ContentType.JSON)
                 .queryParam("location", "Oslo")
                 .get(cinemasUrl)
@@ -78,6 +80,7 @@ class CinemaTest : TestBase() {
                 .statusCode(200)
                 .body("data.list.size()", CoreMatchers.equalTo(2))
 
+        // Get all cinemas with location: 'Bergen'
         given().accept(ContentType.JSON)
                 .queryParam("location", "Bergen")
                 .get(cinemasUrl)
@@ -166,6 +169,7 @@ class CinemaTest : TestBase() {
 
         checkCinemaData("$id", cinemaName, cinemaLocation)
 
+        // Update entity with new cinema name and new cinema location
         given().contentType(ContentType.JSON)
                 .body(CinemaDto(id.toString(), newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
@@ -230,12 +234,14 @@ class CinemaTest : TestBase() {
 
         assertEquals(1, getCinemasCount())
 
+        // Patch update name with new cinema name
         given().contentType("application/merge-patch+json")
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(204)
 
+        // Patch update location with new location
         given().contentType("application/merge-patch+json")
                 .body("{\"location\": \"$newCinemaLocation\"}")
                 .patch("$cinemasUrl/$id")
