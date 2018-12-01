@@ -58,9 +58,16 @@ class RoomTest : TestBase() {
 
         val cinemaId = createCinema(cinemaName, cinemaLocation)
 
-        createRoomWithInvalidData("2", "$cinemaId", "", roomName, roomSeats, 400)
+        // foreign key 'CinemaId' not match primary key 'Cinema id'
+        createRoomWithInvalidData("100", "$cinemaId", "", roomName, roomSeats, 400)
+
+        // Not allowed to provide room id
         createRoomWithInvalidData("$cinemaId", "$cinemaId", "1", roomName, roomSeats, 400)
+
+        // Not allowed to exclude name
         createRoomWithInvalidData("$cinemaId", "$cinemaId", "", "", roomSeats, 400)
+
+        // Not allowed to exclude seats
         createRoomWithInvalidData("$cinemaId", "$cinemaId", "", roomName, null, 400)
     }
 
@@ -77,6 +84,8 @@ class RoomTest : TestBase() {
 
         // Room exists already with same name
         createRoomWithInvalidData("$cinemaId", "$cinemaId", "", roomName, roomSeats, 409)
+
+        assertEquals(1, getRoomsCount("$cinemaId"))
     }
 
     @Test
@@ -87,6 +96,8 @@ class RoomTest : TestBase() {
         assertEquals(0, getRoomsCount("$cinemaId"))
 
         val roomId = createRoomForSpecificCinema("$cinemaId", roomName, roomSeats)
+
+        assertEquals(1, getRoomsCount("$cinemaId"))
 
         checkRoomData("$cinemaId", "$roomId", roomName, "A1", "A2")
 
@@ -103,7 +114,6 @@ class RoomTest : TestBase() {
                 .then()
                 .statusCode(204)
 
-        // TODO: hvorfor kommer b2 først så b1?
         checkRoomData("$cinemaId", "$roomId", newRoomName, "B2", "B1")
 
     }
@@ -151,6 +161,7 @@ class RoomTest : TestBase() {
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
                 .then()
                 .statusCode(400)
+
     }
 
     @Test
@@ -176,23 +187,28 @@ class RoomTest : TestBase() {
 
         val roomId = createRoomForSpecificCinema("$cinemaId", roomName, roomSeats)
 
+
+        // Not allowed to give id
         given().contentType(ContentType.JSON)
                 .body(RoomDto("100", newRoomName, newRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
                 .then()
                 .statusCode(400)
 
+        // The given Cinema id in DTO doesn't match the cinema id in the database
         given().contentType(ContentType.JSON)
                 .body(RoomDto("$roomId", newRoomName, newRoomSeats, "100"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
                 .then()
                 .statusCode(400)
 
+        // Room with id 100 not exists
         given().contentType(ContentType.JSON)
                 .body(RoomDto("$roomId", newRoomName, newRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/100")
                 .then()
                 .statusCode(404)
+
     }
 
     @Test
