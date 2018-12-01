@@ -18,6 +18,7 @@
         <module>user</module>
 		<module>cinema</module>
 		<module>creditcard</module>
+		<module>report</module>
 	</modules>
 
     <contributors>
