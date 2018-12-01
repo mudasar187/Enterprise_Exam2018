@@ -54,6 +54,9 @@ class CinemaTest : TestBase() {
         createCinema("Test Cinema 3", "Bergen")
         createCinema("Test Cinema 1", "Bergen")
 
+        assertEquals(4, getCinemasCount())
+
+        // Not allowed to add two filters
         given().accept(ContentType.JSON)
                 .queryParam("name", "Test Cinema 1")
                 .queryParam("location", "Oslo")
@@ -116,7 +119,6 @@ class CinemaTest : TestBase() {
 
         checkCinemaData("$id", cinemaName, cinemaLocation)
 
-        assertEquals(1, getCinemasCount())
     }
 
     @Test
@@ -124,19 +126,19 @@ class CinemaTest : TestBase() {
 
         assertEquals(0, getCinemasCount())
 
+        // Not allowed to add id
         createInvalidCinema("1", cinemaName, cinemaLocation, null, 400)
 
-        assertEquals(0, getCinemasCount())
-
+        // Not allowed to have location empty
         createInvalidCinema("", cinemaName, "", null, 400)
 
-        assertEquals(0, getCinemasCount())
-
+        // Not allowed to have name empty
         createInvalidCinema("", "", cinemaLocation, null, 400)
 
-        assertEquals(0, getCinemasCount())
-
+        // Not allowed to add room list
         createInvalidCinema("", cinemaName, cinemaLocation, roomList, 400)
+
+        assertEquals(0, getCinemasCount())
     }
 
     @Test
@@ -148,6 +150,7 @@ class CinemaTest : TestBase() {
 
         assertEquals(1, getCinemasCount())
 
+        // Add cinema with same name and location
         createInvalidCinema("", cinemaName, cinemaLocation, null, 409)
 
         assertEquals(1, getCinemasCount())
@@ -159,9 +162,9 @@ class CinemaTest : TestBase() {
 
         val id = createCinema(cinemaName, cinemaLocation)
 
-        checkCinemaData("$id", cinemaName, cinemaLocation)
-
         assertEquals(1, getCinemasCount())
+
+        checkCinemaData("$id", cinemaName, cinemaLocation)
 
         given().contentType(ContentType.JSON)
                 .body(CinemaDto(id.toString(), newCinemaName, newCinemaLocation))
@@ -178,45 +181,45 @@ class CinemaTest : TestBase() {
 
         val id = createCinema(cinemaName, cinemaLocation)
 
-        checkCinemaData("$id", cinemaName, cinemaLocation)
-
         assertEquals(1, getCinemasCount())
 
+        checkCinemaData("$id", cinemaName, cinemaLocation)
+
+        // Wrong id in url path
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation))
-                .put("$cinemasUrl/2")
+                .put("$cinemasUrl/100")
                 .then()
                 .statusCode(404)
 
+        // Not matching id
         given().contentType(ContentType.JSON)
-                .body(CinemaDto("10", newCinemaName, newCinemaLocation))
+                .body(CinemaDto("100", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
+        // Not allowed to exclude name
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("$id", "", newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
+        // Not allowed to exclude location
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("$id", newCinemaName, ""))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
-        given().contentType(ContentType.JSON)
-                .body(CinemaDto("$id", newCinemaName, ""))
-                .put("$cinemasUrl/$id")
-                .then()
-                .statusCode(400)
-
+        // Not allowed to add roomlist
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation, roomList))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
+
 
     }
 
@@ -249,42 +252,47 @@ class CinemaTest : TestBase() {
 
         assertEquals(1, getCinemasCount())
 
+        // Cinema id not exists
         given().contentType("application/merge-patch+json")
                 .body("{\"name\": \"$newCinemaName\"}")
-                .patch("$cinemasUrl/2")
+                .patch("$cinemasUrl/100")
                 .then()
                 .statusCode(404)
 
+        // Invalid JSON format
         given().contentType("application/merge-patch+json")
                 .body("{name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
+        // Not allowed to change id
         given().contentType("application/merge-patch+json")
                 .body("{\"id\": \"2\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
+        // Unable to parse name
         given().contentType("application/merge-patch+json")
                 .body("{\"name\": 2}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
+        // Unbale to parse location
         given().contentType("application/merge-patch+json")
                 .body("{\"location\": 2}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
+        // Not allowed to update roomlist
         given().contentType("application/merge-patch+json")
                 .body("{\"rooms\": $roomList}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
-
     }
 
     @Test
