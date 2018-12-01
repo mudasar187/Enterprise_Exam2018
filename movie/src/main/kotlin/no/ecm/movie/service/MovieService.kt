@@ -82,11 +82,7 @@ class MovieService (
         movieDto.title = movieDto.title!!.capitalize()
 
         val movie = MovieConverter.dtoToEntity(movieDto)
-
-        if (movieDto.genre != null){
-            movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
-        }
-
+        movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
         return MovieDto(id = movieRepository.save(movie).id.toString())
     }
 
@@ -195,9 +191,8 @@ class MovieService (
         movie.ageLimit = movieDto.ageLimit
         movie.ageLimit = movieDto.ageLimit
         movie.genre.forEach { it.movies.remove(movie) }
-        if (movieDto.genre != null){
-            movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
-        }
+        movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
+
         movieRepository.save(movie)
     }
 
