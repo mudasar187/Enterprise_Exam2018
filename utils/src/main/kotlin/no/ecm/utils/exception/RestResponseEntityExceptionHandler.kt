@@ -101,6 +101,8 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(Exception::class)
     fun handleBugsForUnexpectedExceptions(ex: Exception, request: WebRequest): ResponseEntity<Any> {
 
+        logger<RestResponseEntityExceptionHandler>().warn(ex.message)
+
         ex.printStackTrace()
 
         return handleExceptionInternal(
@@ -117,8 +119,6 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
             status: HttpStatus,
             request: WebRequest
     ) : ResponseEntity<Any> {
-
-        logger<RestResponseEntityExceptionHandler>().warn(ex.message)
 
         val dto = WrappedResponse<Any>(
                 code = status.value(),
