@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.cinema.model.converter.CinemaConverter
 import no.ecm.cinema.model.converter.RoomConverter
-import no.ecm.cinema.repository.RoomRepository
 import no.ecm.cinema.service.CinemaService
 import no.ecm.cinema.service.RoomService
 import no.ecm.utils.dto.cinema.CinemaDto
@@ -14,22 +13,20 @@ import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
 
-@Api(value = "/cinemas", description = "API for cinema entity")
+@Api(value = "/cinemas", description = "API for cinema and room entity")
 @RequestMapping(
         path = ["/cinemas"],
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class CinemaController(
         private var cinemaService: CinemaService,
-        private var roomService: RoomService,
-        private var roomRepository: RoomRepository
+        private var roomService: RoomService
 ) {
 
     @ApiOperation("Get all cinemas")

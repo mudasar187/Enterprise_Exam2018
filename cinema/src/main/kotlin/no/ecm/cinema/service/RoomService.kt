@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.ecm.cinema.model.converter.RoomConverter
+import no.ecm.cinema.model.entity.Cinema
 import no.ecm.cinema.model.entity.Room
 import no.ecm.cinema.repository.RoomRepository
 import no.ecm.utils.dto.cinema.RoomDto
@@ -28,9 +29,9 @@ class RoomService(
 
     fun getAllRoomsFromCinemaByCinemaId(paramId: String?): MutableList<RoomDto> {
 
-        val cinemaId = cinemaService.getCinemaById(paramId).id
+        val cinemaId = cinemaService.getCinemaById(paramId).id!!.toLong()
 
-        val rooms = roomRepository.findAllByCinemaId(cinemaId!!.toLong()).toMutableList()
+        val rooms = roomRepository.findAllByCinemaId(cinemaId).toMutableList()
 
         return RoomConverter.entityListToDtoList(rooms)
 
@@ -38,11 +39,11 @@ class RoomService(
 
     fun getRoomByIdAndCinemaId(paramCinemaId: String?, paramRoomId: String?): RoomDto {
 
-        val cinemaId = cinemaService.getCinemaById(paramCinemaId).id
+        val cinemaId = cinemaService.getCinemaById(paramCinemaId).id!!.toLong()
         val roomId = ValidationHandler.validateId(paramRoomId, "room id")
 
         val room = try {
-            roomRepository.findByIdAndCinemaId(roomId, cinemaId!!.toLong())
+            roomRepository.findByIdAndCinemaId(roomId, cinemaId)
         } catch (e: Exception) {
             val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
             logger.warn(errorMsg)
@@ -107,14 +108,13 @@ class RoomService(
 
     fun patchUpdateRoomByIdAndCinemaId(paramCinemaId: String?, paramRoomId: String?, body: String?) {
 
-        val roomId = ValidationHandler.validateId(paramRoomId, "room id")
-
-        val cinema = cinemaService.getCinemaById(paramCinemaId)
-
-        val roomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
+        val array = checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
+        val roomId = array[0] as Long
+        val cinema = array[1] as Cinema
+        val isRoomExists = array[2] as Boolean
 
         when {
-            !roomExists -> {
+            !isRoomExists -> {
                 val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
@@ -186,14 +186,13 @@ class RoomService(
 
     fun putUpdateRoomIdByCinemaId(paramCinemaId: String?, paramRoomId: String?, roomDto: RoomDto) {
 
-        val roomId = ValidationHandler.validateId(paramRoomId, "room id")
-
-        val cinema = cinemaService.getCinemaById(paramCinemaId)
-
-        val roomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
+        val array = checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
+        val roomId = array[0] as Long
+        val cinema = array[1] as Cinema
+        val isRoomExists = array[2] as Boolean
 
         when {
-            !roomExists -> {
+            !isRoomExists -> {
                 val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
@@ -228,14 +227,13 @@ class RoomService(
 
     fun deleteRoomByIdAndCinemaId(paramRoomId: String?, paramCinemaId: String?): String? {
 
-        val roomId = ValidationHandler.validateId(paramRoomId, "room id")
-
-        val cinema = cinemaService.getCinemaById(paramCinemaId)
-
-        val roomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
+        val array = checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
+        val roomId = array[0] as Long
+        val cinema = array[1] as Cinema
+        val isRoomExists = array[2] as Boolean
 
         when {
-            !roomExists -> {
+            !isRoomExists -> {
                 val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
@@ -252,7 +250,17 @@ class RoomService(
                 return roomId.toString()
             }
         }
+    }
 
+    private fun checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId: String?, paramCinemaId: String?) : Array<Any> {
+
+        val roomId = ValidationHandler.validateId(paramRoomId, "room id")
+
+        val cinema = cinemaService.getCinemaById(paramCinemaId)
+
+        val isRoomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
+
+        return arrayOf(roomId, cinema, isRoomExists)
     }
 
 }
