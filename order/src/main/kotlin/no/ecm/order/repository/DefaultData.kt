@@ -3,15 +3,17 @@ package no.ecm.order.repository
 import no.ecm.order.model.entity.Coupon
 import no.ecm.order.model.entity.Invoice
 import no.ecm.order.model.entity.Ticket
+import no.ecm.order.repository.coupon.CouponRepository
+import no.ecm.order.repository.ticket.TicketRepository
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
 import javax.annotation.PostConstruct
 
 @Component
 class DefaultData(
-        private var invoiceRepository: InvoiceRepository,
-        private var ticketRepository: TicketRepository,
-        private var couponRepository: CouponRepository
+	private var invoiceRepository: InvoiceRepository,
+	private var ticketRepository: TicketRepository,
+	private var couponRepository: CouponRepository
 ) {
 
     @PostConstruct
@@ -22,8 +24,7 @@ class DefaultData(
         val coupon3 = Coupon(code = "christmas2018", description = "Christmas discount gives you 80% discount on 4 tickets!", expireAt = ZonedDateTime.now())
 
         couponRepository.saveAll(mutableListOf(coupon1, coupon2, coupon3))
-
-
+        
         val invoice1 = Invoice(
                 username = "jondoe",
                 orderDate = ZonedDateTime.now(),
@@ -46,10 +47,10 @@ class DefaultData(
 
 
 
-        val ticket1 = Ticket(price = 200.00, seatnumber = "a1")
-        val ticket2 = Ticket(price = 200.00, seatnumber = "a2")
-        val ticket3 = Ticket(price = 300.00, seatnumber = "b6")
-        val ticket4 = Ticket(price = 100.00, seatnumber = "c12")
+        val ticket1 = Ticket(price = 200.00, seat = "A1")
+        val ticket2 = Ticket(price = 200.00, seat = "A2")
+        val ticket3 = Ticket(price = 300.00, seat = "B6")
+        val ticket4 = Ticket(price = 100.00, seat = "C9")
         ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4))
 
 

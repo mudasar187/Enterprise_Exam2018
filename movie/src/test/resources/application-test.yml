@@ -1,4 +1,8 @@
 server:
   port: 7083
 
-cinemaService: http://localhost:8085
+eureka:
+  client:
+    enabled: false
+
+cinemaService: http://localhost:8086

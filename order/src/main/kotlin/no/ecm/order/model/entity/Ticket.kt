@@ -15,7 +15,7 @@ class Ticket (
         var price: Double? = null,
 
         @get:NotBlank
-        var seatnumber: String? = null
+        var seat: String? = null
 
 //        @get:ManyToOne(fetch = FetchType.EAGER)
 //        @get:JoinColumn(name = "order_id")

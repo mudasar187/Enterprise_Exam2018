@@ -12,7 +12,7 @@ class DefaultData(
 ) {
 
     @PostConstruct
-    fun createData(){
+    fun createData() {
 
         val seats = mutableSetOf(
                 "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14",
@@ -35,16 +35,16 @@ class DefaultData(
         cinemaRepository.saveAll(mutableListOf(klingenberg, ringen, bergen))
 
         //Creating room in Klingenberg
-        val room1 = Room(name = "Sal 1", cinemaId = klingenberg.id!!, seats = seats)
+        val room1 = Room(name = "Sal 1", cinema = klingenberg, seats = seats)
 
         // Creating 2. room in Klingenberg
-        val room2 = Room(name = "sal 2", cinemaId = klingenberg.id!!, seats = seats)
+        val room2 = Room(name = "sal 2", cinema = klingenberg, seats = seats)
 
         // Creating room in Ringen
-        val room3 = Room(name = "sal 1", cinemaId = ringen.id!!, seats = seats)
+        val room3 = Room(name = "sal 1", cinema = ringen, seats = seats)
 
         // Creating room in Bergen
-        val room4 = Room(name = "sal 1", cinemaId = bergen.id!!, seats = seats)
+        val room4 = Room(name = "sal 1", cinema = bergen, seats = seats)
 
         roomRepository.saveAll(mutableListOf(room1, room2, room3, room4))
     }

@@ -24,8 +24,8 @@ class MutationResolver(
             val cause = Throwables.getRootCause(e)
             val msg = if (cause is ConstraintViolationException) {
                 "Violated constraints: ${cause.message}"
-            }else {
-                e.message
+            } else {
+                "${e.javaClass}: ${e.message}"
             }
             return DataFetcherResult<String>(null, listOf(GenericGraphQLError(msg)))
         }
@@ -34,16 +34,16 @@ class MutationResolver(
 
     }
 
-    fun deleteUserById(inputId: String): String? {
+    fun deleteUserById(inputId: String): Boolean {
 
 
         if (!userRepository.existsById(inputId)) {
-            return null
+            return false
         }
 
         userRepository.deleteById(inputId)
 
-        return inputId
+        return true
     }
 
     fun updateUserById(userId: String, name: String?, email: String?): DataFetcherResult<Boolean> {

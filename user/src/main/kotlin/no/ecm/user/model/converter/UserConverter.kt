@@ -24,14 +24,6 @@ object UserConverter {
 			email = dto.email!!
 		)
 	}
-	
-	fun entityListToDtoList(entities: Iterable<User>): List<UserDto> {
-		return entities.map { entityToDto(it) }
-	}
-	
-	fun dtoListToEntityList(dto: Iterable<UserDto>): List<User> {
-		return dto.map { dtoToEntity(it) }
-	}
 
 	private fun convertToLocalDate(stringDate: String): LocalDate {
 		return LocalDate.parse(stringDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))

@@ -5,9 +5,11 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CinemaRepository : CrudRepository<Cinema, Long>{
+interface CinemaRepository : CrudRepository<Cinema, Long> {
 
-    fun findByName(name: String): Cinema
+    fun findAllByNameContainingIgnoreCase(name: String): Iterable<Cinema>
 
-    fun findAllByLocationIgnoreCase(location: String): Iterable<Cinema>
+    fun findAllByLocationContainingIgnoreCase(location: String): Iterable<Cinema>
+
+    fun existsByNameAndLocationIgnoreCase(name: String, location: String): Boolean
 }

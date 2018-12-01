@@ -6,7 +6,6 @@ import no.ecm.movie.model.entity.NowPlaying
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
 import javax.annotation.PostConstruct
-import kotlin.math.log
 
 @Component
 class DefaultData(
@@ -17,9 +16,9 @@ class DefaultData(
     @PostConstruct
     fun createDefault(){
 
-        val action = Genre(name = "action")
-        val adventure = Genre(name = "adventure")
-        val scifi = Genre(name = "sci-fi")
+        val action = Genre(name = "Action")
+        val adventure = Genre(name = "Adventure")
+        val scifi = Genre(name = "Sci-Fi")
         
         genreRepository.saveAll(mutableListOf(action, adventure, scifi))
 
@@ -43,9 +42,9 @@ class DefaultData(
         
         nowPlayingRepository.saveAll(mutableListOf(nowPlaying1, nowPlaying2, nowPlaying3, nowPlaying3, nowPlaying4, nowPlaying5, nowPlaying6))
         
-        val actionGenre = genreRepository.findByName(action.name!!)
-        val adventureGenre = genreRepository.findByName(adventure.name!!)
-        val scifiGenre = genreRepository.findByName(scifi.name!!)
+        val actionGenre = genreRepository.findAllByNameContainsIgnoreCase(action.name!!).first()
+        val adventureGenre = genreRepository.findAllByNameContainsIgnoreCase(adventure.name!!).first()
+        val scifiGenre = genreRepository.findAllByNameContainsIgnoreCase(scifi.name!!).first()
     
         actionGenre.movies.addAll(mutableListOf(movie1, movie2, movie4, movie7))
         adventureGenre.movies.addAll(mutableListOf(movie3, movie6, movie7))

@@ -9,7 +9,6 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>auth</module>
         <module>e2etest</module>
         <module>eureka</module>
         <module>gateway</module>
@@ -19,6 +18,7 @@
         <module>user</module>
 		<module>cinema</module>
 		<module>creditcard</module>
+		<module>report</module>
 	</modules>
 
     <contributors>
@@ -104,7 +104,11 @@
 
 		<!-- GraphQL -->
 		<version.graphql-spring>4.2.0</version.graphql-spring>
-    </properties>
+
+		<!-- JACOCO REPORT -->
+		<version.jacoco>0.8.2</version.jacoco>
+
+	</properties>
 
 	<!-- GLOBAL KOTLIN VERSION -->
 	<dependencies>
@@ -394,6 +398,11 @@
 				<artifactId>kotlin-maven-plugin</artifactId>
 				<groupId>org.jetbrains.kotlin</groupId>
 			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+			</plugin>
 		</plugins>
 
 		<pluginManagement>
@@ -512,6 +521,40 @@
 					<configuration>
 						<skipITs>${skipIntegrationTests}</skipITs>
 					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${version.jacoco}</version>
+					<executions>
+						<execution>
+							<id>default-prepare-agent</id>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>default-report</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>default-prepare-agent-integration</id>
+							<phase>package</phase>
+							<goals>
+								<goal>prepare-agent-integration</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>default-report-integration</id>
+							<goals>
+								<goal>report-integration</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>

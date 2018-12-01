@@ -20,5 +20,4 @@ spring:
 server:
   port: 8082
 
-authService: http://localhost:8086
 movieService: http://localhost:8083

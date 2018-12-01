@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface GenreRepository : CrudRepository<Genre, Long> {
 
-    fun findByName(name: String): Genre
+    fun findAllByNameContainsIgnoreCase(name: String): Iterable<Genre>
+
+    fun existsByNameIgnoreCase(name: String): Boolean
 }
