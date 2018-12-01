@@ -44,7 +44,7 @@ class CinemaService(
 
     fun getCinemaById(paramId: String?): Cinema {
 
-        val id = ValidationHandler.validateId(paramId, "id")
+        val id = ValidationHandler.validateId(paramId, "cinema id")
 
         when {
             !cinemaRepository.existsById(id) -> {
@@ -81,10 +81,10 @@ class CinemaService(
                 throw UserInputValidationException(errorMsg)
             }
             else -> {
-                val isExists = cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString())
+                val cinemaExists = cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString())
 
                 when {
-                    isExists -> {
+                    cinemaExists -> {
                         val errorMsg = ExceptionMessages.resourceAlreadyExists("Cinema", "name & location", "${cinemaDto.name}, ${cinemaDto.location}")
                         logger.warn(errorMsg)
                         throw ConflictException(errorMsg)
@@ -104,7 +104,7 @@ class CinemaService(
 
     fun putUpdateCinema(paramId: String?, cinemaDto: CinemaDto) {
 
-        val id = ValidationHandler.validateId(paramId, "id")
+        val id = ValidationHandler.validateId(paramId, "cinema id")
 
         when {
             !cinemaRepository.existsById(id) -> {
@@ -148,7 +148,7 @@ class CinemaService(
 
     fun patchUpdateCinema(paramId: String?, body: String?) {
 
-        val id = ValidationHandler.validateId(paramId, "id")
+        val id = ValidationHandler.validateId(paramId, "cinema id")
 
         when {
             !cinemaRepository.existsById(id) -> {
@@ -226,7 +226,7 @@ class CinemaService(
 
     fun deleteCinemaById(paramId: String?): String? {
 
-        val id = ValidationHandler.validateId(paramId, "id")
+        val id = ValidationHandler.validateId(paramId, "cinema id")
 
         when {
             !cinemaRepository.existsById(id) -> {

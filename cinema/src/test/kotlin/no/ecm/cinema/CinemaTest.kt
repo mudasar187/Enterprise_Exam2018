@@ -11,11 +11,11 @@ import org.junit.Test
 
 class CinemaTest : TestBase() {
 
-    val name = "Saga Cinema"
-    val location = "Oslo"
+    val cinemaName = "Saga Cinema"
+    val cinemaLocation = "Oslo"
 
-    val newName = "New Name"
-    val newLocation = "New Location"
+    val newCinemaName = "New Name"
+    val newCinemaLocation = "New Location"
 
     val roomList = mutableListOf<RoomDto>()
 
@@ -39,7 +39,7 @@ class CinemaTest : TestBase() {
         assertEquals(0, getCinemasCount())
 
         given()
-                .get("$cinemasUrl/1")
+                .get("$cinemasUrl/100")
                 .then()
                 .statusCode(404)
     }
@@ -110,11 +110,11 @@ class CinemaTest : TestBase() {
 
         assertEquals(0, getCinemasCount())
 
-        val id = createCinema(name, location)
+        val id = createCinema(cinemaName, cinemaLocation)
 
         assertEquals(1, getCinemasCount())
 
-        checkCinemaData("$id",name, location)
+        checkCinemaData("$id", cinemaName, cinemaLocation)
 
         assertEquals(1, getCinemasCount())
     }
@@ -124,19 +124,19 @@ class CinemaTest : TestBase() {
 
         assertEquals(0, getCinemasCount())
 
-        createInvalidCinema("1", name, location,null, 400)
+        createInvalidCinema("1", cinemaName, cinemaLocation, null, 400)
 
         assertEquals(0, getCinemasCount())
 
-        createInvalidCinema("", name, "",null, 400)
+        createInvalidCinema("", cinemaName, "", null, 400)
 
         assertEquals(0, getCinemasCount())
 
-        createInvalidCinema("", "", location,null, 400)
+        createInvalidCinema("", "", cinemaLocation, null, 400)
 
         assertEquals(0, getCinemasCount())
 
-        createInvalidCinema("", name, location, roomList, 400)
+        createInvalidCinema("", cinemaName, cinemaLocation, roomList, 400)
     }
 
     @Test
@@ -144,11 +144,11 @@ class CinemaTest : TestBase() {
 
         assertEquals(0, getCinemasCount())
 
-        createCinema(name, location)
+        createCinema(cinemaName, cinemaLocation)
 
         assertEquals(1, getCinemasCount())
 
-        createInvalidCinema("", name, location, null,409)
+        createInvalidCinema("", cinemaName, cinemaLocation, null, 409)
 
         assertEquals(1, getCinemasCount())
 
@@ -157,63 +157,63 @@ class CinemaTest : TestBase() {
     @Test
     fun testPutUpdateCinema() {
 
-        val id = createCinema(name, location)
+        val id = createCinema(cinemaName, cinemaLocation)
 
-        checkCinemaData("$id",name, location)
+        checkCinemaData("$id", cinemaName, cinemaLocation)
 
         assertEquals(1, getCinemasCount())
 
         given().contentType(ContentType.JSON)
-                .body(CinemaDto(id.toString(), newName, newLocation))
+                .body(CinemaDto(id.toString(), newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(204)
 
-        checkCinemaData("$id",newName, newLocation)
+        checkCinemaData("$id", newCinemaName, newCinemaLocation)
 
     }
 
     @Test
-    fun testPutUpdateCinemaExceptions() {
+    fun testPutUpdateCinemaInvalidData() {
 
-        val id = createCinema(name, location)
+        val id = createCinema(cinemaName, cinemaLocation)
 
-        checkCinemaData("$id",name, location)
+        checkCinemaData("$id", cinemaName, cinemaLocation)
 
         assertEquals(1, getCinemasCount())
 
         given().contentType(ContentType.JSON)
-                .body(CinemaDto("$id", newName, newLocation))
+                .body(CinemaDto("$id", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/2")
                 .then()
                 .statusCode(404)
 
         given().contentType(ContentType.JSON)
-                .body(CinemaDto("10", newName, newLocation))
+                .body(CinemaDto("10", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
         given().contentType(ContentType.JSON)
-                .body(CinemaDto("$id", "", newLocation))
+                .body(CinemaDto("$id", "", newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
         given().contentType(ContentType.JSON)
-                .body(CinemaDto("$id", newName, ""))
+                .body(CinemaDto("$id", newCinemaName, ""))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
         given().contentType(ContentType.JSON)
-                .body(CinemaDto("$id", newName, ""))
+                .body(CinemaDto("$id", newCinemaName, ""))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
 
         given().contentType(ContentType.JSON)
-                .body(CinemaDto("$id", newName, newLocation, roomList))
+                .body(CinemaDto("$id", newCinemaName, newCinemaLocation, roomList))
                 .put("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
@@ -223,40 +223,40 @@ class CinemaTest : TestBase() {
     @Test
     fun testPatchUpdateCinema() {
 
-        val id = createCinema(name, location)
+        val id = createCinema(cinemaName, cinemaLocation)
 
         assertEquals(1, getCinemasCount())
 
         given().contentType("application/merge-patch+json")
-                .body("{\"name\": \"$newName\"}")
+                .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(204)
 
         given().contentType("application/merge-patch+json")
-                .body("{\"location\": \"$newLocation\"}")
+                .body("{\"location\": \"$newCinemaLocation\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(204)
 
-        checkCinemaData("$id", newName, newLocation)
+        checkCinemaData("$id", newCinemaName, newCinemaLocation)
     }
 
     @Test
-    fun testPatchUpdateCinemaExceptions() {
+    fun testPatchUpdateCinemaInvalidData() {
 
-        val id = createCinema(name, location)
+        val id = createCinema(cinemaName, cinemaLocation)
 
         assertEquals(1, getCinemasCount())
 
         given().contentType("application/merge-patch+json")
-                .body("{\"name\": \"$newName\"}")
+                .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/2")
                 .then()
                 .statusCode(404)
 
         given().contentType("application/merge-patch+json")
-                .body("{name\": \"$newName\"}")
+                .body("{name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(400)
@@ -297,10 +297,5 @@ class CinemaTest : TestBase() {
                 .then()
                 .statusCode(404)
     }
-
-
-
-
-
 
 }
