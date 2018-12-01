@@ -26,8 +26,8 @@ class CinemaApplicationConfig {
 
     private fun apiInfo(): ApiInfo {
         return ApiInfoBuilder()
-                .title("API for cinema entity")
-                .description("MicroService that contains cinema entity repository")
+                .title("API for cinema and room entity")
+                .description("MicroService that contains cinema and room entity repository")
                 .version("1.0")
                 .build()
     }
