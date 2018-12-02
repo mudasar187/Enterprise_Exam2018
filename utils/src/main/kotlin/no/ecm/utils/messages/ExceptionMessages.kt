@@ -61,7 +61,7 @@ class ExceptionMessages{
         }
 
         fun subIdNotMatchingParentId(subId: String, parentId: String) : String {
-            return "foreign key '${subId.capitalize()}' not match primary key '${parentId.capitalize()}'"
+            return "Foreign key '${subId.capitalize()}' not match primary key '${parentId.capitalize()}'"
         }
 
     }
