@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.movie.model.converter.GenreConverter
 import no.ecm.movie.service.GenreService
+import no.ecm.utils.cache.EtagGenerator
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
@@ -59,7 +60,7 @@ class GenreController(
             @PathVariable("id") id: String): ResponseEntity<WrappedResponse<GenreDto>> {
 
         val dto = GenreConverter.entityToDto(genreService.getGenre(id), true)
-        val etag = dto.hashCode().toString()
+        val etag = EtagGenerator<GenreDto>().generateEtag(dto = dto)
 
         return ResponseEntity
                 .status(HttpStatus.OK.value())
@@ -106,6 +107,8 @@ class GenreController(
     fun patchGenre(@ApiParam("The id of the Genre")
               @PathVariable("id")
               id: String?,
+              @RequestHeader("If-Match")
+              ifMatch: String?,
               @ApiParam("JSON Representing fields in a GenreDto")
               @RequestBody
               jsonPatch: String) : ResponseEntity<Void> {
