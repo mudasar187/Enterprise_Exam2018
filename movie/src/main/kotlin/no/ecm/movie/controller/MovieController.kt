@@ -105,7 +105,7 @@ class MovieController (
 
 
     @ApiOperation("Update a Movie")
-    @PutMapping(path = ["/{id}"])
+    @PutMapping(path = ["/{id}"], consumes = ["application/json"])
     fun putMovie(@ApiParam("The id of the Movie")
                  @PathVariable("id")
                  id: String?,

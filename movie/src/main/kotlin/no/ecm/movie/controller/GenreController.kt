@@ -89,7 +89,7 @@ class GenreController(
     }
 
     @ApiOperation("Update a Genre")
-    @PutMapping(path = ["/{id}"])
+    @PutMapping(path = ["/{id}"], consumes = ["application/json"])
     fun putGenre(@ApiParam("The id of the Genre")
                  @PathVariable("id")
                  id: String?,
