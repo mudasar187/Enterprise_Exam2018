@@ -8,6 +8,7 @@ import no.ecm.movie.service.MovieService
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.hal.PageDtoGenerator
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.http.HttpStatus
@@ -49,7 +50,7 @@ class MovieController (
         if (!title.isNullOrEmpty()) {
             builder.queryParam("title", title)
         }
-        val pageDto = MovieConverter.dtoListToPageDto(movieDtos, offset, limit)
+        val pageDto = PageDtoGenerator<MovieDto>().generatePageDto(movieDtos, offset, limit)
         return HalLinkGenerator<MovieDto>().generateHalLinks(movieDtos, pageDto, builder, limit, offset)
     }
 

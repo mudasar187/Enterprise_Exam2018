@@ -8,6 +8,7 @@ import no.ecm.movie.service.GenreService
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.hal.PageDtoGenerator
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.http.HttpStatus
@@ -47,7 +48,7 @@ class GenreController(
             builder.queryParam("name", name)
         }
 
-        val pageDto = GenreConverter.dtoListToPageDto(genreDtos, offset, limit)
+        val pageDto = PageDtoGenerator<GenreDto>().generatePageDto(genreDtos, offset, limit)
         return HalLinkGenerator<GenreDto>().generateHalLinks(genreDtos, pageDto, builder, limit, offset)
     }
 
