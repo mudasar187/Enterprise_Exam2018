@@ -15,6 +15,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 @Api(value = "/movies", description = "API for movie entity")
 @RequestMapping(
@@ -25,7 +26,6 @@ class MovieController (
         private val movieService: MovieService
 ){
 
-    //TODO filter by age limit
     @ApiOperation("Get movies, possible filter by title")
     @GetMapping
     fun getMovies(@ApiParam("Title of the Movie")
@@ -78,12 +78,16 @@ class MovieController (
     fun createMovie(
             @ApiParam("JSON object representing the Movie")
             @RequestBody movieDto: MovieDto): ResponseEntity<WrappedResponse<MovieDto>> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+        val dto = movieService.createMovie(movieDto)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create("/movies/${dto.id}"))
+                .body(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(movieService.createMovie(movieDto)))
+                        page = PageDto(mutableListOf(dto))
                 ).validated()
-        )
+                )
     }
 
 

@@ -15,6 +15,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 @Api(value = "/genres", description = "API for genre entity")
 @RequestMapping(
@@ -75,12 +76,16 @@ class GenreController(
     fun createGenre(
             @ApiParam("JSON object representing the Genre")
             @RequestBody genreDto: GenreDto): ResponseEntity<WrappedResponse<GenreDto>> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                ResponseDto(
-                        code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(genreService.createGenre(genreDto)))
-                ).validated()
-        )
+        val dto = genreService.createGenre(genreDto)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create("/genres/${dto.id}"))
+                .body(
+                    ResponseDto(
+                            code = HttpStatus.CREATED.value(),
+                            page = PageDto(mutableListOf(dto))
+                    ).validated()
+                )
     }
 
     @ApiOperation("Update a Genre")
