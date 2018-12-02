@@ -24,10 +24,8 @@ object MovieConverter {
 		return Movie (
 			title = dto.title!!,
 			posterUrl = dto.posterUrl!!,
-			//genre = dto.genre!!,
 			movieDuration = dto.movieDuration!!,
 			ageLimit = dto.ageLimit!!
-			//nowPlaying = NowPlayingConverter.dtoToEntity(dto.nowPlaying!!)
 		)
 	}
 
@@ -59,26 +57,4 @@ object MovieConverter {
 	fun genreEntityListToDtoList(entities: Iterable<Movie>): List<MovieDto> {
 		return entities.map { genreEntityToDto(it) }
 	}
-
-	fun dtoListToPageDto(genreList: List<MovieDto>,
-						 offset: Int,
-						 limit: Int): PageDto<MovieDto> {
-
-		ValidationHandler.validateLimitAndOffset(offset, limit)
-
-		val dtoList: MutableList<MovieDto> =
-				genreList.stream()
-						.skip(offset.toLong())
-						.limit(limit.toLong())
-						.toList().toMutableList()
-
-		return PageDto(
-				list = dtoList,
-				rangeMin = offset,
-				rangeMax = offset + dtoList.size - 1,
-				totalSize = genreList.size
-		)
-
-	}
-	
 }

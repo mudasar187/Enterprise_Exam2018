@@ -32,6 +32,21 @@ class GenreTest: TestBase() {
     }
 
     @Test
+    fun testCreateGenreAndRetriveMovieByGenre() {
+        val createdGenre = getGenreById(createDefaultGenre().toLong())
+
+        assertEquals(createDefaultGenreDto().name!!.capitalize(), createdGenre.name)
+
+        val movieDto = createDefaultMovieDto(mutableSetOf(createdGenre))
+
+        createMovie(movieDto)
+
+        val genreResponse = getGenreById(createdGenre.id!!.toLong())
+
+        assertNotEquals(0, genreResponse.movies!!.size)
+    }
+
+    @Test
     fun testCreateGenreWithMovie() {
         val dto = createDefaultGenreDto()
         dto.movies = mutableSetOf(MovieDto(title = "test"))
@@ -44,24 +59,14 @@ class GenreTest: TestBase() {
     }
 
     @Test
-    fun cachingTest() {
+    fun testGenresCache() {
+        testCache(genresUrl)
+    }
 
-        val etag =
-                given()
-                        .accept(ContentType.JSON)
-                        .get(genresUrl)
-                        .then()
-                        .statusCode(200)
-                        .header("ETag", CoreMatchers.notNullValue())
-                        .extract().header("ETag")
-
-        given()
-                .accept(ContentType.JSON)
-                .header("If-None-Match", etag)
-                .get(genresUrl)
-                .then()
-                .statusCode(304)
-                .content(CoreMatchers.equalTo(""))
+    @Test
+    fun testGenreCache() {
+        val id = createDefaultGenre()
+        testCache("$genresUrl/$id")
     }
 
     @Test

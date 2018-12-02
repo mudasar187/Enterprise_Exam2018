@@ -11,6 +11,7 @@ import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.dto.cinema.RoomDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.hal.PageDtoGenerator
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.http.HttpStatus
@@ -64,7 +65,7 @@ class CinemaController(
             builder.queryParam("location", location)
         }
 
-        val pageDto = CinemaConverter.dtoListToPageDto(cinemasDtos, offset, limit)
+        val pageDto = PageDtoGenerator<CinemaDto>().generatePageDto(cinemasDtos, offset, limit)
         return HalLinkGenerator<CinemaDto>().generateHalLinks(cinemasDtos, pageDto, builder, limit, offset)
     }
 
@@ -170,11 +171,11 @@ class CinemaController(
             limit: Int
     ): ResponseEntity<WrappedResponse<RoomDto>> {
 
-        val roomsDto = roomService.getAllRoomsFromCinemaByCinemaId(id)
+        val roomsDtos = roomService.getAllRoomsFromCinemaByCinemaId(id)
         val builder = UriComponentsBuilder.fromPath("/cinemas/$id/rooms")
 
-        val pageDto = RoomConverter.dtoListToPageDto(roomsDto, offset, limit)
-        return HalLinkGenerator<RoomDto>().generateHalLinks(roomsDto, pageDto, builder, limit, offset)
+        val pageDto = PageDtoGenerator<RoomDto>().generatePageDto(roomsDtos, offset, limit)
+        return HalLinkGenerator<RoomDto>().generateHalLinks(roomsDtos, pageDto, builder, limit, offset)
     }
 
     @ApiOperation("Get single room by id and cinema id")

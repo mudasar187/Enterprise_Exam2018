@@ -7,6 +7,7 @@ import no.ecm.utils.response.GenreResponse
 import no.ecm.utils.response.MovieResponse
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
+import org.hamcrest.CoreMatchers
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -142,5 +143,24 @@ abstract class TestBase {
                 .statusCode(HttpStatus.CREATED.value())
                 .extract()
                 .`as`(MovieResponse::class.java).data!!.list.first().id!!
+    }
+
+    fun testCache(url: String) {
+        val etag =
+                given()
+                        .accept(ContentType.JSON)
+                        .get(url)
+                        .then()
+                        .statusCode(200)
+                        .header("ETag", CoreMatchers.notNullValue())
+                        .extract().header("ETag")
+
+        given()
+                .accept(ContentType.JSON)
+                .header("If-None-Match", etag)
+                .get(url)
+                .then()
+                .statusCode(304)
+                .content(CoreMatchers.equalTo(""))
     }
 }
