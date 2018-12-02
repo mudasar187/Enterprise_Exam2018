@@ -18,6 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 @Api(value = "/cinemas", description = "API for cinema and room entity")
 @RequestMapping(
@@ -28,6 +29,10 @@ class CinemaController(
         private var cinemaService: CinemaService,
         private var roomService: RoomService
 ) {
+
+    /**
+     * Cinema entity
+     */
 
     @ApiOperation("Get all cinemas")
     @GetMapping
@@ -84,15 +89,19 @@ class CinemaController(
     }
 
     @ApiOperation("Create a cinema")
-    @PostMapping
+    @PostMapping(consumes = ["application/json"])
     fun createCinema(
             @ApiParam("JSON object representing the Cinema")
             @RequestBody cinemaDto: CinemaDto
     ): ResponseEntity<WrappedResponse<CinemaDto>> {
-        return ResponseEntity.status(201).body(
+        val dto = cinemaService.createCinema(cinemaDto)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create("/cinemas/${dto.id}"))
+                .body(
                 ResponseDto(
                         code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(cinemaService.createCinema(cinemaDto)))
+                        page = PageDto(mutableListOf(dto))
                 ).validated()
         )
     }
@@ -111,7 +120,7 @@ class CinemaController(
     }
 
     @ApiOperation("Update whole information of a cinema by id")
-    @PutMapping(path = ["/{id}"])
+    @PutMapping(path = ["/{id}"], consumes = ["application/json"])
     fun putUpdateCinema(
             @ApiParam("id of the cinema")
             @PathVariable("id")
@@ -142,7 +151,7 @@ class CinemaController(
 
 
     /**
-     * Rooms operations
+     * Rooms entity
      */
 
     @ApiOperation("Get all rooms based on cinema id")
@@ -166,24 +175,6 @@ class CinemaController(
 
         val pageDto = RoomConverter.dtoListToPageDto(roomsDto, offset, limit)
         return HalLinkGenerator<RoomDto>().generateHalLinks(roomsDto, pageDto, builder, limit, offset)
-    }
-
-    @ApiOperation("Create a room to specific cinema")
-    @PostMapping(path = ["/{cinema_id}/rooms"])
-    fun createRoomToSpecificCinemaByCinemaId(
-            @ApiParam("id of cinema")
-            @PathVariable("cinema_id")
-            cinemaId: String?,
-
-            @ApiParam("JSON object representing the Room")
-            @RequestBody roomDto: RoomDto
-    ): ResponseEntity<WrappedResponse<RoomDto>> {
-        return ResponseEntity.status(201).body(
-                ResponseDto(
-                        code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(roomService.createRoomForSpecificCinemaByCinemaId(cinemaId, roomDto)))
-                ).validated()
-        )
     }
 
     @ApiOperation("Get single room by id and cinema id")
@@ -211,6 +202,27 @@ class CinemaController(
                 )
     }
 
+    @ApiOperation("Create a room to specific cinema")
+    @PostMapping(path = ["/{cinema_id}/rooms"], consumes = ["application/json"])
+    fun createRoomToSpecificCinemaByCinemaId(
+            @ApiParam("id of cinema")
+            @PathVariable("cinema_id")
+            cinemaId: String?,
+
+            @ApiParam("JSON object representing the Room")
+            @RequestBody roomDto: RoomDto
+    ): ResponseEntity<WrappedResponse<RoomDto>> {
+        val dto = roomService.createRoomForSpecificCinemaByCinemaId(cinemaId, roomDto)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create("/cinemas/$cinemaId/rooms/${roomDto.id}"))
+                .body(
+                ResponseDto(
+                        code = HttpStatus.CREATED.value(),
+                        page = PageDto(mutableListOf(dto))
+                ).validated()
+        )
+    }
 
     @ApiOperation("Update partial information of a room by id ")
     @PatchMapping(path = ["/{cinema_id}/rooms/{room_id}"], consumes = ["application/merge-patch+json"])
@@ -232,7 +244,7 @@ class CinemaController(
     }
 
     @ApiOperation("Update whole information of a room by id")
-    @PutMapping(path = ["/{cinema_id}/rooms/{room_id}"])
+    @PutMapping(path = ["/{cinema_id}/rooms/{room_id}"], consumes = ["application/json"])
     fun putUpdateRoomIdByCinemaId(
             @ApiParam("id of the cinema")
             @PathVariable("cinema_id")
@@ -249,7 +261,6 @@ class CinemaController(
         roomService.putUpdateRoomIdByCinemaId(cinemaId, roomId, roomDto)
         return ResponseEntity.noContent().build()
     }
-
 
     @ApiOperation("Delete a room for specific cinema")
     @DeleteMapping(path = ["/{cinema_id}/rooms/{room_id}"])

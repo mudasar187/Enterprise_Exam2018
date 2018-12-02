@@ -13,7 +13,7 @@ class ExceptionMessages{
         }
 
         fun offsetAndLimitInvalid(): String {
-            return "Offset must be grater than 0 and limit must be greater than/or equal 1"
+            return "Offset must be grater than/or equal 0 and limit must be greater than/or equal 1"
         }
 
         fun tooLargeOffset(offset: Int): String {
