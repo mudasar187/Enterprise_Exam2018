@@ -2,7 +2,7 @@ package no.ecm.cinema
 
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import junit.framework.Assert.assertEquals
+import junit.framework.Assert.*
 import no.ecm.utils.response.CinemaResponse
 import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.dto.cinema.RoomDto
@@ -125,7 +125,33 @@ class CinemaTest : TestBase() {
 
     }
 
-    // TODO: maybe a test with check of location in response header
+    @Test
+    fun testLocationHeaderWhenPOST() {
+
+        assertEquals(0, getCinemasCount())
+
+        val dto = CinemaDto(null, cinemaName, cinemaLocation)
+
+        val locationURI = given()
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .post("$cinemasUrl")
+                .then()
+                .statusCode(201)
+                .extract()
+                .header("location")
+
+        assertNotNull(locationURI)
+
+        given()
+                .contentType(ContentType.JSON)
+                .get("$locationURI") // locationURI which was returned back when created new cinema
+                .then()
+                .statusCode(200)
+                .body("data.list[0].name", CoreMatchers.equalTo(cinemaName))
+                .body("data.list[0].location", CoreMatchers.equalTo(cinemaLocation))
+
+    }
 
     @Test
     fun testCreateCinemaWithInvalidData() {
@@ -172,8 +198,11 @@ class CinemaTest : TestBase() {
 
         checkCinemaData("$id", cinemaName, cinemaLocation)
 
+        val etag = getEtagForCinema("$id")
+
         // Update entity with new cinema name and new cinema location
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(CinemaDto(id.toString(), newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
@@ -192,8 +221,12 @@ class CinemaTest : TestBase() {
 
         checkCinemaData("$id", cinemaName, cinemaLocation)
 
+        val etag = getEtagForCinema("$id")
+
+
         // Wrong id in url path
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/100")
                 .then()
@@ -201,6 +234,7 @@ class CinemaTest : TestBase() {
 
         // Not matching id
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(CinemaDto("100", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
@@ -208,6 +242,7 @@ class CinemaTest : TestBase() {
 
         // Not allowed to exclude name
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(CinemaDto("$id", "", newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
@@ -215,6 +250,7 @@ class CinemaTest : TestBase() {
 
         // Not allowed to exclude location
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(CinemaDto("$id", newCinemaName, ""))
                 .put("$cinemasUrl/$id")
                 .then()
@@ -222,6 +258,7 @@ class CinemaTest : TestBase() {
 
         // Not allowed to add roomlist
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation, roomList))
                 .put("$cinemasUrl/$id")
                 .then()
@@ -235,17 +272,24 @@ class CinemaTest : TestBase() {
 
         val id = createCinema(cinemaName, cinemaLocation)
 
+        val etag = getEtagForCinema("$id")
+
         assertEquals(1, getCinemasCount())
 
         // Patch update name with new cinema name
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value())
 
+        val newETag = getEtagForCinema("$id")
+
+
         // Patch update location with new location
         given().contentType("application/merge-patch+json")
+                .header("If-Match", newETag)
                 .body("{\"location\": \"$newCinemaLocation\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
@@ -261,8 +305,12 @@ class CinemaTest : TestBase() {
 
         assertEquals(1, getCinemasCount())
 
+        val etag = getEtagForCinema("$id")
+
+
         // Cinema id not exists
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/100")
                 .then()
@@ -270,6 +318,7 @@ class CinemaTest : TestBase() {
 
         // Invalid JSON format
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
@@ -277,6 +326,7 @@ class CinemaTest : TestBase() {
 
         // Not allowed to change id
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"id\": \"2\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
@@ -284,6 +334,7 @@ class CinemaTest : TestBase() {
 
         // Unable to parse name
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"name\": 2}")
                 .patch("$cinemasUrl/$id")
                 .then()
@@ -291,6 +342,7 @@ class CinemaTest : TestBase() {
 
         // Unbale to parse location
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"location\": 2}")
                 .patch("$cinemasUrl/$id")
                 .then()
@@ -298,6 +350,7 @@ class CinemaTest : TestBase() {
 
         // Not allowed to update roomlist
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"rooms\": $roomList}")
                 .patch("$cinemasUrl/$id")
                 .then()
@@ -313,6 +366,27 @@ class CinemaTest : TestBase() {
                 .delete("$cinemasUrl/2")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
+    }
+
+    @Test
+    fun testEtag() {
+
+        val id = createCinema(cinemaName, cinemaLocation)
+
+        val etag = getEtagForCinema("$id")
+
+        // Patch update name with new cinema name
+        given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
+                .body("{\"name\": \"$newCinemaName\"}")
+                .patch("$cinemasUrl/$id")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+
+        val newEtag = getEtagForCinema("$id")
+
+        assertNotSame(etag, newEtag)
+
     }
 
 }
