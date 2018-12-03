@@ -63,6 +63,14 @@ class ExceptionMessages{
         fun subIdNotMatchingParentId(subId: String, parentId: String) : String {
             return "foreign key '${subId.capitalize()}' not match primary key '${parentId.capitalize()}'"
         }
+        
+        fun preConditionFailed() : String{
+            return "Precondition failed, your copy is not up to date."
+        }
+
+        fun missingRequiredHeader(header: String): String {
+            return "Missing required header: $header"
+        }
 
     }
 

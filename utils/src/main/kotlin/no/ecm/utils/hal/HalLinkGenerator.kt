@@ -1,6 +1,6 @@
 package no.ecm.utils.hal
 
-import no.ecm.utils.cache.EtagGenerator
+import no.ecm.utils.cache.EtagHandler
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.response.ResponseDto
@@ -44,7 +44,7 @@ class HalLinkGenerator<T> {
             )
         }
 
-        val etag = EtagGenerator<T>().generateEtag(list = totalList)
+        val etag = EtagHandler<T>().generateEtag(list = totalList)
 
         return ResponseEntity.status(HttpStatus.OK)
                 .eTag(etag)
