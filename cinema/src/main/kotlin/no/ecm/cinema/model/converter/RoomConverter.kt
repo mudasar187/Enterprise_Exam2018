@@ -2,9 +2,6 @@ package no.ecm.cinema.model.converter
 
 import no.ecm.cinema.model.entity.Room
 import no.ecm.utils.dto.cinema.RoomDto
-import no.ecm.utils.hal.PageDto
-import no.ecm.utils.validation.ValidationHandler
-import kotlin.streams.toList
 
 object RoomConverter {
 
@@ -27,24 +24,4 @@ object RoomConverter {
         return entities.map { entityToDto(it) }.toMutableList()
     }
 
-    fun dtoListToPageDto(cinemaList: List<RoomDto>,
-                         offset: Int,
-                         limit: Int): PageDto<RoomDto> {
-
-        ValidationHandler.validateLimitAndOffset(offset, limit)
-
-        val dtoList: MutableList<RoomDto> =
-                cinemaList.stream()
-                        .skip(offset.toLong())
-                        .limit(limit.toLong())
-                        .toList().toMutableList()
-
-        return PageDto(
-                list = dtoList,
-                rangeMin = offset,
-                rangeMax = offset + dtoList.size - 1,
-                totalSize = cinemaList.size
-        )
-
-    }
 }

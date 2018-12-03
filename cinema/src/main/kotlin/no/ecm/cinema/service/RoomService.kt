@@ -80,10 +80,9 @@ class RoomService(
                 throw UserInputValidationException(errorMsg)
             }
             else -> {
-                val roomExists = roomRepository.existsByName(roomDto.name.toString())
 
                 when {
-                    roomExists -> {
+                    roomRepository.existsByName(roomDto.name.toString()) -> {
                         val errorMsg = ExceptionMessages.resourceAlreadyExists("Room", "name", "${roomDto.name}")
                         logger.warn(errorMsg)
                         throw ConflictException(errorMsg)
@@ -108,95 +107,81 @@ class RoomService(
 
     fun patchUpdateRoomByIdAndCinemaId(paramCinemaId: String?, paramRoomId: String?, body: String?) {
 
-        val array = checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
-        val roomId = array[0] as Long
-        val cinema = array[1] as Cinema
-        val isRoomExists = array[2] as Boolean
+        val (roomId, cinema) = getCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
+
+        val jackson = ObjectMapper()
+
+        val jsonNode: JsonNode
+
+        try {
+            jsonNode = jackson.readValue(body, JsonNode::class.java)
+        } catch (e: Exception) {
+            val errorMsg = ExceptionMessages.invalidJsonFormat()
+            logger.warn(errorMsg)
+            throw UserInputValidationException(errorMsg)
+        }
+
+        val room = roomRepository.findById(roomId).get()
 
         when {
-            !isRoomExists -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
+            jsonNode.has("id") -> {
+                val errorMsg = ExceptionMessages.illegalParameter("id")
                 logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
+                throw UserInputValidationException(errorMsg)
             }
-            else -> {
-                val jackson = ObjectMapper()
-
-                val jsonNode: JsonNode
-
-                try {
-                    jsonNode = jackson.readValue(body, JsonNode::class.java)
-                } catch (e: Exception) {
-                    val errorMsg = ExceptionMessages.invalidJsonFormat()
-                    logger.warn(errorMsg)
-                    throw UserInputValidationException(errorMsg)
-                }
-
-                val room = cinema.rooms.first { it.id == roomId }
-
+            jsonNode.has("name") -> {
+                val name = jsonNode.get("name")
                 when {
-                    jsonNode.has("id") -> {
-                        val errorMsg = ExceptionMessages.illegalParameter("id")
+                    name.isTextual -> {
+                        room.name = name.asText()
+                        val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("room", "${room.id}", "name")
+                        logger.info(infoMsg)
+                    }
+                    else -> {
+                        val errorMsg = ExceptionMessages.unableToParse("name")
+                        logger.warn(errorMsg)
+                        throw UserInputValidationException(errorMsg)
+
+                    }
+                }
+            }
+        }
+
+        when {
+            jsonNode.has("seats") -> {
+                val seats = jsonNode.get("seats")
+                when {
+                    seats.isNull -> room.seats = mutableSetOf()
+                    seats.isArray -> {
+                        val mapper = jacksonObjectMapper()
+                        val seatsDto: Set<String> = mapper.readValue(seats.toString())
+
+                        seatsDto.forEach { ValidationHandler.validateSeatFormat(it) }
+                        room.seats = seatsDto.toMutableSet()
+                        val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("room", "${room.id}", "seats")
+                        logger.info(infoMsg)
+
+                    }
+                    else -> {
+                        val errorMsg = ExceptionMessages.unableToParse("seats")
                         logger.warn(errorMsg)
                         throw UserInputValidationException(errorMsg)
                     }
-                    jsonNode.has("name") -> {
-                        val name = jsonNode.get("name")
-                        if (name.isTextual) {
-                            room.name = name.asText()
-                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("room", "${room.id}", "name")
-                            logger.info(infoMsg)
-                        } else {
-                            val errorMsg = ExceptionMessages.unableToParse("name")
-                            logger.warn(errorMsg)
-                            throw UserInputValidationException(errorMsg)
-
-                        }
-                    }
                 }
-
-                when {
-                    jsonNode.has("seats") -> {
-                        val seats = jsonNode.get("seats")
-                        if (seats.isNull) room.seats = mutableSetOf()
-                        else if (seats.isArray) {
-                            val mapper = jacksonObjectMapper()
-                            val seatsDto: Set<String> = mapper.readValue(seats.toString())
-
-                            seatsDto.forEach { ValidationHandler.validateSeatFormat(it) }
-                            room.seats = seatsDto.toMutableSet()
-                            val infoMsg = InfoMessages.entityFieldUpdatedSuccessfully("room", "${room.id}", "seats")
-                            logger.info(infoMsg)
-
-                        } else {
-                            val errorMsg = ExceptionMessages.unableToParse("seats")
-                            logger.warn(errorMsg)
-                            throw UserInputValidationException(errorMsg)
-                        }
-                    }
-                }
-
-                roomRepository.save(room)
-                val infoMsg = InfoMessages.entitySuccessfullyUpdated("room", "${room.id}")
-                logger.info(infoMsg)
             }
         }
+
+        roomRepository.save(room)
+        val infoMsg = InfoMessages.entitySuccessfullyUpdated("room", "${room.id}")
+        logger.info(infoMsg)
 
     }
 
     fun putUpdateRoomIdByCinemaId(paramCinemaId: String?, paramRoomId: String?, roomDto: RoomDto) {
 
-        val array = checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
-        val roomId = array[0] as Long
-        val cinema = array[1] as Cinema
-        val isRoomExists = array[2] as Boolean
+        val (roomId, cinema) = getCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
 
         when {
-            !isRoomExists -> {
-                val errorMsg = ExceptionMessages.notFoundMessage("room", "id", "$paramRoomId")
-                logger.warn(errorMsg)
-                throw NotFoundException(errorMsg)
-            }
             roomDto.id != paramRoomId -> {
                 val errorMsg = ExceptionMessages.notMachingIds("room id")
                 logger.warn(errorMsg)
@@ -208,7 +193,9 @@ class RoomService(
                 throw UserInputValidationException(errorMsg)
             }
             else -> {
-                val room = cinema.rooms.first { it.id == roomId }
+
+                val room = roomRepository.findById(roomId).get()
+
 
                 roomDto.seats!!.forEach { ValidationHandler.validateSeatFormat(it) }
 
@@ -227,10 +214,28 @@ class RoomService(
 
     fun deleteRoomByIdAndCinemaId(paramRoomId: String?, paramCinemaId: String?): String? {
 
-        val array = checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
-        val roomId = array[0] as Long
-        val cinema = array[1] as Cinema
-        val isRoomExists = array[2] as Boolean
+        val (roomId, cinema) = getCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
+
+        val room = roomRepository.findById(roomId).get()
+
+        cinema.rooms.remove(room)
+
+        roomRepository.deleteById(roomId)
+
+        val infoMsg = InfoMessages.entitySuccessfullyDeleted("room", "${room.id}")
+        logger.info(infoMsg)
+
+        return roomId.toString()
+    }
+
+
+    private fun getCinemaAndCheckIfRoomExists(paramRoomId: String?, paramCinemaId: String?): Pair<Long, Cinema> {
+
+        val cinema = cinemaService.getCinemaById(paramCinemaId)
+
+        val roomId = ValidationHandler.validateId(paramRoomId, "room id")
+
+        val isRoomExists = roomRepository.existsById(roomId)
 
         when {
             !isRoomExists -> {
@@ -238,29 +243,9 @@ class RoomService(
                 logger.warn(errorMsg)
                 throw NotFoundException(errorMsg)
             }
-            else -> {
-                val room = cinema.rooms.first { it.id == roomId }
-                cinema.rooms.remove(room)
-
-                roomRepository.deleteById(roomId)
-
-                val infoMsg = InfoMessages.entitySuccessfullyDeleted("room", "${room.id}")
-                logger.info(infoMsg)
-
-                return roomId.toString()
-            }
+            else -> return Pair(roomId, cinema)
         }
-    }
 
-    private fun checkRoomIdAndFindCinemaAndCheckIfRoomExists(paramRoomId: String?, paramCinemaId: String?) : Array<Any> {
-
-        val roomId = ValidationHandler.validateId(paramRoomId, "room id")
-
-        val cinema = cinemaService.getCinemaById(paramCinemaId)
-
-        val isRoomExists = roomRepository.existsByIdAndCinemaId(roomId, paramCinemaId!!.toLong())
-
-        return arrayOf(roomId, cinema, isRoomExists)
     }
 
 }

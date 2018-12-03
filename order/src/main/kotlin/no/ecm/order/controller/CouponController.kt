@@ -8,6 +8,7 @@ import no.ecm.order.service.CouponService
 import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.hal.PageDtoGenerator
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 @Api(value = "/coupons", description = "API for Coupon entity")
 @RequestMapping(
@@ -45,16 +47,11 @@ class CouponController {
 		
 		val couponResultList = service.get(code, null, offset, limit)
 		
+		val pageDto = PageDtoGenerator<CouponDto>().generatePageDto(couponResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/coupons")
-		if (!code.isNullOrBlank()){
-			builder.queryParam("code", code)
-		}
+		when {!code.isNullOrBlank() -> builder.queryParam("code", code) }
 		
-		val pageDto = CouponConverter.dtoListToPageDto(couponResultList, offset, limit)
 		return HalLinkGenerator<CouponDto>().generateHalLinks(couponResultList, pageDto, builder, limit, offset)
-		
-		
-		//return service.get(code, null, offset, limit)
 	}
 	
 	@ApiOperation("Get a coupon by its ID")
@@ -75,13 +72,11 @@ class CouponController {
 		
 		val couponResultList = service.get(null, id, offset, limit)
 		
+		val pageDto = PageDtoGenerator<CouponDto>().generatePageDto(couponResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/coupons")
 		builder.queryParam("id", id)
 		
-		val pageDto = CouponConverter.dtoListToPageDto(couponResultList, offset, limit)
 		return HalLinkGenerator<CouponDto>().generateHalLinks(couponResultList, pageDto, builder, limit, offset)
-		
-		//return service.get(null, id, offset, limit)
 	}
 	
 	@ApiOperation("Create a new coupon")
@@ -93,11 +88,14 @@ class CouponController {
 		
 		val returnId = service.create(dto)
 		
-		return ResponseEntity.status(201).body(
-			ResponseDto(
-				code = 201,
-				page = PageDto(list = mutableListOf(CouponDto(id = returnId)))
-			).validated()
+		return ResponseEntity
+			.status(201)
+			.location(URI.create("/coupons/$returnId"))
+			.body(
+				ResponseDto(
+					code = 201,
+					page = PageDto(list = mutableListOf(CouponDto(id = returnId)))
+				).validated()
 		)
 	}
 	

@@ -52,6 +52,16 @@ class CinemaService(
     fun createCinema(cinemaDto: CinemaDto): CinemaDto {
 
         when {
+            !cinemaDto.id.isNullOrBlank() -> {
+                val errorMsg = ExceptionMessages.illegalParameter("id")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
+            cinemaDto.rooms != null -> {
+                val errorMsg = ExceptionMessages.illegalParameter("rooms")
+                logger.warn(errorMsg)
+                throw UserInputValidationException(errorMsg)
+            }
             cinemaDto.name.isNullOrBlank() -> {
                 val errorMsg = ExceptionMessages.missingRequiredField("name")
                 logger.warn(errorMsg)
@@ -62,32 +72,18 @@ class CinemaService(
                 logger.warn(errorMsg)
                 throw UserInputValidationException(errorMsg)
             }
-            cinemaDto.rooms != null -> {
-                val errorMsg = ExceptionMessages.illegalParameter("rooms")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
-            }
-            !cinemaDto.id.isNullOrBlank() -> {
-                val errorMsg = ExceptionMessages.illegalParameter("id")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
-            }
-            else -> {
-
-                when {
-                    cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString()) -> {
-                        val errorMsg = ExceptionMessages.resourceAlreadyExists("Cinema", "name & location", "${cinemaDto.name}, ${cinemaDto.location}")
-                        logger.warn(errorMsg)
-                        throw ConflictException(errorMsg)
-                    }
-                    else -> {
-                        val id = cinemaRepository.save(CinemaConverter.dtoToEntity(cinemaDto)).id.toString()
-                        val infoMsg = InfoMessages.entityCreatedSuccessfully("cinema", "$id")
-                        logger.info(infoMsg)
-                        return CinemaDto(id = id)
-                    }
+            else -> when {
+                cinemaRepository.existsByNameAndLocationIgnoreCase(cinemaDto.name.toString(), cinemaDto.location.toString()) -> {
+                    val errorMsg = ExceptionMessages.resourceAlreadyExists("Cinema", "name & location", "${cinemaDto.name}, ${cinemaDto.location}")
+                    logger.warn(errorMsg)
+                    throw ConflictException(errorMsg)
                 }
-
+                else -> {
+                    val id = cinemaRepository.save(CinemaConverter.dtoToEntity(cinemaDto)).id.toString()
+                    val infoMsg = InfoMessages.entityCreatedSuccessfully("cinema", "$id")
+                    logger.info(infoMsg)
+                    return CinemaDto(id = id)
+                }
             }
         }
 
@@ -217,13 +213,15 @@ class CinemaService(
 
         val id = ValidationHandler.validateId(paramId, "cinema id")
 
-        if (!cinemaRepository.existsById(id)) {
-            val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
-            logger.warn(errorMsg)
-            throw NotFoundException(errorMsg)
+        when {
+            !cinemaRepository.existsById(id) -> {
+                val errorMsg = ExceptionMessages.notFoundMessage("cinema", "id", "$id")
+                logger.warn(errorMsg)
+                throw NotFoundException(errorMsg)
+            }
+            else -> return id
         }
 
-        return id
     }
 
 }

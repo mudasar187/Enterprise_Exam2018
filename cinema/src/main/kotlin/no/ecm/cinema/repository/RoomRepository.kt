@@ -13,5 +13,4 @@ interface RoomRepository : CrudRepository<Room, Long> {
 
     fun existsByName(name: String): Boolean
 
-    fun existsByIdAndCinemaId(id: Long, cinema_Id: Long): Boolean
 }

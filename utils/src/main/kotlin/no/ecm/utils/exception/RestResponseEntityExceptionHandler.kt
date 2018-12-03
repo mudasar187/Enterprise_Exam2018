@@ -31,12 +31,6 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
         }
     }
 
-    /*
-        Note: 404 needs to be handled specially. To do this, look
-        at the configurations under application.properties
-     */
-
-
     @ExceptionHandler(value = [UserInputValidationException::class])
     protected fun handleExplicitlyThrownExceptions(ex: UserInputValidationException, request: WebRequest)
             : ResponseEntity<Any> {

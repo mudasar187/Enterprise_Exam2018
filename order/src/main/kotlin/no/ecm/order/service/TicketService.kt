@@ -158,9 +158,12 @@ class TicketService {
 		
 		val jacksonObjectMapper = ObjectMapper()
 		
-		val jsonNode = try { jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java) }
-		
-		catch (e: Exception) {
+		val jsonNode = try {
+			
+			jacksonObjectMapper.readValue(jsonPatch, JsonNode::class.java)
+			
+		} catch (e: Exception) {
+			
 			val errorMsg = ExceptionMessages.invalidJsonFormat()
 			logger.warn(errorMsg)
 			throw UserInputValidationException(ExceptionMessages.invalidJsonFormat(), 409)
