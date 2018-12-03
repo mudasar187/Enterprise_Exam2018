@@ -7,6 +7,7 @@ import no.ecm.cinema.model.converter.CinemaConverter
 import no.ecm.cinema.model.converter.RoomConverter
 import no.ecm.cinema.service.CinemaService
 import no.ecm.cinema.service.RoomService
+import no.ecm.utils.cache.EtagHandler
 import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.dto.cinema.RoomDto
 import no.ecm.utils.hal.HalLinkGenerator
@@ -112,10 +113,16 @@ class CinemaController(
     fun patchUpdateCinema(@ApiParam("id of the cinema")
                           @PathVariable("id")
                           id: String?,
+                          @ApiParam("Content of ETag")
+                          @RequestHeader("If-Match")
+                          ifMatch: String?,
                           @ApiParam("The partial patch")
                           @RequestBody
                           jsonPatch: String
     ): ResponseEntity<Void> {
+        val currentDto = CinemaConverter.entityToDto(cinemaService.getCinemaById(id), true)
+        EtagHandler<CinemaDto>().validateEtags(currentDto, ifMatch)
+
         cinemaService.patchUpdateCinema(id, jsonPatch)
         return ResponseEntity.noContent().build()
     }
@@ -126,11 +133,16 @@ class CinemaController(
             @ApiParam("id of the cinema")
             @PathVariable("id")
             id: String,
-
+            @ApiParam("Content of ETag")
+            @RequestHeader("If-Match")
+            ifMatch: String?,
             @ApiParam("Cinema data")
             @RequestBody
             cinemaDto: CinemaDto
     ): ResponseEntity<Void> {
+        val currentDto = CinemaConverter.entityToDto(cinemaService.getCinemaById(id), true)
+        EtagHandler<CinemaDto>().validateEtags(currentDto, ifMatch)
+
         cinemaService.putUpdateCinema(id, cinemaDto)
         return ResponseEntity.noContent().build()
     }
@@ -236,10 +248,17 @@ class CinemaController(
             @PathVariable("room_id")
             roomId: String?,
 
+            @ApiParam("Content of ETag")
+            @RequestHeader("If-Match")
+            ifMatch: String?,
+
             @ApiParam("The partial patch")
             @RequestBody
             jsonPatch: String
     ): ResponseEntity<Void> {
+        val currentDto = roomService.getRoomByIdAndCinemaId(cinemaId, roomId)
+        EtagHandler<RoomDto>().validateEtags(currentDto, ifMatch)
+
         roomService.patchUpdateRoomByIdAndCinemaId(cinemaId, roomId, jsonPatch)
         return ResponseEntity.noContent().build()
     }
@@ -255,10 +274,17 @@ class CinemaController(
             @PathVariable("room_id")
             roomId: String?,
 
+            @ApiParam("Content of ETag")
+            @RequestHeader("If-Match")
+            ifMatch: String?,
+
             @ApiParam("Room data")
             @RequestBody
             roomDto: RoomDto
     ): ResponseEntity<Void> {
+        val currentDto = roomService.getRoomByIdAndCinemaId(cinemaId, roomId)
+        EtagHandler<RoomDto>().validateEtags(currentDto, ifMatch)
+
         roomService.putUpdateRoomIdByCinemaId(cinemaId, roomId, roomDto)
         return ResponseEntity.noContent().build()
     }

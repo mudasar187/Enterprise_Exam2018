@@ -107,7 +107,7 @@ class RoomService(
 
     fun patchUpdateRoomByIdAndCinemaId(paramCinemaId: String?, paramRoomId: String?, body: String?) {
 
-        val (roomId, cinema) = getCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
+        val (roomId) = getCinemaAndCheckIfRoomExists(paramRoomId, paramCinemaId)
 
         val jackson = ObjectMapper()
 

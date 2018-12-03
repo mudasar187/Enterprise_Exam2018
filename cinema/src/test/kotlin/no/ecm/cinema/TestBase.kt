@@ -106,6 +106,16 @@ abstract class TestBase {
                 .body("data.list[0].location", CoreMatchers.equalTo(location))
     }
 
+    fun getEtagForCinema(id: String): String {
+
+        return given()
+                .get("$cinemasUrl/$id")
+                .then()
+                .statusCode(200)
+                .extract()
+                .header("ETag")
+    }
+
     /**
      * Room helpers
      */
@@ -152,6 +162,16 @@ abstract class TestBase {
                 .body("data.list[0].name", CoreMatchers.equalTo(name))
                 .body("data.list[0].seats[0]", CoreMatchers.equalTo(seatOne))
                 .body("data.list[0].seats[1]", CoreMatchers.equalTo(seatTwo))
+    }
+
+    fun getEtagForRoom(cinemaId: String, roomId: String): String {
+
+        return given()
+                .get("$cinemasUrl/$cinemaId/rooms/$roomId")
+                .then()
+                .statusCode(200)
+                .extract()
+                .header("ETag")
     }
 
 }
