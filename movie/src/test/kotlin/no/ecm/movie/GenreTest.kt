@@ -14,7 +14,7 @@ class GenreTest: TestBase() {
 
     @Test
     fun testCreateGenre() {
-        val createdGenre = getGenreById(createDefaultGenre().toLong())
+        val (createdGenre) = getGenreById(createDefaultGenre().toLong())
 
         assertEquals(createDefaultGenreDto().name!!.capitalize(), createdGenre.name)
     }
@@ -33,7 +33,7 @@ class GenreTest: TestBase() {
 
     @Test
     fun testCreateGenreAndRetriveMovieByGenre() {
-        val createdGenre = getGenreById(createDefaultGenre().toLong())
+        val (createdGenre) = getGenreById(createDefaultGenre().toLong())
 
         assertEquals(createDefaultGenreDto().name!!.capitalize(), createdGenre.name)
 
@@ -41,7 +41,7 @@ class GenreTest: TestBase() {
 
         createMovie(movieDto)
 
-        val genreResponse = getGenreById(createdGenre.id!!.toLong())
+        val (genreResponse) = getGenreById(createdGenre.id!!.toLong())
 
         assertNotEquals(0, genreResponse.movies!!.size)
     }
@@ -91,7 +91,7 @@ class GenreTest: TestBase() {
 
     @Test
     fun testGetGenreByName() {
-        val createdGenre = getGenreById(createDefaultGenre().toLong())
+        val (createdGenre) = getGenreById(createDefaultGenre().toLong())
 
         given().contentType(ContentType.JSON)
                 .queryParam("name", createdGenre.name)
@@ -115,55 +115,61 @@ class GenreTest: TestBase() {
 
     @Test
     fun testPatchGenre() {
-        val createdGenre = getGenreById(createDefaultGenre().toLong())
+        val (createdGenre, etag) = getGenreById(createDefaultGenre().toLong())
 
         val name = createdGenre.name + " test"
 
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"name\": \"$name\"}")
                 .patch("$genresUrl/${createdGenre.id}")
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value())
 
-        val patchedGenre = getGenreById(createdGenre.id!!.toLong())
+        val (patchedGenre) = getGenreById(createdGenre.id!!.toLong())
 
         assertEquals(name, patchedGenre.name)
     }
 
     @Test
     fun testBadJsonFormat() {
-        val id = createDefaultGenre().toLong()
+        val (response, etag) = getGenreById(createDefaultGenre().toLong())
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{name: \"action\"}")
-                .patch("$genresUrl/$id")
+                .patch("$genresUrl/${response.id}")
                 .then()
                 .statusCode(400)
     }
 
     @Test
     fun testPatchContainingId() {
-        val id = createDefaultGenre().toLong()
+        val (response, etag) = getGenreById(createDefaultGenre().toLong())
         given().contentType("application/merge-patch+json")
-                .body("{\"id\": \"$id\",\"name\": \"name\"}")
-                .patch("$genresUrl/$id")
+                .header("If-Match", etag)
+                .body("{\"id\": \"${response.id}\",\"name\": \"name\"}")
+                .patch("$genresUrl/${response.id}")
                 .then()
                 .statusCode(400)
     }
 
     @Test
     fun testPatchContainingMovie() {
-        val id = createDefaultGenre().toLong()
+        val (response, etag) = getGenreById(createDefaultGenre().toLong())
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"movies\": \"movie1\"}")
-                .patch("$genresUrl/$id")
+                .patch("$genresUrl/${response.id}")
                 .then()
                 .statusCode(400)
     }
 
     @Test
     fun testPatchWrongId() {
+        val (response, etag) = getGenreById(createDefaultGenre().toLong())
         val name = "test"
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"name\": \"$name\"}")
                 .patch("$genresUrl/7777")
                 .then()
@@ -172,34 +178,37 @@ class GenreTest: TestBase() {
 
     @Test
     fun testPatchGenreWithWrongNameFormat() {
-        val id = createDefaultGenre().toLong()
+        val (response, etag) = getGenreById(createDefaultGenre().toLong())
 
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"name\": 1234}")
-                .patch("$genresUrl/$id")
+                .patch("$genresUrl/${response.id}")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
     }
 
     @Test
     fun testPatchWithoutNameInBody() {
-        val id = createDefaultGenre().toLong()
+        val (response, etag) = getGenreById(createDefaultGenre().toLong())
 
         given().contentType("application/merge-patch+json")
+                .header("If-Match", etag)
                 .body("{\"abc\": 1234}")
-                .patch("$genresUrl/$id")
+                .patch("$genresUrl/${response.id}")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
     }
 
     @Test
     fun testPutGenreContainingMovie() {
-        val createdGenre = getGenreById(createDefaultGenre().toLong())
+        val (createdGenre, etag) = getGenreById(createDefaultGenre().toLong())
 
         createdGenre.name = createdGenre.name + " test"
         val id = createdGenre.id!!
 
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(createdGenre)
                 .put("$genresUrl/$id")
                 .then()
@@ -209,32 +218,34 @@ class GenreTest: TestBase() {
     @Test
     fun testPutGenreWithNoIdInBody() {
 
-        val id = createDefaultGenre().toLong()
+        val (createdGenre, etag) = getGenreById(createDefaultGenre().toLong())
 
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(createDefaultGenreDto())
-                .put("$genresUrl/$id")
+                .put("$genresUrl/${createdGenre.id}")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
     }
 
     @Test
     fun testPutWithNotMatchingIds() {
-        val id = createDefaultGenre().toLong()
+        val (createdGenre, etag) = getGenreById(createDefaultGenre().toLong())
 
         val dto = createDefaultGenreDto()
-        dto.id = (id + 1).toString()
+        dto.id = (createdGenre.id!!.toLong() + 1).toString()
 
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(dto)
-                .put("$genresUrl/$id")
+                .put("$genresUrl/${createdGenre.id}")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
     }
 
     @Test
     fun testPutGenre() {
-        val createdGenre = getGenreById(createDefaultGenre().toLong())
+        val (createdGenre, etag) = getGenreById(createDefaultGenre().toLong())
 
         createdGenre.name = createdGenre.name + " test"
         createdGenre.movies = null
@@ -242,12 +253,13 @@ class GenreTest: TestBase() {
         val id = createdGenre.id!!
 
         given().contentType(ContentType.JSON)
+                .header("If-Match", etag)
                 .body(createdGenre)
                 .put("$genresUrl/$id")
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value())
 
-        val updatedGenre = getGenreById(createdGenre.id!!.toLong())
+        val (updatedGenre) = getGenreById(createdGenre.id!!.toLong())
 
         assertEquals(createdGenre.name, updatedGenre.name)
     }
@@ -268,18 +280,20 @@ class GenreTest: TestBase() {
 
     }
 
-    private fun getGenreById(id: Long): GenreDto {
+    private fun getGenreById(id: Long): Pair<GenreDto, String> {
         val response = given().contentType(ContentType.JSON)
                 .get("$genresUrl/$id")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .extract()
+
+        val dto = response.
+                extract()
                 .`as`(GenreResponse::class.java).data!!.list.first()
 
         assertNotNull(response)
-        assertEquals(id, response.id!!.toLong())
+        assertEquals(id, dto.id!!.toLong())
 
-        return response
+        return Pair(dto, response.extract().header("ETag"))
     }
 
 

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.movie.model.converter.MovieConverter
 import no.ecm.movie.service.MovieService
+import no.ecm.utils.cache.EtagHandler
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
@@ -97,9 +98,16 @@ class MovieController (
     fun patchMovie(@ApiParam("The id of the Movie")
                     @PathVariable("id")
                     id: String?,
+                    @ApiParam("Content of ETag")
+                    @RequestHeader("If-Match")
+                    ifMatch: String?,
                     @ApiParam("The partial patch")
                     @RequestBody
                     jsonPatch: String) : ResponseEntity<Void> {
+
+        val currentDto = MovieConverter.entityToDto(movieService.getMovie(id))
+        EtagHandler<MovieDto>().validateEtags(currentDto, ifMatch)
+
         movieService.patchMovie(id, jsonPatch)
         return ResponseEntity.noContent().build()
     }
@@ -110,9 +118,16 @@ class MovieController (
     fun putMovie(@ApiParam("The id of the Movie")
                  @PathVariable("id")
                  id: String?,
+                 @ApiParam("Content of ETag")
+                 @RequestHeader("If-Match")
+                 ifMatch: String?,
                  @ApiParam("JSON object representing the Movie")
                  @RequestBody
                  movieDto: MovieDto): ResponseEntity<Void> {
+
+        val currentDto = MovieConverter.entityToDto(movieService.getMovie(id))
+        EtagHandler<MovieDto>().validateEtags(currentDto, ifMatch)
+
         movieService.putMovie(id, movieDto)
         return ResponseEntity.noContent().build()
     }

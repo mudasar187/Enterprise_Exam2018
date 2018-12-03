@@ -95,8 +95,15 @@ class GenreController(
     fun putGenre(@ApiParam("The id of the Genre")
                  @PathVariable("id")
                  id: String?,
+                 @ApiParam("Content of ETag")
+                 @RequestHeader("If-Match")
+                 ifMatch: String?,
                  @ApiParam("JSON object representing the Genre")
                  @RequestBody genreDto: GenreDto) : ResponseEntity<Void> {
+
+        val currentDto = GenreConverter.entityToDto(genreService.getGenre(id), true)
+        EtagHandler<GenreDto>().validateEtags(currentDto, ifMatch)
+
         genreService.putGenre(id, genreDto)
         return ResponseEntity.noContent().build()
     }
@@ -107,7 +114,8 @@ class GenreController(
     fun patchGenre(@ApiParam("The id of the Genre")
               @PathVariable("id")
               id: String?,
-              @RequestHeader("If-Match", required = false)
+              @ApiParam("Content of ETag")
+              @RequestHeader("If-Match")
               ifMatch: String?,
               @ApiParam("JSON Representing fields in a GenreDto")
               @RequestBody

@@ -20,7 +20,7 @@ class EtagHandler<T> {
             throw UserInputValidationException(missingRequiredHeader("If-Match"))
         }
 
-        if (generateEtag(expected) != request){
+        if (generateEtag(expected) != request!!.replace("\"", "")){
             throw PreconditionException(preConditionFailed())
         }
     }
