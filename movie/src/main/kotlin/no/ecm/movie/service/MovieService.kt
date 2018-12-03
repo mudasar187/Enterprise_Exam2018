@@ -11,12 +11,14 @@ import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.exception.ConflictException
 import no.ecm.utils.messages.ExceptionMessages
-import no.ecm.utils.messages.ExceptionMessages.Companion.illegalParameter
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
 import no.ecm.utils.messages.ExceptionMessages.Companion.inputFilterInvalid
 import no.ecm.utils.messages.ExceptionMessages.Companion.invalidParameter
+import no.ecm.utils.messages.ExceptionMessages.Companion.missingRequiredField
+import no.ecm.utils.messages.ExceptionMessages.Companion.unableToParse
+import no.ecm.utils.messages.InfoMessages.Companion.entityCreatedSuccessfully
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.stereotype.Service
 
@@ -47,19 +49,9 @@ class MovieService (
 
         val id = validateId(stringId, "id")
 
-        if (!movieRepository.existsById(id)){
-            val errorMsg = ExceptionMessages.notFoundMessage("Movie", "id", stringId!!)
-            logger.warn(errorMsg)
-            throw NotFoundException(errorMsg)
-        }
+        checkForMovieInDatabase(id)
 
         return movieRepository.findById(id).get()
-    }
-
-    private fun handleMissingField(fieldName: String){
-        val errorMsg = ExceptionMessages.missingRequiredField(fieldName)
-        logger.warn(errorMsg)
-        throw UserInputValidationException(errorMsg)
     }
 
     fun createMovie(movieDto: MovieDto): MovieDto {
@@ -67,47 +59,38 @@ class MovieService (
         validateMovieDto(movieDto)
 
         if (!movieDto.id.isNullOrEmpty()){
-            val errorMsg = ExceptionMessages.illegalParameter("id")
-            logger.warn(errorMsg)
-            throw UserInputValidationException(errorMsg)
+            handleIllegalField("id")
         }
 
         if (movieRepository.existsByTitleAndPosterUrlIgnoreCase(movieDto.title!!, movieDto.posterUrl!!)){
             val errorMsg = (ExceptionMessages
                     .resourceAlreadyExists("Movie", "title and posterUrl", "${movieDto.title} and ${movieDto.posterUrl}"))
-            logger.error(errorMsg)
+            logger.warn(errorMsg)
             throw ConflictException(errorMsg)
         }
 
         movieDto.title = movieDto.title!!.capitalize()
 
         val movie = MovieConverter.dtoToEntity(movieDto)
+        movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
 
-        if (movieDto.genre != null){
-            movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
-        }
-
-        return MovieDto(id = movieRepository.save(movie).id.toString())
+        val id = movieRepository.save(movie).id.toString()
+        logger.info(entityCreatedSuccessfully("movie", id))
+        return MovieDto(id =id)
     }
 
     fun patchMovie(stringId: String?, body: String?) {
 
         val id = validateId(stringId, "id")
-
-        if (!movieRepository.existsById(id)){
-            val errorMsg = ExceptionMessages.notFoundMessage("Movie", "id", stringId!!)
-            logger.warn(errorMsg)
-            throw NotFoundException(errorMsg)
-        }
+        checkForMovieInDatabase(id)
 
         val jackson = ObjectMapper()
-
         val jsonNode: JsonNode
 
         try {
             jsonNode = jackson.readValue(body, JsonNode::class.java)
         } catch (e: Exception) {
-            val errorMsg = ExceptionMessages.invalidParameter("JSON", "invalid JSON object")
+            val errorMsg = invalidParameter("JSON", "invalid JSON object")
             logger.error(errorMsg)
             throw UserInputValidationException(errorMsg)
         }
@@ -115,7 +98,7 @@ class MovieService (
         val movie = movieRepository.findById(id).get()
 
         if (jsonNode.has("id")){
-            throw UserInputValidationException(illegalParameter("id"))
+            handleIllegalField("id")
         }
 
         if (jsonNode.has("title")) {
@@ -123,9 +106,7 @@ class MovieService (
             if (title.isTextual){
                 movie.title = title.asText()
             } else {
-                val errorMsg = ExceptionMessages.unableToParse("title")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
+                handleUnableToParse("title")
             }
         }
 
@@ -134,9 +115,7 @@ class MovieService (
             if (posterUrl.isTextual){
                 movie.posterUrl = posterUrl.asText()
             } else {
-                val errorMsg = ExceptionMessages.unableToParse("posterUrl")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
+                handleUnableToParse("posterUrl")
             }
         }
 
@@ -145,9 +124,7 @@ class MovieService (
             if (ageLimit.isInt){
                 movie.ageLimit = ageLimit.asInt()
             } else {
-                val errorMsg = ExceptionMessages.unableToParse("ageLimit")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
+                handleUnableToParse("ageLimit")
             }
         }
 
@@ -156,9 +133,7 @@ class MovieService (
             if (movieDuration.isInt){
                 movie.movieDuration = movieDuration.asInt()
             } else {
-                val errorMsg = ExceptionMessages.unableToParse("movieDuration")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
+                handleUnableToParse("movieDuration")
             }
         }
 
@@ -174,7 +149,7 @@ class MovieService (
                     movie.genre = genreDtos.asSequence().map { genreService.getGenre(it.id) }.toMutableSet()
 
                 }
-                else -> throw UserInputValidationException("Unable to handle field: 'movies'")
+                else -> handleUnableToParse("genre")
             }
         }
         movieRepository.save(movie)
@@ -195,9 +170,8 @@ class MovieService (
         movie.ageLimit = movieDto.ageLimit
         movie.ageLimit = movieDto.ageLimit
         movie.genre.forEach { it.movies.remove(movie) }
-        if (movieDto.genre != null){
-            movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
-        }
+        movieDto.genre!!.forEach { genreService.getGenre(it.id).movies.add(movie) }
+
         movieRepository.save(movie)
     }
 
@@ -205,11 +179,7 @@ class MovieService (
 
         val id = validateId(stringId, "id")
 
-        if (!movieRepository.existsById(id)){
-            val errorMsg = ExceptionMessages.notFoundMessage("Movie", "id", stringId!!)
-            logger.warn(errorMsg)
-            throw NotFoundException(errorMsg)
-        }
+        checkForMovieInDatabase(id)
 
         val movie = movieRepository.findById(id).get()
         movie.genre.forEach { it.movies.remove(movie) }
@@ -217,6 +187,32 @@ class MovieService (
         movieRepository.deleteById(id)
 
         return id.toString()
+    }
+
+    private fun handleUnableToParse(fieldName: String){
+        val errorMsg = unableToParse(fieldName)
+        logger.warn(errorMsg)
+        throw UserInputValidationException(errorMsg)
+    }
+
+    private fun handleIllegalField(fieldName: String){
+        val errorMsg = ExceptionMessages.illegalParameter(fieldName)
+        logger.warn(errorMsg)
+        throw UserInputValidationException(errorMsg)
+    }
+
+    private fun handleMissingField(fieldName: String){
+        val errorMsg = missingRequiredField(fieldName)
+        logger.warn(errorMsg)
+        throw UserInputValidationException(errorMsg)
+    }
+
+    private fun checkForMovieInDatabase(id: Long){
+        if (!movieRepository.existsById(id)){
+            val errorMsg = ExceptionMessages.notFoundMessage("Movie", "id", id.toString())
+            logger.warn(errorMsg)
+            throw NotFoundException(errorMsg)
+        }
     }
 
     fun validateMovieDto(movieDto: MovieDto) {

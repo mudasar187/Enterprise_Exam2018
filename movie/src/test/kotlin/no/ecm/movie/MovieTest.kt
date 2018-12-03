@@ -281,6 +281,30 @@ class MovieTest: TestBase() {
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
 
+        //Bad array format in genre field
+        given().contentType("application/merge-patch+json")
+                .body("{\"genre\": {\"id\" : \"${defaultMovie.genre!!.first().id}\"}}")
+                .patch("$moviesUrl/${defaultMovie.id}")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+
+        //Containing illegal field: id
+        given().contentType("application/merge-patch+json")
+                .body("{\"id\": \"3\"}")
+                .patch("$moviesUrl/${defaultMovie.id}")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+    }
+
+    @Test
+    fun testMoviesCache() {
+        testCache(moviesUrl)
+    }
+
+    @Test
+    fun testMovieCache() {
+        val id = createDefaultMovie()
+        testCache("$moviesUrl/$id")
     }
 
     @Test
@@ -314,12 +338,27 @@ class MovieTest: TestBase() {
     fun testPutNotMatchingId() {
         val defaultMovie = getMovieById(createDefaultMovie())
 
+        defaultMovie.id = defaultMovie.id  + "123"
+
         given().contentType(ContentType.JSON)
                 .body(defaultMovie)
-                .put("$moviesUrl/${defaultMovie.id}123")
+                .put("$moviesUrl/${defaultMovie.id}")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
 
+    }
+
+    @Test
+    fun testPutMovieNullGenre() {
+        val defaultMovie = getMovieById(createDefaultMovie())
+
+        defaultMovie.genre = null
+
+        given().contentType(ContentType.JSON)
+                .body(defaultMovie)
+                .put("$moviesUrl/${defaultMovie.id}")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
     }
 
     @Test

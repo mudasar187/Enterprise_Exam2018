@@ -43,19 +43,9 @@ class GenreService (
     fun getGenre(stringId: String?): Genre {
         val id = validateId(stringId, "id")
 
-        if (!genreRepository.existsById(id)){
-            val errorMsg = notFoundMessage("Genre", "id", stringId!!)
-            logger.warn(errorMsg)
-            throw NotFoundException(errorMsg)
-        }
+        checkForGenreInDatabase(id)
         
         return genreRepository.findById(id).get()
-    }
-
-    private fun handleIllegalField(fieldName: String){
-        val errorMsg = illegalParameter(fieldName)
-        logger.warn(errorMsg)
-        throw UserInputValidationException(errorMsg)
     }
 
     fun createGenre(genreDto: GenreDto): GenreDto {
@@ -76,18 +66,16 @@ class GenreService (
 
         val genre = GenreConverter.dtoToEntity(genreDto)
         val id = genreRepository.save(genre).id.toString()
+
         logger.info(entityCreatedSuccessfully("Genre", id))
+
         return GenreDto(id = id)
     }
 
     fun deleteGenre(stringId: String?): String? {
         val id = validateId(stringId, "id")
 
-        if (!genreRepository.existsById(id)){
-            val errorMsg = notFoundMessage("Genre", "id", stringId!!)
-            logger.warn(errorMsg)
-            throw NotFoundException(errorMsg)
-        }
+        checkForGenreInDatabase(id)
         
         genreRepository.deleteById(id)
         logger.info(entitySuccessfullyDeleted("Genre", id.toString()))
@@ -99,11 +87,7 @@ class GenreService (
 
         val id = validateId(stringId, "id")
 
-        if (!genreRepository.existsById(id)){
-            val errorMsg = notFoundMessage("Genre", "id", stringId!!)
-            logger.warn(errorMsg)
-            throw NotFoundException(errorMsg)
-        }
+        checkForGenreInDatabase(id)
 
         val jackson = ObjectMapper()
 
@@ -121,19 +105,13 @@ class GenreService (
 
         when {
             jsonNode.has("id") -> {
-                val errorMsg = illegalParameter("id")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
+                handleIllegalField("id")
             }
             jsonNode.has("movies") -> {
-                val errorMsg = illegalParameter("movies")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
+                handleIllegalField("movies")
             }
             !jsonNode.has("name") -> {
-                val errorMsg = missingRequiredField("name")
-                logger.warn(errorMsg)
-                throw UserInputValidationException(errorMsg)
+                handleMissingField("name")
             }
             jsonNode.has("name") -> {
                 val name = jsonNode.get("name")
@@ -159,9 +137,7 @@ class GenreService (
 
         validateGenreDto(genreDto)
         if (genreDto.id.isNullOrEmpty()){
-            val errorMsg = missingRequiredField("id")
-            logger.warn(errorMsg)
-            throw UserInputValidationException(errorMsg)
+            handleMissingField("id")
         }
 
         if (!stringId.equals(genreDto.id)){
@@ -175,11 +151,29 @@ class GenreService (
         logger.info(entitySuccessfullyUpdated("Genre", genre.id.toString()))
     }
 
+    private fun handleIllegalField(fieldName: String){
+        val errorMsg = illegalParameter(fieldName)
+        logger.warn(errorMsg)
+        throw UserInputValidationException(errorMsg)
+    }
+
+    private fun handleMissingField(fieldName: String){
+        val errorMsg = missingRequiredField(fieldName)
+        logger.warn(errorMsg)
+        throw UserInputValidationException(errorMsg)
+    }
+
+    private fun checkForGenreInDatabase(id: Long){
+        if (!genreRepository.existsById(id)){
+            val errorMsg = notFoundMessage("Genre", "id", id.toString())
+            logger.warn(errorMsg)
+            throw NotFoundException(errorMsg)
+        }
+    }
+
     private fun validateGenreDto(genreDto: GenreDto) {
         if (genreDto.name.isNullOrEmpty()) {
-            val errorMsg = missingRequiredField("name")
-            logger.warn(errorMsg)
-            throw UserInputValidationException(errorMsg)
+            handleMissingField("name")
         } else if (genreDto.movies != null){
             handleIllegalField("movies")
         }

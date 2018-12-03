@@ -8,6 +8,7 @@ import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.dto.cinema.RoomDto
 import org.hamcrest.CoreMatchers
 import org.junit.Test
+import org.springframework.http.HttpStatus
 
 class CinemaTest : TestBase() {
 
@@ -25,7 +26,7 @@ class CinemaTest : TestBase() {
         val size = given().accept(ContentType.JSON)
                 .get(cinemasUrl)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .extract()
                 .`as`(CinemaResponse::class.java).data!!.list.size
 
@@ -41,7 +42,7 @@ class CinemaTest : TestBase() {
         given()
                 .get("$cinemasUrl/100")
                 .then()
-                .statusCode(404)
+                .statusCode(HttpStatus.NOT_FOUND.value())
     }
 
     @Test
@@ -62,27 +63,30 @@ class CinemaTest : TestBase() {
                 .queryParam("location", "Oslo")
                 .get(cinemasUrl)
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
+        // Get all cinemas with name: 'Test Cinema 1'
         given().accept(ContentType.JSON)
                 .queryParam("name", "Test Cinema 1")
                 .get(cinemasUrl)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("data.list.size()", CoreMatchers.equalTo(2))
 
+        // Get all cinemas with location: 'Oslo'
         given().accept(ContentType.JSON)
                 .queryParam("location", "Oslo")
                 .get(cinemasUrl)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("data.list.size()", CoreMatchers.equalTo(2))
 
+        // Get all cinemas with location: 'Bergen'
         given().accept(ContentType.JSON)
                 .queryParam("location", "Bergen")
                 .get(cinemasUrl)
                 .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("data.list.size()", CoreMatchers.equalTo(2))
 
     }
@@ -95,7 +99,7 @@ class CinemaTest : TestBase() {
                         .accept(ContentType.JSON)
                         .get(cinemasUrl)
                         .then()
-                        .statusCode(200)
+                        .statusCode(HttpStatus.OK.value())
                         .header("ETag", CoreMatchers.notNullValue())
                         .extract().header("ETag")
 
@@ -104,7 +108,7 @@ class CinemaTest : TestBase() {
                 .header("If-None-Match", etag)
                 .get(cinemasUrl)
                 .then()
-                .statusCode(304)
+                .statusCode(HttpStatus.NOT_MODIFIED.value())
                 .content(CoreMatchers.equalTo(""))
     }
 
@@ -121,22 +125,24 @@ class CinemaTest : TestBase() {
 
     }
 
+    // TODO: maybe a test with check of location in response header
+
     @Test
     fun testCreateCinemaWithInvalidData() {
 
         assertEquals(0, getCinemasCount())
 
         // Not allowed to add id
-        createInvalidCinema("1", cinemaName, cinemaLocation, null, 400)
+        createInvalidCinema("1", cinemaName, cinemaLocation, null, HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to have location empty
-        createInvalidCinema("", cinemaName, "", null, 400)
+        createInvalidCinema("", cinemaName, "", null, HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to have name empty
-        createInvalidCinema("", "", cinemaLocation, null, 400)
+        createInvalidCinema("", "", cinemaLocation, null, HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to add room list
-        createInvalidCinema("", cinemaName, cinemaLocation, roomList, 400)
+        createInvalidCinema("", cinemaName, cinemaLocation, roomList, HttpStatus.BAD_REQUEST.value())
 
         assertEquals(0, getCinemasCount())
     }
@@ -151,7 +157,7 @@ class CinemaTest : TestBase() {
         assertEquals(1, getCinemasCount())
 
         // Add cinema with same name and location
-        createInvalidCinema("", cinemaName, cinemaLocation, null, 409)
+        createInvalidCinema("", cinemaName, cinemaLocation, null, HttpStatus.CONFLICT.value())
 
         assertEquals(1, getCinemasCount())
 
@@ -166,11 +172,12 @@ class CinemaTest : TestBase() {
 
         checkCinemaData("$id", cinemaName, cinemaLocation)
 
+        // Update entity with new cinema name and new cinema location
         given().contentType(ContentType.JSON)
                 .body(CinemaDto(id.toString(), newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
-                .statusCode(204)
+                .statusCode(HttpStatus.NO_CONTENT.value())
 
         checkCinemaData("$id", newCinemaName, newCinemaLocation)
 
@@ -190,35 +197,35 @@ class CinemaTest : TestBase() {
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/100")
                 .then()
-                .statusCode(404)
+                .statusCode(HttpStatus.NOT_FOUND.value())
 
         // Not matching id
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("100", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to exclude name
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("$id", "", newCinemaLocation))
                 .put("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to exclude location
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("$id", newCinemaName, ""))
                 .put("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to add roomlist
         given().contentType(ContentType.JSON)
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation, roomList))
                 .put("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
 
     }
@@ -230,17 +237,19 @@ class CinemaTest : TestBase() {
 
         assertEquals(1, getCinemasCount())
 
+        // Patch update name with new cinema name
         given().contentType("application/merge-patch+json")
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
-                .statusCode(204)
+                .statusCode(HttpStatus.NO_CONTENT.value())
 
+        // Patch update location with new location
         given().contentType("application/merge-patch+json")
                 .body("{\"location\": \"$newCinemaLocation\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
-                .statusCode(204)
+                .statusCode(HttpStatus.NO_CONTENT.value())
 
         checkCinemaData("$id", newCinemaName, newCinemaLocation)
     }
@@ -257,42 +266,42 @@ class CinemaTest : TestBase() {
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/100")
                 .then()
-                .statusCode(404)
+                .statusCode(HttpStatus.NOT_FOUND.value())
 
         // Invalid JSON format
         given().contentType("application/merge-patch+json")
                 .body("{name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to change id
         given().contentType("application/merge-patch+json")
                 .body("{\"id\": \"2\"}")
                 .patch("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Unable to parse name
         given().contentType("application/merge-patch+json")
                 .body("{\"name\": 2}")
                 .patch("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Unbale to parse location
         given().contentType("application/merge-patch+json")
                 .body("{\"location\": 2}")
                 .patch("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to update roomlist
         given().contentType("application/merge-patch+json")
                 .body("{\"rooms\": $roomList}")
                 .patch("$cinemasUrl/$id")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
     }
 
     @Test
@@ -303,7 +312,7 @@ class CinemaTest : TestBase() {
         given()
                 .delete("$cinemasUrl/2")
                 .then()
-                .statusCode(404)
+                .statusCode(HttpStatus.NOT_FOUND.value())
     }
 
 }
