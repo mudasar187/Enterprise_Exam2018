@@ -15,9 +15,9 @@
 ## Table of content 
 1. [Exam 2018 Document](docs/PG6100Exam.pdf)    
 2. [Git Structure](docs/git.md)    
-3. [Database Model](docs/databasemodel.jpg)    
+3. [Database Model](docs/databasemodel.md)    
 4. [Module Diagram](docs/modulediagram.md)  
-5. [Coverage Report](docs/coveragereport.jpg)  
+5. [Coverage Report](docs/coveragereport.md)  
   
 ## Technology
 - Production
