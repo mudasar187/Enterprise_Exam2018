@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.order.model.converter.TicketConverter
 import no.ecm.order.service.TicketService
+import no.ecm.utils.cache.EtagHandler
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
@@ -32,12 +33,12 @@ class TicketController {
 	fun getAll(@ApiParam("Offset in the list of tickets")
 			   @RequestParam("offset", defaultValue = "0")
 			   offset: Int,
-				//
-				@ApiParam("Limit of tickets in a single retrieved page")
-				@RequestParam("limit", defaultValue = "10")
-				limit: Int
+			   
+			   @ApiParam("Limit of tickets in a single retrieved page")
+			   @RequestParam("limit", defaultValue = "10")
+			   limit: Int
 	): ResponseEntity<WrappedResponse<TicketDto>> {
-		val ticketResultList = service.get(null, offset, limit)
+		val ticketResultList = service.get(null)
 		
 		val pageDto = PageDtoGenerator<TicketDto>().generatePageDto(ticketResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/tickets")
@@ -50,17 +51,17 @@ class TicketController {
 	fun getById(@ApiParam("Id of the ticket to be returned")
 				@PathVariable("id", required = true)
 				id: String,
-				//
+				
 				@ApiParam("Offset in the list of tickets")
 				@RequestParam("offset", defaultValue = "0")
 				offset: Int,
-				//
+				
 				@ApiParam("Limit of tickets in a single retrieved page")
 				@RequestParam("limit", defaultValue = "10")
 				limit: Int
 	): ResponseEntity<WrappedResponse<TicketDto>> {
 		
-		val ticketResultList =  service.get(id, offset, limit)
+		val ticketResultList =  service.get(id)
 		
 		val pageDto = PageDtoGenerator<TicketDto>().generatePageDto(ticketResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/tickets")
@@ -94,11 +95,18 @@ class TicketController {
 	fun updateTicket(@ApiParam("Id of the ticket to be updated")
 					 @PathVariable("id", required = true)
 					 id: String,
-					//
+	
+					 @ApiParam("Content of ETag")
+					 @RequestHeader("If-Match")
+					 ifMatch: String?,
+					
 					 @ApiParam("The updated ticketDto")
 					 @RequestBody
 					 updatedTicketDto: TicketDto
 	): ResponseEntity<Void> {
+		
+		val currentDto = service.get(id)
+		EtagHandler<MutableList<TicketDto>>().validateEtags(currentDto, ifMatch)
 		
 		service.put(id, updatedTicketDto)
 		return ResponseEntity.noContent().build()
@@ -109,10 +117,17 @@ class TicketController {
 	fun patchTicketSeat(@ApiParam("id of ticket")
 						@PathVariable("id", required = true)
 						id: String,
-						//
+	
+						@ApiParam("Content of ETag")
+						@RequestHeader("If-Match")
+						ifMatch: String?,
+						
 						@ApiParam("The partial patch (seat only).")
 						@RequestBody jsonPatch: String
 	): ResponseEntity<Void> {
+		
+		val currentDto = service.get(id)
+		EtagHandler<MutableList<TicketDto>>().validateEtags(currentDto, ifMatch)
 		
 		service.patchSeat(id, jsonPatch)
 		return ResponseEntity.noContent().build()
