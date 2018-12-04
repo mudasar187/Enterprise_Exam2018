@@ -8,9 +8,10 @@
 [![Build Status](https://travis-ci.com/mudasar187/Enterprise_Exam2018.svg?token=v251k9AGWGPGijfDozX8&branch=master)](https://travis-ci.com/mudasar187/Enterprise_Exam2018)    
     
 ## Students 
-- 703830: Mudasar Ahmad    
-- 704293: Endre Synnes    
-- 703960: Christian Marker    
+- 703830: [Mudasar Ahmad](https://github.com/mudasar187)
+- 704293: [Endre Synnes](https://github.com/synend16)
+- 703960: [Christian Marker](https://github.com/MiniMarker)
+   
     
 ## Table of content 
 1. [Exam 2018 Document](docs/PG6100Exam.pdf)    
