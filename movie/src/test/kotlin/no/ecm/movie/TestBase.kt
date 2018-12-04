@@ -7,6 +7,7 @@ import no.ecm.utils.response.GenreResponse
 import no.ecm.utils.response.MovieResponse
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
+import no.ecm.utils.response.NowPlayingReponse
 import org.hamcrest.CoreMatchers
 import org.junit.After
 import org.junit.Assert
@@ -30,6 +31,7 @@ abstract class TestBase {
 
     val genresUrl = "/genres"
     val moviesUrl = "/movies"
+    val nowPlayingURL = "/now-playing"
 
     @Before
     @After
@@ -46,6 +48,26 @@ abstract class TestBase {
 
         cleanGenres()
         cleanMovies()
+        cleanNowPlaying()
+    }
+
+    private fun cleanNowPlaying() {
+
+        val response = given().accept(ContentType.JSON)
+                .param("limit", 100)
+                .get(nowPlayingURL)
+                .then()
+                .statusCode(200)
+                .extract()
+                .`as`(NowPlayingReponse::class.java)
+
+        response.data!!.list.forEach {
+            given()
+                    .delete("$nowPlayingURL/${it.id}")
+                    .then()
+                    .statusCode(200) }
+
+        assertEquals(0, nowPlayingCount())
     }
 
     private fun cleanGenres() {
@@ -80,6 +102,15 @@ abstract class TestBase {
                 .statusCode(200) }
 
         assertEquals(0, getMovieCount())
+    }
+
+    fun nowPlayingCount(): Int {
+        return given().accept(ContentType.JSON)
+                .get(nowPlayingURL)
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath().getInt("data.totalSize")
     }
 
     fun getMovieCount(): Int {
