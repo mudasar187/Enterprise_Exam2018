@@ -164,6 +164,21 @@ class NowPlayingService(
     }
 
 
+    fun deleteById(paramId: String?): String? {
+
+        val id = ValidationHandler.validateId(paramId, "id")
+
+        val nowPlaying = getNowPlayingById(id.toString())
+
+        nowPlaying.movie!!.nowPlaying.remove(nowPlaying)
+
+        nowPlayingRepository.deleteById(id)
+        val infoMsg = InfoMessages.entitySuccessfullyDeleted("now playing", "$id")
+        logger.info(infoMsg)
+
+        return id.toString()
+    }
+
     private fun checkIfNowPlayingExists(stringId: String?): Long {
 
         val id = ValidationHandler.validateId(stringId, "id")
