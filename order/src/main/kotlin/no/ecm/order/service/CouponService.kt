@@ -23,9 +23,9 @@ class CouponService {
 	
 	val logger = logger<CouponService>()
 	
-	fun get(paramCode: String?, paramId: String?, offset: Int, limit: Int) : MutableList<CouponDto> {
+	fun get(paramCode: String?, paramId: String?) : MutableList<CouponDto> {
 		
-		ValidationHandler.validateLimitAndOffset(offset, limit)
+		//ValidationHandler.validateLimitAndOffset(offset, limit)
 		
 		val couponResultList: MutableList<CouponDto>
 		

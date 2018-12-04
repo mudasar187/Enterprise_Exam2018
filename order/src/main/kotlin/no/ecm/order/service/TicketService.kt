@@ -22,9 +22,7 @@ class TicketService {
 	
 	val logger = logger<TicketService>()
 	
-	fun get(paramId: String?, offset: Int, limit: Int): MutableList<TicketDto> {
-		
-		ValidationHandler.validateLimitAndOffset(offset, limit)
+	fun get(paramId: String?): MutableList<TicketDto> {
 		
 		val ticketResultList: MutableList<TicketDto>
 		
