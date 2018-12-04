@@ -18,6 +18,9 @@ class NowPlaying (
         var roomId: Long? = null,
 
         @get:NotNull
+        var cinemaId: Long? = null,
+
+        @get:NotNull
         var timeWhenMoviePlay: ZonedDateTime,
 
         @get:ElementCollection

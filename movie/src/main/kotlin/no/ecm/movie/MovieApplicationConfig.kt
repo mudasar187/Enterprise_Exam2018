@@ -26,7 +26,7 @@ class MovieApplicationConfig {
 
     private fun apiInfo(): ApiInfo {
         return ApiInfoBuilder()
-                .title("API for movie entity")
+                .title("API for Movies, Genres and Now Playing")
                 .description("MicroService that contains movie entity repository")
                 .version("1.0")
                 .build()

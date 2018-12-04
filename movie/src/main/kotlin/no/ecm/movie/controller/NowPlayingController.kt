@@ -4,7 +4,6 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.movie.model.converter.NowPlayingConverter
-import no.ecm.movie.model.entity.NowPlaying
 import no.ecm.movie.service.NowPlayingService
 import no.ecm.utils.cache.EtagHandler
 import no.ecm.utils.dto.movie.NowPlayingDto
@@ -18,7 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
-import javax.websocket.server.PathParam
+import java.net.URI
 
 @Api(value = "/now-playing", description = "API for Now Playing entity")
 @RequestMapping(
@@ -46,22 +45,19 @@ class NowPlayingController(
                       @ApiParam("Limit of genres in a single retrieved page")
                       @RequestParam("limit", defaultValue = "10")
                       limit: Int): ResponseEntity<WrappedResponse<NowPlayingDto>> {
-        val genreDtos = nowPlayingService.find(title, date)
+        val nowPlayingDtos = nowPlayingService.find(title, date)
 
-        return ResponseEntity.ok().body(ResponseDto(
-                code = 200,
-                page = PageDto(list = genreDtos)
-        )
-        )
+        val builder = UriComponentsBuilder.fromPath("/now-playing")
 
-        //val builder = UriComponentsBuilder.fromPath("/genres")
+        if (!title.isNullOrBlank()) {
+        builder.queryParam("title", title)
+        }
+        if (!date.isNullOrBlank()) {
+            builder.queryParam("date", date)
+        }
 
-        //if (!name.isNullOrBlank()) {
-        //    builder.queryParam("name", name)
-        //}
-
-        //val pageDto = PageDtoGenerator<GenreDto>().generatePageDto(genreDtos, offset, limit)
-        //return HalLinkGenerator<GenreDto>().generateHalLinks(genreDtos, pageDto, builder, limit, offset)
+        val pageDto = PageDtoGenerator<NowPlayingDto>().generatePageDto(nowPlayingDtos, offset, limit)
+        return HalLinkGenerator<NowPlayingDto>().generateHalLinks(nowPlayingDtos, pageDto, builder, limit, offset)
     }
 
     @ApiOperation("Get Now Playing by Id")
@@ -84,5 +80,41 @@ class NowPlayingController(
                                 page = PageDto(mutableListOf(dto))
                         )
                 )
+    }
+
+    @ApiOperation("Create a Now Playing instanse")
+    @PostMapping(consumes = ["application/json"])
+    fun createMovie(
+            @ApiParam("JSON object representing the Now Playing")
+            @RequestBody nowPlayingDto: NowPlayingDto): ResponseEntity<WrappedResponse<NowPlayingDto>> {
+        val dto = nowPlayingService.createNowPlaying(nowPlayingDto)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create("/now-playing/${dto.id}"))
+                .body(
+                        ResponseDto(
+                                code = HttpStatus.CREATED.value(),
+                                page = PageDto(mutableListOf(dto))
+                        ).validated()
+                )
+    }
+
+    @ApiOperation("Update a seats using merge patch")
+    @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
+    fun patchNowPlaying(@ApiParam("The id of the Now Playing")
+                   @PathVariable("id")
+                   id: String,
+                   @ApiParam("Content of ETag")
+                   @RequestHeader("If-Match")
+                   ifMatch: String?,
+                   @ApiParam("The partial patch")
+                   @RequestBody
+                   jsonPatch: String) : ResponseEntity<Void> {
+
+        val currentDto = NowPlayingConverter.entityToDto(nowPlayingService.getNowPlayingById(id))
+        EtagHandler<NowPlayingDto>().validateEtags(currentDto, ifMatch)
+
+        nowPlayingService.patchNowPlaying(id, jsonPatch)
+        return ResponseEntity.noContent().build()
     }
 }

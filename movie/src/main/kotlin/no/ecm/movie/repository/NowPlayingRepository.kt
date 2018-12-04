@@ -10,5 +10,7 @@ interface NowPlayingRepository : CrudRepository<NowPlaying, Long> {
 
     fun findAllByMovie_TitleContainsIgnoreCase(title: String): Iterable<NowPlaying>
 
-    fun findTopByTimeWhenMoviePlayBetweenOrderByTimeWhenMoviePlayDesc(start: ZonedDateTime, end: ZonedDateTime): Iterable<NowPlaying>
+    fun findAllByTimeWhenMoviePlayBetweenOrderByTimeWhenMoviePlayAsc(start: ZonedDateTime, end: ZonedDateTime): Iterable<NowPlaying>
+
+    fun existsByMovie_IdAndRoomIdAndTimeWhenMoviePlay(movieId : Long, roomId : Long, timeWhenMovie: ZonedDateTime) : Boolean
 }
