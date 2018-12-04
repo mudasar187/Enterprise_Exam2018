@@ -91,4 +91,11 @@ abstract class CouponTestBase {
 		given().get().then().statusCode(200).body("data.list.size()", CoreMatchers.equalTo(size))
 	}
 	
+	fun getEtagFromId(id: String): String {
+		return RestAssured.given().accept(ContentType.JSON)
+			.get("/$id")
+			.then()
+			.extract().header("ETag")
+	}
+	
 }
