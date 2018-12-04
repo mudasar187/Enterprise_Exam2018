@@ -5,9 +5,11 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.movie.model.converter.GenreConverter
 import no.ecm.movie.service.GenreService
+import no.ecm.utils.cache.EtagHandler
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
+import no.ecm.utils.hal.PageDtoGenerator
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.http.HttpStatus
@@ -15,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URI
 
 @Api(value = "/genres", description = "API for genre entity")
 @RequestMapping(
@@ -46,7 +49,7 @@ class GenreController(
             builder.queryParam("name", name)
         }
 
-        val pageDto = GenreConverter.dtoListToPageDto(genreDtos, offset, limit)
+        val pageDto = PageDtoGenerator<GenreDto>().generatePageDto(genreDtos, offset, limit)
         return HalLinkGenerator<GenreDto>().generateHalLinks(genreDtos, pageDto, builder, limit, offset)
     }
 
@@ -57,7 +60,7 @@ class GenreController(
             @PathVariable("id") id: String): ResponseEntity<WrappedResponse<GenreDto>> {
 
         val dto = GenreConverter.entityToDto(genreService.getGenre(id), true)
-        val etag = dto.hashCode().toString()
+        val etag = EtagHandler<GenreDto>().generateEtag(dto = dto)
 
         return ResponseEntity
                 .status(HttpStatus.OK.value())
@@ -75,21 +78,32 @@ class GenreController(
     fun createGenre(
             @ApiParam("JSON object representing the Genre")
             @RequestBody genreDto: GenreDto): ResponseEntity<WrappedResponse<GenreDto>> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                ResponseDto(
-                        code = HttpStatus.CREATED.value(),
-                        page = PageDto(mutableListOf(genreService.createGenre(genreDto)))
-                ).validated()
-        )
+        val dto = genreService.createGenre(genreDto)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create("/genres/${dto.id}"))
+                .body(
+                    ResponseDto(
+                            code = HttpStatus.CREATED.value(),
+                            page = PageDto(mutableListOf(dto))
+                    ).validated()
+                )
     }
 
     @ApiOperation("Update a Genre")
-    @PutMapping(path = ["/{id}"])
+    @PutMapping(path = ["/{id}"], consumes = ["application/json"])
     fun putGenre(@ApiParam("The id of the Genre")
                  @PathVariable("id")
                  id: String?,
+                 @ApiParam("Content of ETag")
+                 @RequestHeader("If-Match")
+                 ifMatch: String?,
                  @ApiParam("JSON object representing the Genre")
                  @RequestBody genreDto: GenreDto) : ResponseEntity<Void> {
+
+        val currentDto = GenreConverter.entityToDto(genreService.getGenre(id), true)
+        EtagHandler<GenreDto>().validateEtags(currentDto, ifMatch)
+
         genreService.putGenre(id, genreDto)
         return ResponseEntity.noContent().build()
     }
@@ -100,9 +114,16 @@ class GenreController(
     fun patchGenre(@ApiParam("The id of the Genre")
               @PathVariable("id")
               id: String?,
+              @ApiParam("Content of ETag")
+              @RequestHeader("If-Match")
+              ifMatch: String?,
               @ApiParam("JSON Representing fields in a GenreDto")
               @RequestBody
               jsonPatch: String) : ResponseEntity<Void> {
+
+        val currentDto = GenreConverter.entityToDto(genreService.getGenre(id), true)
+        EtagHandler<GenreDto>().validateEtags(currentDto, ifMatch)
+
         genreService.patchGenre(id, jsonPatch)
         return ResponseEntity.noContent().build()
     }

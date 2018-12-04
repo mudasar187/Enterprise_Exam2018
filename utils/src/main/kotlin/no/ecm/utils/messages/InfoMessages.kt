@@ -16,7 +16,7 @@ class InfoMessages{
 
         // PUT
         fun entitySuccessfullyUpdated(type: String, id: String): String {
-            return "$type with id: $id successfully updated"
+            return "Successfully updated ${type.capitalize()} with id: $id"
         }
 
         // DELETE

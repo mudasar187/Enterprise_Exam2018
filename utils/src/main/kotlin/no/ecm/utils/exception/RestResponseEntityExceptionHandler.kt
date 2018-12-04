@@ -31,12 +31,6 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
         }
     }
 
-    /*
-        Note: 404 needs to be handled specially. To do this, look
-        at the configurations under application.properties
-     */
-
-
     @ExceptionHandler(value = [UserInputValidationException::class])
     protected fun handleExplicitlyThrownExceptions(ex: UserInputValidationException, request: WebRequest)
             : ResponseEntity<Any> {
@@ -60,6 +54,16 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
         return handleExceptionInternal(
                 ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
     }
+
+    @ExceptionHandler(value = [PreconditionException::class])
+    protected fun handleExplicitlyThrownExceptions(ex: PreconditionException, request: WebRequest)
+            : ResponseEntity<Any> {
+
+        return handleExceptionInternal(
+                ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
+    }
+
+
 
     /*
        This is one case in which JEE is actually better than Spring.

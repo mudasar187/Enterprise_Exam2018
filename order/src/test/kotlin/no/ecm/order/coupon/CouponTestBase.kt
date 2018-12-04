@@ -3,6 +3,7 @@ package no.ecm.order.coupon
 import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import io.restassured.http.Header
 import no.ecm.order.OrderApplication
 import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.response.CouponResponseDto
@@ -69,6 +70,7 @@ abstract class CouponTestBase {
 			.post()
 			.then()
 			.statusCode(201)
+			.header("Location", CoreMatchers.containsString("/coupons/"))
 			.extract()
 			.jsonPath().getLong("data.list[0].id")
 	}

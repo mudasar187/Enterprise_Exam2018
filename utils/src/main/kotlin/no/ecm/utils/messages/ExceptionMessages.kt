@@ -13,7 +13,7 @@ class ExceptionMessages{
         }
 
         fun offsetAndLimitInvalid(): String {
-            return "Offset must be grater than 0 and limit must be greater than/or equal 1"
+            return "Offset must be grater than/or equal 0 and limit must be greater than/or equal 1"
         }
 
         fun tooLargeOffset(offset: Int): String {
@@ -61,7 +61,15 @@ class ExceptionMessages{
         }
 
         fun subIdNotMatchingParentId(subId: String, parentId: String) : String {
-            return "foreign key '${subId.capitalize()}' not match primary key '${parentId.capitalize()}'"
+            return "Foreign key '${subId.capitalize()}' not match primary key '${parentId.capitalize()}'"
+        }
+        
+        fun preConditionFailed() : String{
+            return "Precondition failed, your copy is not up to date."
+        }
+
+        fun missingRequiredHeader(header: String): String {
+            return "Missing required header: $header"
         }
 
     }
