@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.order.model.converter.CouponConverter
 import no.ecm.order.service.CouponService
+import no.ecm.utils.cache.EtagHandler
 import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.hal.HalLinkGenerator
 import no.ecm.utils.hal.PageDto
@@ -31,21 +32,20 @@ class CouponController {
 	
 	@ApiOperation("Get coupon")
 	@GetMapping
-	fun get(
-		@ApiParam("Code of the coupon to be returned")
-		@RequestParam("code", required = false)
-		code: String?,
-		//
-		@ApiParam("Offset in the list of coupons")
-		@RequestParam("offset", defaultValue = "0")
-		offset: Int,
-		//
-		@ApiParam("Limit of coupons in a single retrieved page")
-		@RequestParam("limit", defaultValue = "10")
-		limit: Int
+	fun get(@ApiParam("Code of the coupon to be returned")
+			@RequestParam("code", required = false)
+			code: String?,
+			
+			@ApiParam("Offset in the list of coupons")
+			@RequestParam("offset", defaultValue = "0")
+			offset: Int,
+			
+			@ApiParam("Limit of coupons in a single retrieved page")
+			@RequestParam("limit", defaultValue = "10")
+			limit: Int
 	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
-		val couponResultList = service.get(code, null, offset, limit)
+		val couponResultList = service.get(code, null)
 		
 		val pageDto = PageDtoGenerator<CouponDto>().generatePageDto(couponResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/coupons")
@@ -56,21 +56,20 @@ class CouponController {
 	
 	@ApiOperation("Get a coupon by its ID")
 	@GetMapping(path = ["/{id}"])
-	fun getById(
-		@ApiParam("Id of the coupon to be returned")
-		@PathVariable("id", required = true)
-		id: String,
-		//
-		@ApiParam("Offset in the list of coupons")
-		@RequestParam("offset", defaultValue = "0")
-		offset: Int,
-		//
-		@ApiParam("Limit of coupons in a single retrieved page")
-		@RequestParam("limit", defaultValue = "10")
-		limit: Int
+	fun getById(@ApiParam("Id of the coupon to be returned")
+				@PathVariable("id", required = true)
+				id: String,
+				
+				@ApiParam("Offset in the list of coupons")
+				@RequestParam("offset", defaultValue = "0")
+				offset: Int,
+				
+				@ApiParam("Limit of coupons in a single retrieved page")
+				@RequestParam("limit", defaultValue = "10")
+				limit: Int
 	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
-		val couponResultList = service.get(null, id, offset, limit)
+		val couponResultList = service.get(null, id)
 		
 		val pageDto = PageDtoGenerator<CouponDto>().generatePageDto(couponResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/coupons")
@@ -81,9 +80,9 @@ class CouponController {
 	
 	@ApiOperation("Create a new coupon")
 	@PostMapping(consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
-	fun createCoupon(
-		@ApiParam("Dto of a coupon: code, description, expireAt")
-		@RequestBody dto: CouponDto
+	fun createCoupon(@ApiParam("Dto of a coupon: code, description, expireAt")
+					 @RequestBody
+					 dto: CouponDto
 	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
 		val returnId = service.create(dto)
@@ -102,13 +101,20 @@ class CouponController {
 	@ApiOperation("Update all info for a given coupon")
 	@PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 	fun updateCoupon(@ApiParam("Id of the coupon to be updated")
-					@PathVariable("id", required = true)
-					id: String,
-					//
-					@ApiParam("The updated couponDto")
-					@RequestBody
-					updatedCouponDto: CouponDto
+					 @PathVariable("id", required = true)
+					 id: String,
+					 
+					 @ApiParam("Content of ETag")
+					 @RequestHeader("If-Match")
+					 ifMatch: String?,
+					 
+					 @ApiParam("The updated couponDto")
+					 @RequestBody
+					 updatedCouponDto: CouponDto
 	): ResponseEntity<Void> {
+		
+		val currentDto = service.get(null, id)
+		EtagHandler<MutableList<CouponDto>>().validateEtags(currentDto, ifMatch)
 		
 		service.put(id, updatedCouponDto)
 		return ResponseEntity.noContent().build()
@@ -116,13 +122,20 @@ class CouponController {
 	
 	@ApiOperation("Update a coupon with the given id")
 	@PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
-	fun patchTicketSeat(@ApiParam("id of coupon")
-						@PathVariable("id", required = true)
-						id: String,
-						//
-						@ApiParam("The partial patch (descripotion only).")
-						@RequestBody jsonPatch: String
+	fun patchDescription(@ApiParam("id of coupon")
+						 @PathVariable("id", required = true)
+						 id: String,
+						 
+						 @ApiParam("Content of ETag")
+						 @RequestHeader("If-Match")
+						 ifMatch: String?,
+						 
+						 @ApiParam("The partial patch (description only).")
+						 @RequestBody jsonPatch: String
 	): ResponseEntity<Void> {
+		
+		val currentDto = service.get(null, id)
+		EtagHandler<MutableList<CouponDto>>().validateEtags(currentDto, ifMatch)
 		
 		service.patchDescription(id, jsonPatch)
 		return ResponseEntity.noContent().build()
@@ -131,8 +144,8 @@ class CouponController {
 	@ApiOperation("Delete a coupon with the given paramId")
 	@DeleteMapping(path = ["/{id}"])
 	fun deleteCoupon(@ApiParam("paramId of coupon")
-					  @PathVariable("id", required = true)
-					  paramId: String
+					 @PathVariable("id", required = true)
+					 paramId: String
 	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
 		val returnId = service.delete(paramId)

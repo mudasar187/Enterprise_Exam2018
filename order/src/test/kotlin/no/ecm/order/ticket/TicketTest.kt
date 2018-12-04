@@ -118,7 +118,30 @@ class TicketTest : TicketTestBase() {
 		val price = 123.4
 		val seat = "A1"
 		
-		createInvalidTicket(price, "", 400)
+		given()
+			.contentType(ContentType.JSON)
+			.body("""
+				{
+					"price": "NaN",
+					"seat": $seat
+				}
+			""".trimIndent())
+			.post()
+			.then()
+			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.body("""
+				{
+					"price": $price,
+					"seat": 0
+				}
+			""".trimIndent())
+			.post()
+			.then()
+			.statusCode(400)
+		
 		assertResultSize(size)
 	}
 	
@@ -162,8 +185,10 @@ class TicketTest : TicketTestBase() {
 		val updatedSeat = "C3"
 		
 		val id = createTicket(price, seat)
+		val etag = getEtagFromId(id.toString())
 		
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"seat\": \"$updatedSeat\"}")
 			.patch("/$id")
 			.then()
@@ -184,9 +209,11 @@ class TicketTest : TicketTestBase() {
 		val updatedSeat = "C3"
 		
 		val id = createTicket(price, seat)
+		val etag = getEtagFromId(id.toString())
 		
 		//Invalid JSON Merge Patch syntax
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{seat: \"$updatedSeat\"}")
 			.patch("/$id")
 			.then()
@@ -194,6 +221,7 @@ class TicketTest : TicketTestBase() {
 		
 		//Update with id in JSON Merge Patch body
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"id\": $id,\"seat\": \"$updatedSeat\"}")
 			.patch("/$id")
 			.then()
@@ -201,6 +229,7 @@ class TicketTest : TicketTestBase() {
 		
 		//Update with invalid update value
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
 			.patch("/$id")
 			.then()
@@ -208,6 +237,7 @@ class TicketTest : TicketTestBase() {
 		
 		//Update non existing ticket
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
 			.patch("/666")
 			.then()
@@ -221,6 +251,7 @@ class TicketTest : TicketTestBase() {
 		val seat = "A10"
 		
 		val id = createTicket(price, seat)
+		val etag = getEtagFromId(id.toString())
 		
 		val updatedPrice = 100.5
 		val updatedSeat = "C12"
@@ -228,6 +259,7 @@ class TicketTest : TicketTestBase() {
 		given()
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
+			.header("If-Match", etag)
 			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
 			.put("/{id}")
 			.then()
@@ -243,28 +275,13 @@ class TicketTest : TicketTestBase() {
 	}
 	
 	@Test
-	fun updateNonExistingTicket() {
-		
-		val id = 3333
-		val updatedPrice = 150.0
-		val updatedSeat = "A1"
-		
-		given()
-			.contentType(ContentType.JSON)
-			.pathParam("id", id)
-			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
-			.put("/{id}")
-			.then()
-			.statusCode(404)
-	}
-	
-	@Test
 	fun updateTicketWithNonMatchingIdInPathAndBody() {
 		
 		val price = 200.5
 		val seat = "A10"
 		
 		val id = createTicket(price, seat)
+		val etag = getEtagFromId(id.toString())
 		
 		val updatedPrice = 100.5
 		val updatedSeat = "C12"
@@ -272,10 +289,65 @@ class TicketTest : TicketTestBase() {
 		given()
 			.contentType(ContentType.JSON)
 			.pathParam("id", 8765)
+			.header("If-Match", etag)
 			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
 			.put("/{id}")
 			.then()
-			.statusCode(409)
+			.statusCode(404)
 		
+	}
+	
+	@Test
+	fun updateTicketWithInvalidData() {
+		
+		val price = 1200.5
+		val seat = "A20"
+		
+		val id = createTicket(price, seat)
+		val etag = getEtagFromId(id.toString())
+		
+		val updatedPrice = 100.5
+		val updatedSeat = "C1"
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(TicketDto(null, updatedPrice, updatedSeat))
+			.put("/{id}")
+			.then()
+			.statusCode(400)
+		
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body("""
+				{
+					"id": $id,
+					"price": "invaliddPrice",
+					"seat": $updatedSeat
+				}
+			""".trimIndent())
+			.put("/{id}")
+			.then()
+			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(TicketDto(id.toString(), updatedPrice, null))
+			.put("/{id}")
+			.then()
+			.statusCode(400)
+	}
+	
+	@Test
+	fun createWithInvalidData() {
+		
+		val price = 1450.5
+		val seat = "A25"
 	}
 }

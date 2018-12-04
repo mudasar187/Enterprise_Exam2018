@@ -37,13 +37,11 @@ class CouponTest : CouponTestBase() {
 			.extract()
 			.`as`(CouponResponseDto::class.java).data!!.list.size
 		
-		val code = "1234554321"
+		val code = "1234559221"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
 		
 		val id = createCoupon(code, description, expireAt)
-		
-		assertResultSize(size + 1)
 		
 		given()
 			.get("/$id")
@@ -71,6 +69,58 @@ class CouponTest : CouponTestBase() {
 		assertResultSize(size)
 		createInvalidCoupon(code, description, "", 400)
 		assertResultSize(size)
+		
+	}
+	
+	@Test
+	fun updateWithInvalidDataTest() {
+		
+		val code = "1234914321"
+		val description = "DefaultDescription"
+		val expireAt = "2019-01-01 01:00:00"
+		
+		val updatedCode = "0987654321"
+		val updatedDescription = "UpdatedDescription"
+		val updatedExpireAt = "2018-12-24 20:30:30"
+		
+		val id = createCoupon(code, description, expireAt)
+		val etag = getEtagFromId(id.toString())
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(CouponDto(null, code, updatedDescription, updatedExpireAt))
+			.put("/{id}")
+			.then()
+			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(CouponDto(id.toString(), null, updatedDescription, updatedExpireAt))
+			.put("/{id}")
+			.then()
+			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(CouponDto(id.toString(), updatedCode, null, updatedExpireAt))
+			.put("/{id}")
+			.then()
+			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(CouponDto(id.toString(), updatedCode, updatedDescription, null))
+			.put("/{id}")
+			.then()
+			.statusCode(400)
 		
 	}
 	
@@ -124,9 +174,12 @@ class CouponTest : CouponTestBase() {
 		val updatedDescription = "UpdatedDescription"
 		val updatedExpireAt = "2018-12-24 20:30:30"
 		
+		val etag = getEtagFromId(id.toString())
+		
 		given()
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
+			.header("If-Match", etag)
 			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
 			.put("/{id}")
 			.then()
@@ -142,22 +195,6 @@ class CouponTest : CouponTestBase() {
 	}
 	
 	@Test
-	fun updateNonExistingCoupon() {
-		val id = 22222
-		val updatedCode = "0987654321"
-		val updatedDescription = "UpdatedDescription"
-		val updatedExpireAt = "2018-12-24 20:30:30"
-		
-		given()
-			.contentType(ContentType.JSON)
-			.pathParam("id", id)
-			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
-			.put("/{id}")
-			.then()
-			.statusCode(404)
-	}
-	
-	@Test
 	fun updateCouponWithNonMatchingIdInPathAndBody() {
 		
 		val code = "0987654321"
@@ -170,13 +207,16 @@ class CouponTest : CouponTestBase() {
 		val updatedDescription = "UpdatedDescription"
 		val updatedExpireAt = "2018-12-24 20:30:30"
 		
+		val etag = getEtagFromId(id.toString())
+		
 		given()
 			.contentType(ContentType.JSON)
 			.pathParam("id", 12345)
+			.header("If-Match", etag)
 			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
 			.put("/{id}")
 			.then()
-			.statusCode(409)
+			.statusCode(404)
 	}
 	
 	@Test
@@ -276,8 +316,10 @@ class CouponTest : CouponTestBase() {
 		val updatedDescription = "UpdatedDescription"
 		
 		val id = createCoupon(code, description, expireAt)
+		val etag = getEtagFromId(id.toString())
 		
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"description\": \"$updatedDescription\"}")
 			.patch("/$id")
 			.then()
@@ -299,9 +341,11 @@ class CouponTest : CouponTestBase() {
 		val updatedDescription = "UpdatedDescription"
 		
 		val id = createCoupon(code, description, expireAt)
+		val etag = getEtagFromId(id.toString())
 		
 		//Invalid JSON Merge Patch syntax
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{seat: \"$updatedDescription\"}")
 			.patch("/$id")
 			.then()
@@ -309,6 +353,7 @@ class CouponTest : CouponTestBase() {
 		
 		//Update with id in JSON Merge Patch body
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"id\": \"$id\",\"seat\": \"$updatedDescription\"}")
 			.patch("/$id")
 			.then()
@@ -316,6 +361,7 @@ class CouponTest : CouponTestBase() {
 		
 		//Update with invalid update value
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
 			.patch("/$id")
 			.then()
@@ -323,6 +369,7 @@ class CouponTest : CouponTestBase() {
 		
 		//Update non existing ticket
 		given().contentType("application/merge-patch+json")
+			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
 			.patch("/7777")
 			.then()
