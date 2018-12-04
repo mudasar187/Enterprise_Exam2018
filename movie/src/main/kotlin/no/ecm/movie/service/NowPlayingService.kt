@@ -5,10 +5,12 @@ import no.ecm.movie.model.entity.NowPlaying
 import no.ecm.movie.repository.NowPlayingRepository
 import no.ecm.utils.converter.ConvertionHandler.Companion.convertTimeStampToZonedTimeDate
 import no.ecm.utils.dto.movie.NowPlayingDto
+import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.messages.ExceptionMessages.Companion.inputFilterInvalid
+import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.stereotype.Service
 import java.util.*
@@ -40,6 +42,25 @@ class NowPlayingService(
         }
 
         return NowPlayingConverter.entityListToDtoList(nowPlaying)
+    }
 
+    fun getNowPlayingById(paramId: String?): NowPlaying {
+
+        val id = checkIfNowPlayingExists(paramId)
+
+        return nowPlayingRepository.findById(id).get()
+    }
+
+    private fun checkIfNowPlayingExists(stringId: String?): Long {
+
+        val id = ValidationHandler.validateId(stringId, "id")
+
+        if(!nowPlayingRepository.existsById(id)) {
+            val erroMsg = notFoundMessage("Now Playing", "id", "$id")
+            logger.warn(erroMsg)
+            throw NotFoundException(erroMsg)
+        }
+
+        return id
     }
 }
