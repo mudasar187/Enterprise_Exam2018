@@ -15,8 +15,8 @@ object MovieConverter {
 			posterUrl = entity.posterUrl,
 			genre = GenreConverter.movieEntityListToDtoList(entity.genre).toMutableSet(),
 			movieDuration = entity.movieDuration,
-			ageLimit = entity.ageLimit,
-			nowPlaying = entity.nowPlaying?.let { NowPlayingConverter.movieEntityToDto(it) }
+			ageLimit = entity.ageLimit
+			//nowPlaying = entity.nowPlaying.map { NowPlayingConverter.movieEntityToDto(it) }.toMutableList()
 		)
 	}
 	

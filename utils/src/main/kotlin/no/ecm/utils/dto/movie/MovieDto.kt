@@ -25,6 +25,6 @@ data class MovieDto (
 	var ageLimit: Int? = 0,
 
 		@ApiModelProperty("The NowPlayingDto of the movie ")
-	var nowPlaying: NowPlayingDto? = null
+	var nowPlaying: MutableList<NowPlayingDto>? = null
 
 )

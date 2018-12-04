@@ -18,7 +18,7 @@ object NowPlayingConverter {
 	
 	fun dtoToEntity(dto: NowPlayingDto) : NowPlaying {
 		return NowPlaying(
-			//movie = MovieConverter.dtoToEntity(dto.movieDto!!),
+			movie = MovieConverter.dtoToEntity(dto.movieDto!!),
 			roomId = dto.roomId!!.toLong(),
 			timeWhenMoviePlay = dto.time!!,
 			freeSeats = dto.seats!!.toMutableSet()
@@ -34,8 +34,8 @@ object NowPlayingConverter {
 		)
 	}
 	
-	fun entityListToDtoList(entities: Iterable<NowPlaying>): List<NowPlayingDto> {
-		return entities.map { entityToDto(it) }
+	fun entityListToDtoList(entities: Iterable<NowPlaying>): MutableList<NowPlayingDto> {
+		return entities.map { entityToDto(it) }.toMutableList()
 	}
 	
 	fun dtoListToDtoList(dto: Iterable<NowPlayingDto>): List<NowPlaying> {

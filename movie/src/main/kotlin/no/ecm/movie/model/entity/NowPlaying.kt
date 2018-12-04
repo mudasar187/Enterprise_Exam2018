@@ -10,7 +10,8 @@ class NowPlaying (
         @get:GeneratedValue
         var id: Long? = null,
 
-        @get:OneToOne(mappedBy = "nowPlaying") // cascade ??
+        @get:ManyToOne(fetch = FetchType.EAGER)
+        @get:JoinColumn(name = "movie_id")
         var movie: Movie? = null,
         
         @get:NotNull
