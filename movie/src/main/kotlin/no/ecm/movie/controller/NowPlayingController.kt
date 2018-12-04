@@ -85,4 +85,21 @@ class NowPlayingController(
                         )
                 )
     }
+
+    @ApiOperation("Delete by id")
+    @DeleteMapping(path = ["/{id}"])
+    fun deleteById(
+            @ApiParam("Id of Now Playing")
+            @PathVariable("id")
+            id: String?
+    ): ResponseEntity<WrappedResponse<String?>> {
+        return ResponseEntity.ok(
+                ResponseDto(
+                        code = HttpStatus.OK.value(),
+                        page = PageDto(mutableListOf(nowPlayingService.deleteById(id)))
+                ).validated()
+        )
+    }
+
+
 }

@@ -11,6 +11,7 @@ import no.ecm.utils.logger
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.messages.ExceptionMessages.Companion.inputFilterInvalid
 import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
+import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
 import org.springframework.stereotype.Service
 import java.util.*
@@ -49,6 +50,21 @@ class NowPlayingService(
         val id = checkIfNowPlayingExists(paramId)
 
         return nowPlayingRepository.findById(id).get()
+    }
+
+    fun deleteById(paramId: String?): String? {
+
+        val id = ValidationHandler.validateId(paramId, "id")
+
+        val nowPlaying = getNowPlayingById(id.toString())
+
+        nowPlaying.movie!!.nowPlaying.remove(nowPlaying)
+
+        nowPlayingRepository.deleteById(id)
+        val infoMsg = InfoMessages.entitySuccessfullyDeleted("now playing", "$id")
+        logger.info(infoMsg)
+
+        return id.toString()
     }
 
     private fun checkIfNowPlayingExists(stringId: String?): Long {
