@@ -14,6 +14,3 @@ script: mvn clean verify  -Dmaven.test.redirectTestOutputToFile=true
 
 notifications:
   slack: enterprisegroupexam:wH8ng5RGD4WvSSowgJaPBonS
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash) -t uuid-repo-token
