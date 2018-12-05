@@ -1,6 +1,7 @@
 package no.ecm.utils.exception
 
 import com.google.common.base.Throwables
+import com.netflix.hystrix.exception.HystrixBadRequestException
 import no.ecm.utils.logger
 import no.ecm.utils.response.WrappedResponse
 import org.springframework.http.HttpHeaders
@@ -8,7 +9,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import javax.validation.ConstraintViolationException
@@ -72,6 +72,21 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
                 ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
     }
 
+    @ExceptionHandler(value = [HystrixBadRequestException::class])
+    protected fun handleExplicitlyThrownExceptions(ex: HystrixBadRequestException) : ResponseEntity<Any>{
+        if(ex.cause is UserInputValidationException) {
+            val exception = ex.cause as UserInputValidationException
+
+            return handleExceptionInternal(
+                    ex, null, HttpHeaders(), HttpStatus.valueOf(exception.httpCode), null)
+        }
+        else {
+            val exception = ex.cause as InternalException
+            return handleExceptionInternal(
+                    ex, null, HttpHeaders(), HttpStatus.valueOf(exception.httpCode), null)
+        }
+    }
+
 
 
     /*
@@ -130,7 +145,7 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
             body: Any?,
             headers: HttpHeaders,
             status: HttpStatus,
-            request: WebRequest
+            request: WebRequest?
     ) : ResponseEntity<Any> {
 
         val dto = WrappedResponse<Any>(

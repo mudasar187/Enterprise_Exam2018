@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
+import com.netflix.hystrix.HystrixCommand
+import com.netflix.hystrix.HystrixCommandGroupKey
+import com.netflix.hystrix.exception.HystrixBadRequestException
+import com.netflix.hystrix.exception.HystrixRuntimeException
 import no.ecm.movie.model.converter.NowPlayingConverter
 import no.ecm.movie.model.entity.NowPlaying
 import no.ecm.movie.repository.NowPlayingRepository
@@ -28,6 +32,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
+import java.net.URI
 
 @Service
 class NowPlayingService(
@@ -90,27 +95,17 @@ class NowPlayingService(
             throw ConflictException(errorMsg)
         }
 
-        val response : ResponseEntity<RoomResponse> = try {
-            restTemplate.getForEntity(
-                    "$cinemaPath/cinemas/${dto.cinemaId}/rooms/${dto.roomId}",
-                    RoomResponse::class.java)
-        } catch (e : HttpClientErrorException){
-            val body = Gson().fromJson(e.responseBodyAsString, RoomResponse::class.java)
-            throw UserInputValidationException(body.message!!, body.code!!)
-        } catch (e : HttpServerErrorException){
-            val body = Gson().fromJson(e.responseBodyAsString, RoomResponse::class.java)
-            throw InternalException(body.message!!, body.code!!)
+        val response = CallGetFromCinema(dto).execute()
+
+        if (response.data == null){
+            throw InternalException(response.message!!, response.code!!)
         }
 
-        if (response.body == null){
-            throw Exception("empty body")
-        }
-
-        validateRoomResponse(response.body.data!!.list.first())
+        validateRoomResponse(response.data!!.list.first())
 
         val nowPlaying = NowPlayingConverter.dtoToEntity(dto)
         nowPlaying.movie = movieService.getMovie(dto.movieDto!!.id)
-        nowPlaying.freeSeats = response.body.data!!.list.first().seats!!.toMutableSet()
+        nowPlaying.freeSeats = response.data!!.list.first().seats!!.toMutableSet()
 
         val id = nowPlayingRepository.save(nowPlaying).id.toString()
         logger.info(InfoMessages.entityCreatedSuccessfully("Now Playing", id))
@@ -224,6 +219,52 @@ class NowPlayingService(
             dto.roomId.isNullOrBlank() -> handleMissingField("roomId")
             //dto.seats == null  -> handleMissingField("seats")
             dto.time.isNullOrBlank() -> handleMissingField("time")
+        }
+    }
+
+    private inner class CallGetFromCinema(private val dto: NowPlayingDto)
+        : HystrixCommand<RoomResponse>(HystrixCommandGroupKey.Factory.asKey("Interactions with Cinema")) {
+
+
+        override fun run(): RoomResponse {
+
+            /*
+                Note: this synchronous call could fail (and so throw an exception),
+                or even just taking a long while (if server is under heavy load)
+             */
+
+            // val uri = URI(cinemaPath)
+
+            val response : ResponseEntity<RoomResponse> = try {
+                restTemplate.getForEntity(
+                        "$cinemaPath/cinemas/${dto.cinemaId}/rooms/${dto.roomId}",
+                        RoomResponse::class.java)
+            } catch (e : HttpClientErrorException){
+                val body = Gson().fromJson(e.responseBodyAsString, RoomResponse::class.java)
+                throw HystrixBadRequestException(body.message!!, UserInputValidationException(message = body.message!!, httpCode = body.code!!))
+                //UserInputValidationException(body.message!!, body.code!!)
+            }
+
+            return response.body!!
+        }
+
+
+
+
+        override fun getFallback(): RoomResponse {
+
+            println(":::::::::: " + executionEvents)
+            println("\n")
+            println(failedExecutionException)
+
+            if(failedExecutionException is HttpServerErrorException) {
+
+            }
+
+
+
+            //this is what is returned in case of exceptions or timeouts
+            return RoomResponse(code = 503, message = "Tester hva jeg får her")
         }
     }
 }
