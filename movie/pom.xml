@@ -102,6 +102,12 @@
             <artifactId>wiremock-standalone</artifactId>
         </dependency>
 
+        <!-- Circuit Breaker -->
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-core</artifactId>
+        </dependency>
+
 
     </dependencies>
 
