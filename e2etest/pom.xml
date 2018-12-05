@@ -53,11 +53,7 @@
             <artifactId>cinema</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>no.ecm</groupId>
-            <artifactId>auth</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
 
         <!-- Logging -->
         <dependency>
