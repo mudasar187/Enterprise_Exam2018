@@ -161,6 +161,7 @@ class CinemaService(
                 }
             }
         }
+        
 
         when {
             jsonNode.has("name") -> {
