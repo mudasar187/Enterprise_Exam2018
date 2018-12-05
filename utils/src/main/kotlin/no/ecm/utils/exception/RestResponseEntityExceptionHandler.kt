@@ -64,6 +64,14 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
                 ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
     }
 
+    @ExceptionHandler(value = [InternalException::class])
+    protected fun handleExplicitlyThrownExceptions(ex: InternalException, request: WebRequest)
+            : ResponseEntity<Any> {
+
+        return handleExceptionInternal(
+                ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
+    }
+
 
 
     /*
