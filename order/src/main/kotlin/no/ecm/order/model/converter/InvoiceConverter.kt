@@ -22,14 +22,15 @@ object InvoiceConverter {
 			id = dto.id!!.toLong(),
 			username = dto.username!!,
 			orderDate = dto.orderDate!!,
-			coupon = CouponConverter.dtoToEntity(dto.couponCode!!),
+			//coupon = CouponConverter.dtoToEntity(dto.couponCode!!),
 			nowPlayingId = dto.nowPlayingId!!.toLong(),
-			tickets = TicketConverter.dtoListToEntityList(dto.tickets!!.toList()).toMutableSet()
+			isPaid = dto.isPaid!!
+			//tickets = TicketConverter.dtoListToEntityList(dto.tickets!!.toList()).toMutableSet()
 		)
 	}
 	
-	fun entityListToDtoList(entities: Iterable<Invoice>): List<InvoiceDto> {
-		return entities.map { entityToDto(it) }
+	fun entityListToDtoList(entities: Iterable<Invoice>): MutableList<InvoiceDto> {
+		return entities.map { entityToDto(it) }.toMutableList()
 	}
 	
 	fun dtoListToEntityList(dto: Iterable<InvoiceDto>): List<Invoice> {

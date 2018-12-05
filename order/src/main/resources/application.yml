@@ -21,3 +21,12 @@ server:
   port: 8082
 
 movieService: http://localhost:8083
+
+# Swagger bug, disable error for java.lang.NumberFormatException: For input string: ""
+logging:
+  level:
+    io:
+      swagger:
+        models:
+          parameters:
+            AbstractSerializableParameter: error
