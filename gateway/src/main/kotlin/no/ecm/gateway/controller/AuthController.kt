@@ -21,8 +21,5 @@ class AuthController {
     @Value("\${movieService}")
     private lateinit var movieHost : String
 
-    @GetMapping
-    fun get(): ResponseEntity<String>? {
-        return ResponseEntity.ok("Auth")
-    }
+
 }
