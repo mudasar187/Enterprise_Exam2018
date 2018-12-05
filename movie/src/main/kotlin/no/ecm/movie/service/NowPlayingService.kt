@@ -223,17 +223,9 @@ class NowPlayingService(
     }
 
     private inner class CallGetFromCinema(private val dto: NowPlayingDto)
-        : HystrixCommand<RoomResponse>(HystrixCommandGroupKey.Factory.asKey("Interactions with Cinema")) {
-
+        : HystrixCommand<RoomResponse>(HystrixCommandGroupKey.Factory.asKey("Getting Room information from Cinema")) {
 
         override fun run(): RoomResponse {
-
-            /*
-                Note: this synchronous call could fail (and so throw an exception),
-                or even just taking a long while (if server is under heavy load)
-             */
-
-            // val uri = URI(cinemaPath)
 
             val response : ResponseEntity<RoomResponse> = try {
                 restTemplate.getForEntity(
@@ -241,30 +233,23 @@ class NowPlayingService(
                         RoomResponse::class.java)
             } catch (e : HttpClientErrorException){
                 val body = Gson().fromJson(e.responseBodyAsString, RoomResponse::class.java)
+                logger.warn(body.message)
                 throw HystrixBadRequestException(body.message!!, UserInputValidationException(message = body.message!!, httpCode = body.code!!))
-                //UserInputValidationException(body.message!!, body.code!!)
             }
 
             return response.body!!
         }
 
-
-
-
         override fun getFallback(): RoomResponse {
 
-            println(":::::::::: " + executionEvents)
-            println("\n")
-            println(failedExecutionException)
+            logger.error("Cinema crashed")
+            logger.error("Circuit breaker status: $executionEvents")
 
             if(failedExecutionException is HttpServerErrorException) {
-
+                return RoomResponse(message = "INTERNAL_SERVER_ERROR", code = 500)
             }
 
-
-
-            //this is what is returned in case of exceptions or timeouts
-            return RoomResponse(code = 503, message = "Tester hva jeg får her")
+            return RoomResponse(code = 503, message = "SERVICE_TEMPORARY_UNAVAILABLE")
         }
     }
 }
