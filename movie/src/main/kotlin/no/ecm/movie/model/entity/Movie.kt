@@ -26,7 +26,9 @@ class Movie (
         @get:NotNull
         var ageLimit: Int? = null,
 
-        @get:OneToOne(fetch = FetchType.LAZY)
-        @get:JoinColumn(name = "nowplaying_id")
-        var nowPlaying: NowPlaying? = null
+//        @get:OneToOne(fetch = FetchType.LAZY)
+//        @get:JoinColumn(name = "nowplaying_id")
+
+        @get:OneToMany(mappedBy = "movie", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+        var nowPlaying: MutableList<NowPlaying> = mutableListOf()
 )
