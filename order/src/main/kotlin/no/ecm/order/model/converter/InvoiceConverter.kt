@@ -13,7 +13,8 @@ object InvoiceConverter {
 			orderDate = entity.orderDate,
 			couponCode = CouponConverter.entityToDto(entity.coupon!!),
 			nowPlayingId = entity.nowPlayingId.toString(),
-			tickets = TicketConverter.entityListToDtoList(entity.tickets)
+			tickets = TicketConverter.entityListToDtoList(entity.tickets),
+			isPaid = entity.isPaid
 		)
 	}
 	

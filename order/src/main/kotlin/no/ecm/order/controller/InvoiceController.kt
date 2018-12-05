@@ -33,9 +33,17 @@ class InvoiceController(
 
 	@ApiOperation("Get Invoices, possible filter by username")
 	@GetMapping
-	fun get(@ApiParam("Username of a customer")
+	fun get(@ApiParam("Username of the customer for this invoice")
 			@RequestParam("username", required = false)
 			username : String?,
+
+			@ApiParam("Now Playing Id of a invoice")
+			@RequestParam("nowPLayingId", required = false)
+			nowPLayingId : String?,
+
+			@ApiParam("Boolean for if a invoice is paid")
+			@RequestParam("isPaid", required = false)
+			isPaid : Boolean?,
 
 			@ApiParam("Offset in the list of invoices")
 			@RequestParam("offset", defaultValue = "0")
@@ -44,7 +52,7 @@ class InvoiceController(
 			@ApiParam("Limit of invoices in a single retrieved page")
 			@RequestParam("limit", defaultValue = "10")
 			limit: Int): ResponseEntity<WrappedResponse<InvoiceDto>>{
-		val invoiceDtos = invoiceService.findInvoice(username)
+		val invoiceDtos = invoiceService.findInvoice(username, nowPLayingId, isPaid)
 
 		val builder = UriComponentsBuilder.fromPath("/invoices")
 
