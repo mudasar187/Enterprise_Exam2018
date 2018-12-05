@@ -9,3 +9,13 @@ eureka:
 
 server:
   port: 8084
+
+
+# Swagger bug, disable error for java.lang.NumberFormatException: For input string: ""
+logging:
+  level:
+    io:
+      swagger:
+        models:
+          parameters:
+            AbstractSerializableParameter: error
