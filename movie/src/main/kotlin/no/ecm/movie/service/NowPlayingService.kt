@@ -222,7 +222,6 @@ class NowPlayingService(
             dto.movieDto == null -> handleMissingField("movieDto")
             dto.movieDto!!.id.isNullOrBlank() -> handleMissingField("movie id")
             dto.roomId.isNullOrBlank() -> handleMissingField("roomId")
-            //dto.seats == null  -> handleMissingField("seats")
             dto.time.isNullOrBlank() -> handleMissingField("time")
         }
     }
