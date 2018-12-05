@@ -1,6 +1,5 @@
 package no.ecm.cinema
 
-import com.netflix.config.ConfigurationManager
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
