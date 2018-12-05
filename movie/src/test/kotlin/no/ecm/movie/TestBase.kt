@@ -169,6 +169,13 @@ abstract class TestBase {
         return response.data!!.list.first().id!!
     }
     
+    fun getEtagFromNowPlayingId(id: String): String {
+        return RestAssured.given().accept(ContentType.JSON)
+            .get("$nowPlayingURL/$id")
+            .then()
+            .extract().header("ETag")
+    }
+    
     fun createNowPlayingWithoutChecks(nowPlayingDto: NowPlayingDto): Response? {
         return given().contentType(ContentType.JSON)
             .body(nowPlayingDto)
