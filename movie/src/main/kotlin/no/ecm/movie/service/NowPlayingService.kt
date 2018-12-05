@@ -9,8 +9,10 @@ import no.ecm.movie.model.converter.NowPlayingConverter
 import no.ecm.movie.model.entity.NowPlaying
 import no.ecm.movie.repository.NowPlayingRepository
 import no.ecm.utils.converter.ConvertionHandler.Companion.convertTimeStampToZonedTimeDate
+import no.ecm.utils.dto.cinema.RoomDto
 import no.ecm.utils.dto.movie.NowPlayingDto
 import no.ecm.utils.exception.ConflictException
+import no.ecm.utils.exception.InternalException
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
@@ -73,9 +75,9 @@ class NowPlayingService(
     fun createNowPlaying(dto: NowPlayingDto): NowPlayingDto {
         validateNowPlayingDto(dto)
 
-        if (!dto.id.isNullOrEmpty()){
-            handleIllegalField("id")
-        }
+        if (dto.seats != null) handleIllegalField("seats")
+        if (!dto.id.isNullOrEmpty()) handleIllegalField("id")
+
         val time = convertTimeStampToZonedTimeDate(
                 ValidationHandler.validateTimeFormat("${dto.time}.000000"))
 
@@ -97,13 +99,14 @@ class NowPlayingService(
             throw UserInputValidationException(body.message!!, body.code!!)
         } catch (e : HttpServerErrorException){
             val body = Gson().fromJson(e.responseBodyAsString, RoomResponse::class.java)
-            //FIXME lage en internal server
-            throw UserInputValidationException(body.message!!, body.code!!)
+            throw InternalException(body.message!!, body.code!!)
         }
 
         if (response.body == null){
             throw Exception("empty body")
         }
+
+        validateRoomResponse(response.body.data!!.list.first())
 
         val nowPlaying = NowPlayingConverter.dtoToEntity(dto)
         nowPlaying.movie = movieService.getMovie(dto.movieDto!!.id)
@@ -208,6 +211,10 @@ class NowPlayingService(
         val errorMsg = ExceptionMessages.missingRequiredField(fieldName)
         logger.warn(errorMsg)
         throw UserInputValidationException(errorMsg)
+    }
+
+    private fun validateRoomResponse(roomDto: RoomDto){
+
     }
 
     private fun validateNowPlayingDto(dto: NowPlayingDto) {
