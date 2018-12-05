@@ -8,6 +8,8 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import io.restassured.RestAssured
 import io.restassured.RestAssured.*
 import io.restassured.http.ContentType
+import io.restassured.response.Response
+import io.restassured.response.ValidatableResponse
 import no.ecm.utils.response.GenreResponse
 import no.ecm.utils.response.MovieResponse
 import no.ecm.utils.dto.movie.GenreDto
@@ -166,6 +168,12 @@ abstract class TestBase {
     
         return response.data!!.list.first().id!!
     }
+    
+    fun createNowPlayingWithoutChecks(nowPlayingDto: NowPlayingDto): Response? {
+        return given().contentType(ContentType.JSON)
+            .body(nowPlayingDto)
+            .post(nowPlayingURL)
+    }
 
     fun createGenre(genreDto: GenreDto): String {
         val response = given().contentType(ContentType.JSON)
@@ -188,15 +196,14 @@ abstract class TestBase {
     }
     
     fun createDefaultNowPlayingDto(movieId: String): NowPlayingDto {
-        
-        //val movieId = given().get("/movies").then().extract().jsonPath().getLong("data.list[0].id")
-        
         return NowPlayingDto(
             cinemaId = "1",
             roomId = "4",
-            movieDto = MovieDto("$movieId"),
+            movieDto = MovieDto(id = movieId),
             time = "2018-12-20 20:00:00")
     }
+    
+    
 
     fun createDefaultGenreDto() : GenreDto {
         return GenreDto(
@@ -242,7 +249,11 @@ abstract class TestBase {
                 .content(CoreMatchers.equalTo(""))
     }
     
-    protected fun getAMockCinemaResponse(cinemaId: Int, roomId: Int) : String {
+    /*
+        MOCKING
+     */
+    
+    protected fun getAMockRoomResponse(cinemaId: Int, roomId: Int) : String {
         return """
 			{
               "code": 200,
@@ -368,11 +379,31 @@ abstract class TestBase {
     protected fun stubJsonResponse(json: String) {
         wireMockServer.stubFor(
             get(urlMatching("/cinemas.*/rooms.*"))
-                //.withQueryParam("id", matching("""\d"""))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json; charset=utf-8")
                         .withHeader("Content-Length", "" + json.toByteArray(charset("utf-8")).size)
                         .withBody(json)
+                )
+        )
+    }
+    
+    protected fun stubInvalidCinemaResponse() {
+        
+        val json = """
+			{
+			    "code": 404,
+				"data": null,
+				"message": "Can't find Cinema with Id: 1000",
+				"status": "ERROR"
+            }
+		""".trimIndent()
+        
+        wireMockServer.stubFor(
+            get(urlMatching("/cinemas.*/rooms.*"))
+                .willReturn(aResponse()
+                    .withHeader("Content-Type", "application/json; charset=utf-8")
+                    .withHeader("Content-Length", "" + json.toByteArray(charset("utf-8")).size)
+                    .withBody(json)
                 )
         )
     }
