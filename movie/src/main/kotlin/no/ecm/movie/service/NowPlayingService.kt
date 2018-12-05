@@ -8,12 +8,10 @@ import com.google.gson.Gson
 import com.netflix.hystrix.HystrixCommand
 import com.netflix.hystrix.HystrixCommandGroupKey
 import com.netflix.hystrix.exception.HystrixBadRequestException
-import com.netflix.hystrix.exception.HystrixRuntimeException
 import no.ecm.movie.model.converter.NowPlayingConverter
 import no.ecm.movie.model.entity.NowPlaying
 import no.ecm.movie.repository.NowPlayingRepository
 import no.ecm.utils.converter.ConvertionHandler.Companion.convertTimeStampToZonedTimeDate
-import no.ecm.utils.dto.cinema.RoomDto
 import no.ecm.utils.dto.movie.NowPlayingDto
 import no.ecm.utils.exception.ConflictException
 import no.ecm.utils.exception.InternalException
@@ -32,7 +30,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-import java.net.URI
 
 @Service
 class NowPlayingService(
@@ -101,7 +98,7 @@ class NowPlayingService(
             throw InternalException(response.message!!, response.code!!)
         }
 
-        validateRoomResponse(response.data!!.list.first())
+        validateRoomResponse(response)
 
         val nowPlaying = NowPlayingConverter.dtoToEntity(dto)
         nowPlaying.movie = movieService.getMovie(dto.movieDto!!.id)
@@ -208,8 +205,16 @@ class NowPlayingService(
         throw UserInputValidationException(errorMsg)
     }
 
-    private fun validateRoomResponse(roomDto: RoomDto){
-
+    private fun validateRoomResponse(roomResponse: RoomResponse){
+        when {
+            roomResponse.data == null -> handleMissingField("data")
+            roomResponse.data!!.list.isEmpty() -> handleMissingField("list")
+            roomResponse.data!!.list.first().cinemaId.isNullOrBlank() -> handleMissingField("cinemaId")
+            roomResponse.data!!.list.first().id.isNullOrBlank() -> handleMissingField("id")
+            roomResponse.data!!.list.first().name.isNullOrBlank() -> handleMissingField("name")
+            roomResponse.data!!.list.first().seats == null -> handleMissingField("seats is null")
+            roomResponse.data!!.list.first().seats!!.isEmpty() -> handleMissingField("seats is empty")
+        }
     }
 
     private fun validateNowPlayingDto(dto: NowPlayingDto) {
