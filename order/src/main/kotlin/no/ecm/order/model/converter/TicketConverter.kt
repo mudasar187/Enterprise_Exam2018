@@ -11,14 +11,22 @@ object TicketConverter {
 		return TicketDto(
 			id = entity.id.toString(),
 			price = entity.price,
-			seat = entity.seat
+			seat = entity.seat,
+			invoiceId = entity.invoiceId.toString()
 		)
 	}
 	
 	fun dtoToEntity(dto: TicketDto) : Ticket {
-		return Ticket(
-		
+		val ticket = Ticket(
+			price = dto.price,
+			invoiceId = dto.invoiceId!!.toLong(),
+			seat = dto.seat
 		)
+
+		if (!dto.id.isNullOrBlank()){
+			ticket.id = dto.id!!.toLong()
+		}
+		return ticket
 	}
 	
 	fun entityListToDtoList(entities: Iterable<Ticket>): MutableList<TicketDto> {

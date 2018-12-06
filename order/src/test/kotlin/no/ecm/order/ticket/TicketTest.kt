@@ -149,7 +149,7 @@ class TicketTest : TicketTestBase() {
 	fun deleteUnusedTicketTest() {
 		
 		val price = 200.5
-		val seat = "A2"
+		val seat = "A34"
 		
 		val id = createTicket(price, seat)
 		
@@ -181,7 +181,7 @@ class TicketTest : TicketTestBase() {
 	fun updateSeatNumber() {
 		
 		val price = 200.5
-		val seat = "A8"
+		val seat = "E8"
 		val updatedSeat = "C3"
 		
 		val id = createTicket(price, seat)

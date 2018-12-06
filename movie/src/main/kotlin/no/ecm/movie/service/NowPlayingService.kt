@@ -125,7 +125,7 @@ class NowPlayingService(
         } catch (e: Exception) {
             val errorMsg = ExceptionMessages.invalidJsonFormat()
             logger.warn(errorMsg)
-            throw UserInputValidationException(errorMsg)
+            throw UserInputValidationException(errorMsg, 412)
         }
 
         val nowPlaying = getNowPlayingById(stringId)
