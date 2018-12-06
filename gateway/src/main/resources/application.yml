@@ -1,3 +1,7 @@
+spring:
+  application:
+    name: gateway
+
 eureka:
   instance:
     preferIpAddress: true
@@ -9,6 +13,8 @@ eureka:
 
 server:
   port: 8084
+  servlet:
+    context-path: /api/v1
 
 
 # Swagger bug, disable error for java.lang.NumberFormatException: For input string: ""
