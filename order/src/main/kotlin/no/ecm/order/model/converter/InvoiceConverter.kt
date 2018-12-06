@@ -9,16 +9,20 @@ object InvoiceConverter {
 	
 	fun entityToDto(entity: Invoice): InvoiceDto {
 		
-		return InvoiceDto(
+		val invoiceDto = InvoiceDto(
 			id = entity.id.toString(),
 			username = entity.username,
 			orderDate = entity.orderDate.toString(),
-			couponCode = CouponConverter.entityToDto(entity.coupon!!),
 			nowPlayingId = entity.nowPlayingId.toString(),
 			tickets = TicketConverter.entityListToDtoList(entity.tickets),
 			isPaid = entity.paid,
 			totalPrice = entity.totalPrice
 		)
+
+		if(entity.coupon != null){
+			invoiceDto.couponCode = CouponConverter.entityToDto(entity.coupon!!)
+		}
+		return invoiceDto
 	}
 	
 	fun dtoToEntity(dto: InvoiceDto) : Invoice {
@@ -28,7 +32,7 @@ object InvoiceConverter {
 		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 		
 		return Invoice(
-			id = dto.id!!.toLong(),
+			//id = dto.id!!.toLong(),
 			username = dto.username!!,
 			orderDate = parsedDateTime!!,
 			//coupon = CouponConverter.dtoToEntity(dto.couponCode!!), //FIXME
