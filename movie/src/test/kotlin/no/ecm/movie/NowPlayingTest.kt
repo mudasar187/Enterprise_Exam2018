@@ -315,7 +315,7 @@ class NowPlayingTest: TestBase() {
 				{
 					seats: ["A1","B1","C1"]
 				}""".trimIndent()
-		patchRequest(invalidJsonFormat, nowPlayingId, etag).then().statusCode(400)
+		patchRequest(invalidJsonFormat, nowPlayingId, etag).then().statusCode(412)
 	}
 	
 	@Test

@@ -19,6 +19,7 @@ import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.messages.ExceptionMessages.Companion.invalidFieldCombination
 import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.messages.InfoMessages.Companion.entityCreatedSuccessfully
+import no.ecm.utils.messages.InfoMessages.Companion.entitySuccessfullyUpdated
 import no.ecm.utils.response.NowPlayingReponse
 import no.ecm.utils.validation.ValidationHandler
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
@@ -98,16 +99,12 @@ class InvoiceService(
     }
     
     fun createInvoice(dto: InvoiceDto): InvoiceDto {
-        
         if (dto.id != null) {
             handleIllegalField("id")
         }
         
         validateInvoiceDto(dto)
-    
 
-    
-        //TODO check Coupon
         if (dto.couponCode != null && !dto.couponCode!!.id.isNullOrBlank()){
             val couponDto = CouponConverter.entityToDto(couponService.getById(dto.couponCode!!.id))
             val discount = (couponDto.percentage!!.toDouble() / 100.toDouble()) * (ticketPrice.toDouble() * dto.tickets!!.size.toDouble())
@@ -118,7 +115,6 @@ class InvoiceService(
             dto.totalPrice = ticketPrice.toDouble() * dto.tickets!!.size.toDouble()
         }
 
-        //TODO check NowPlaying
         val response = CallGetFromMovieService(dto).execute()
 
         if (response.body!!.data == null){
@@ -140,18 +136,14 @@ class InvoiceService(
         val patchResponse = CallPatchToMovieService(jsonBody, nowPlayingDto.id!!, response.headers.eTag!!).execute()
 
         if (patchResponse.code == HttpStatus.INTERNAL_SERVER_ERROR.value()){
-            throw InternalException("INTERNAL_SERVER_ERROR")
+            throw InternalException("INTERNAL_SERVER_ERROR", patchResponse.code!!)
         } else if (patchResponse.code == HttpStatus.SERVICE_UNAVAILABLE.value()){
-            throw InternalException("SERVICE_TEMPORARILY_UNAVAILABLE", 503)
+            throw InternalException("SERVICE_TEMPORARILY_UNAVAILABLE", patchResponse.code!!)
         }
-
-
+        logger.info(entitySuccessfullyUpdated("NowPlaying", nowPlayingDto.id.toString()))
 
         val id = invoiceRepository.save(InvoiceConverter.dtoToEntity(dto)).id
         logger.info(entityCreatedSuccessfully("Invoice", id.toString()))
-
-
-        //ticketService.checkIfTicketsExistsInDatabase(dto.tickets!!)
 
         try {
             dto.tickets!!.forEach {
@@ -165,6 +157,8 @@ class InvoiceService(
                 invoice.coupon = couponService.getById(dto.couponCode!!.id)
             }
             invoiceRepository.save(invoice)
+            logger.info(entityCreatedSuccessfully("Invoice", id.toString()))
+
         } catch (e : Exception){
             deleteById(id.toString())
             throw e
@@ -274,26 +268,24 @@ class InvoiceService(
                         HttpEntity(jsonPatchBody, headers),
                         Void::class.java)
             } catch (e : HttpClientErrorException){
-                //val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
-                //logger.warn(body.message)
-                logger.warn(e.toString())
-                throw HystrixBadRequestException("yoooo", UserInputValidationException(message = "hei", httpCode = 412))
+                val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
+                logger.warn(body.message)
+                throw HystrixBadRequestException(body.message, UserInputValidationException(message = body.message!!, httpCode = body.code!!))
             }
 
-            return NowPlayingReponse()
+            return NowPlayingReponse(response.statusCodeValue)
         }
 
         override fun getFallback(): NowPlayingReponse {
 
-            logger.error("Critical error! Movie service crashed")
+            logger.error("Critical error! Movie service not working properly")
             logger.error("Circuit breaker status: $executionEvents")
-            logger.error("::::::::::::::::::$failedExecutionException")
 
             if(failedExecutionException is HttpServerErrorException) {
-                return NowPlayingReponse(message = "Internal exception", code = 500)
+                return NowPlayingReponse(message = "INTERNAL_SERVER_ERROR", code = 500)
             }
 
-            return NowPlayingReponse(message = "Unavailable", code = 503)
+            return NowPlayingReponse(message = "SERVICE_TEMPORARILY_UNAVAILABLE", code = 503)
         }
     }
 }
