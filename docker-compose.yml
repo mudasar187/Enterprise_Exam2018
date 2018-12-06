@@ -2,6 +2,8 @@ version: '3.3'
 
 services:
 
+  postgres-auth:
+    image: "postgres:10"
   postgres-user:
     image: "postgres:10"
   postgres-order:
@@ -12,6 +14,9 @@ services:
     image: "postgres:10"
   postgres-cinema:
     image: "postgres:10"
+
+  redis:
+    image: "redis:latest"
 
   eureka:
     build:
@@ -71,7 +76,9 @@ services:
     ports:
       - "9000:8080"
     depends_on:
+      - redis
       - eureka
+      - postgres-auth
       - user-server
       - order-server
       - movie-server
