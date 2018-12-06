@@ -60,9 +60,9 @@ abstract class CouponTestBase {
 		*/
 	}
 	
-	fun createCoupon(code: String, description: String, expireAt: String): Long {
+	fun createCoupon(code: String, description: String, expireAt: String, percentage: Int): Long {
 		
-		val dto = CouponDto(null, code, description, expireAt)
+		val dto = CouponDto(null, code, description, expireAt, percentage)
 		
 		return given()
 			.contentType(ContentType.JSON)
@@ -75,9 +75,9 @@ abstract class CouponTestBase {
 			.jsonPath().getLong("data.list[0].id")
 	}
 	
-	fun createInvalidCoupon(code: String, description: String, expireAt: String, statusCode: Int) {
+	fun createInvalidCoupon(code: String, description: String, expireAt: String, percentage: Int, statusCode: Int) {
 		
-		val dto = CouponDto(null, code, description, expireAt)
+		val dto = CouponDto(null, code, description, expireAt, percentage)
 		
 		given()
 			.contentType(ContentType.JSON)

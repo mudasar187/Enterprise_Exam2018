@@ -40,8 +40,9 @@ class CouponTest : CouponTestBase() {
 		val code = "1234559221"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, percentage)
 		
 		given()
 			.get("/$id")
@@ -62,12 +63,13 @@ class CouponTest : CouponTestBase() {
 		val code = "1234554321"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		createInvalidCoupon("", description, expireAt, 400)
+		createInvalidCoupon("", description, expireAt, percentage, 400)
 		assertResultSize(size)
-		createInvalidCoupon(code, "", expireAt, 400)
+		createInvalidCoupon("", description, expireAt, percentage, 400)
 		assertResultSize(size)
-		createInvalidCoupon(code, description, "", 400)
+		createInvalidCoupon("", description, expireAt, percentage, 400)
 		assertResultSize(size)
 		
 	}
@@ -78,19 +80,20 @@ class CouponTest : CouponTestBase() {
 		val code = "1234914321"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
 		val updatedCode = "0987654321"
 		val updatedDescription = "UpdatedDescription"
 		val updatedExpireAt = "2018-12-24 20:30:30"
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, percentage)
 		val etag = getEtagFromId(id.toString())
 		
 		given()
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(CouponDto(null, code, updatedDescription, updatedExpireAt))
+			.body(CouponDto(null, code, updatedDescription, updatedExpireAt, percentage))
 			.put("/{id}")
 			.then()
 			.statusCode(400)
@@ -99,7 +102,7 @@ class CouponTest : CouponTestBase() {
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), null, updatedDescription, updatedExpireAt))
+			.body(CouponDto(id.toString(), null, updatedDescription, updatedExpireAt, percentage))
 			.put("/{id}")
 			.then()
 			.statusCode(400)
@@ -108,7 +111,7 @@ class CouponTest : CouponTestBase() {
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), updatedCode, null, updatedExpireAt))
+			.body(CouponDto(id.toString(), updatedCode, null, updatedExpireAt, percentage))
 			.put("/{id}")
 			.then()
 			.statusCode(400)
@@ -117,7 +120,7 @@ class CouponTest : CouponTestBase() {
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), updatedCode, updatedDescription, null))
+			.body(CouponDto(id.toString(), updatedCode, updatedDescription, null, percentage))
 			.put("/{id}")
 			.then()
 			.statusCode(400)
@@ -130,8 +133,9 @@ class CouponTest : CouponTestBase() {
 		val code = "1234567899"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		createCoupon(code, description, expireAt)
+		createCoupon(code, description, expireAt, percentage)
 		
 		given()
 			.get("/x")
@@ -149,7 +153,9 @@ class CouponTest : CouponTestBase() {
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
 		
-		val id = createCoupon(code, description, expireAt)
+		val percentage = 10
+		
+		val id = createCoupon(code, description, expireAt, percentage)
 		
 		given()
 			.param("code", code)
@@ -167,8 +173,9 @@ class CouponTest : CouponTestBase() {
 		val code = "0987654321"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, percentage)
 		
 		val updatedCode = "0987654321"
 		val updatedDescription = "UpdatedDescription"
@@ -180,7 +187,7 @@ class CouponTest : CouponTestBase() {
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
+			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt, percentage))
 			.put("/{id}")
 			.then()
 			.statusCode(204)
@@ -200,8 +207,9 @@ class CouponTest : CouponTestBase() {
 		val code = "0987654321"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, percentage)
 		
 		val updatedCode = "0987654321"
 		val updatedDescription = "UpdatedDescription"
@@ -227,8 +235,9 @@ class CouponTest : CouponTestBase() {
 		val code = "45678123"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		val dto = CouponDto("1234", code, description, expireAt)
+		val dto = CouponDto("1234", code, description, expireAt, percentage)
 		
 		given().contentType(ContentType.JSON)
 			.body(dto)
@@ -250,8 +259,9 @@ class CouponTest : CouponTestBase() {
 		val code = "123412345"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, 10)
 		
 		given()
 			.delete("/$id")
@@ -289,8 +299,9 @@ class CouponTest : CouponTestBase() {
 		val code = "123412345"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, percentage)
 		
 		val etag = RestAssured.given().accept(ContentType.JSON)
 			.get("/$id")
@@ -314,8 +325,9 @@ class CouponTest : CouponTestBase() {
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
 		val updatedDescription = "UpdatedDescription"
+		val percentage = 10
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, percentage)
 		val etag = getEtagFromId(id.toString())
 		
 		given().contentType("application/merge-patch+json")
@@ -339,8 +351,9 @@ class CouponTest : CouponTestBase() {
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
 		val updatedDescription = "UpdatedDescription"
+		val percentage = 10
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createCoupon(code, description, expireAt, percentage)
 		val etag = getEtagFromId(id.toString())
 		
 		//Invalid JSON Merge Patch syntax

@@ -83,6 +83,24 @@ class InvoiceController(
 						).validated()
 				)
 	}
+	
+	@ApiOperation("Create a new Invoice")
+	@PostMapping()
+	fun createInvoice(@ApiParam("Dto of the Invoice")
+					  @RequestBody
+					  invoiceDtoParam: InvoiceDto
+	): ResponseEntity<WrappedResponse<InvoiceDto>> {
+		
+		val returnDto = invoiceService.createInvoice(invoiceDtoParam)
+		
+		return ResponseEntity
+			.status(201)
+			.body(ResponseDto(
+				code = 201,
+				page = PageDto(mutableListOf(returnDto))
+			))
+		
+	}
 
 	@ApiOperation("Delete a invoice by id")
 	@DeleteMapping(path = ["/{id}"])

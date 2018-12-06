@@ -22,6 +22,8 @@ server:
 
 movieService: http://localhost:8083
 
+ticketPrice: 100
+
 # Swagger bug, disable error for java.lang.NumberFormatException: For input string: ""
 logging:
   level:

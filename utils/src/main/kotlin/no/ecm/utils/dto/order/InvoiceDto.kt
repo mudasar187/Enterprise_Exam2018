@@ -14,7 +14,7 @@ data class InvoiceDto (
         var username: String? = null,
 
         @ApiModelProperty("The date of an order")
-        var orderDate: ZonedDateTime? = null,
+        var orderDate: String? = null,
 
         @ApiModelProperty("A coupon code for an order")
         var couponCode: CouponDto? = null,
@@ -26,6 +26,8 @@ data class InvoiceDto (
         var tickets: List<TicketDto>? = null,
         
         @ApiModelProperty("Payment status")
-        var isPaid: Boolean? = false
+        var isPaid: Boolean? = false,
 
+        @ApiModelProperty("Total price")
+        var totalPrice: Double? = null
 )

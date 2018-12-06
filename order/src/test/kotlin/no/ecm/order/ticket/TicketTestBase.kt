@@ -63,7 +63,7 @@ abstract class TicketTestBase {
 	
 	fun createTicket(price: Double, seat: String): Long {
 		
-		val dto = TicketDto(null, price, seat)
+		val dto = TicketDto(null, price, seat, "1")
 		
 		return given()
 			.contentType(ContentType.JSON)

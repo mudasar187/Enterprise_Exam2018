@@ -21,7 +21,7 @@ class Invoice (
         @get:NotNull
         var orderDate: ZonedDateTime,
 
-        @get:ManyToOne(fetch = FetchType.LAZY)
+        @get:ManyToOne(fetch = FetchType.EAGER)
         @get:JoinColumn(name = "coupon_id")
         var coupon: Coupon? = null,
 
@@ -29,5 +29,8 @@ class Invoice (
         var nowPlayingId: Long? = null,
 
         @get:NotNull
-        var paid: Boolean = false
+        var paid: Boolean = false,
+
+        @get:NotNull
+        var totalPrice: Double? = null
 )

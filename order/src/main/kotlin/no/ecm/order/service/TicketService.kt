@@ -5,14 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.order.model.converter.TicketConverter
 import no.ecm.order.repository.ticket.TicketRepository
 import no.ecm.utils.dto.order.TicketDto
+import no.ecm.utils.exception.ConflictException
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
+import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import kotlin.reflect.jvm.internal.ReflectProperties
 
 @Service
 class TicketService {
@@ -48,6 +51,8 @@ class TicketService {
 	
 	fun create(dto: TicketDto): String {
 		
+		val invoiceId = validateId(dto.invoiceId, "invoiceId")
+		
 		when {
 			dto.id != null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("id")
@@ -64,12 +69,18 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
+			repository.existsByInvoiceIdAndSeat(invoiceId, dto.seat!!) -> {
+				val errorMsg = ExceptionMessages.resourceAlreadyExists("ticket", "invoiceId and seat", "$invoiceId and ${dto.seat}")
+				logger.warn(errorMsg)
+				throw ConflictException(errorMsg)
+			}
 			
 			else -> {
 				
+				val validatedInvoiceId = validateId(dto.invoiceId, "invoiceId")
 				val validatedSeat = ValidationHandler.validateSeatFormat(dto.seat!!)
 				
-				val id = repository.createTicket(dto.price!!, validatedSeat)
+				val id = repository.createTicket(dto.price!!, validatedSeat, validatedInvoiceId)
 				logger.info(InfoMessages.entityCreatedSuccessfully("ticket", id.toString()))
 				
 				return id.toString()
@@ -121,7 +132,7 @@ class TicketService {
 			!updatedTicketDto.id.equals(paramId) -> {
 				val errorMsg = ExceptionMessages.notMachingIds("id")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg, 409)
+				throw ConflictException(errorMsg)
 			}
 			!repository.existsById(id) -> {
 				val errorMsg = ExceptionMessages.notFoundMessage("ticket", "id", paramId)
@@ -189,5 +200,21 @@ class TicketService {
 		}
 		
 		return id.toString()
+	}
+	
+	fun checkIfTicketsExistsInDatabase(dtos: List<TicketDto>){
+		
+		dtos.forEach {
+			
+			val invoiceId = validateId(it.invoiceId, "id")
+			
+			ValidationHandler.validateSeatFormat(it.seat!!)
+			
+			if (repository.existsByInvoiceIdAndSeat(invoiceId, it.seat!!)) {
+				val errorMsg = ExceptionMessages.resourceAlreadyExists("ticket", "seat", it.seat!!)
+				logger.warn(errorMsg)
+				throw ConflictException(errorMsg)
+			}
+		}
 	}
 }
