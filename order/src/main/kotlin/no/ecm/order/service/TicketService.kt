@@ -3,6 +3,7 @@ package no.ecm.order.service
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.order.model.converter.TicketConverter
+import no.ecm.order.model.entity.Ticket
 import no.ecm.order.repository.ticket.TicketRepository
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.exception.ConflictException
@@ -47,6 +48,13 @@ class TicketService {
 		}
 		
 		return ticketResultList
+	}
+	
+	fun getById(paramId: String): Ticket {
+		val id = ValidationHandler.validateId(paramId, "id")
+		checkIfTicketExistInDb(id)
+		
+		return repository.findById(id).get()
 	}
 	
 	fun create(dto: TicketDto): String {
@@ -217,4 +225,13 @@ class TicketService {
 			}
 		}
 	}
+	
+	private fun checkIfTicketExistInDb(id: Long) {
+		if (!repository.existsById(id)) {
+			val errorMsg = ExceptionMessages.notFoundMessage("Ticket", "id", id.toString())
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg)
+		}
+	}
+	
 }

@@ -61,6 +61,17 @@ class TicketController {
 				limit: Int
 	): ResponseEntity<WrappedResponse<TicketDto>> {
 		
+		val dto = TicketConverter.entityToDto(service.getById(id))
+		val etag = dto.hashCode().toString()
+		
+		return ResponseEntity
+			.status(200)
+			.eTag(etag)
+			.body(ResponseDto(
+				code = 200,
+				page = PageDto(mutableListOf(dto))
+			))
+		/*
 		val ticketResultList =  service.get(id)
 		
 		val pageDto = PageDtoGenerator<TicketDto>().generatePageDto(ticketResultList, offset, limit)
@@ -68,6 +79,7 @@ class TicketController {
 		builder.queryParam("id", id)
 		
 		return HalLinkGenerator<TicketDto>().generateHalLinks(ticketResultList, pageDto, builder, limit, offset)
+		*/
 	}
 	
 	@ApiOperation("Create a new ticket")
@@ -105,8 +117,8 @@ class TicketController {
 					 updatedTicketDto: TicketDto
 	): ResponseEntity<Void> {
 		
-		val currentDto = service.get(id)
-		EtagHandler<MutableList<TicketDto>>().validateEtags(currentDto, ifMatch)
+		val currentDto = TicketConverter.entityToDto(service.getById(id))
+		EtagHandler<TicketDto>().validateEtags(currentDto, ifMatch)
 		
 		service.put(id, updatedTicketDto)
 		return ResponseEntity.noContent().build()
@@ -126,8 +138,8 @@ class TicketController {
 						@RequestBody jsonPatch: String
 	): ResponseEntity<Void> {
 		
-		val currentDto = service.get(id)
-		EtagHandler<MutableList<TicketDto>>().validateEtags(currentDto, ifMatch)
+		val currentDto = TicketConverter.entityToDto(service.getById(id))
+		EtagHandler<TicketDto>().validateEtags(currentDto, ifMatch)
 		
 		service.patchSeat(id, jsonPatch)
 		return ResponseEntity.noContent().build()
