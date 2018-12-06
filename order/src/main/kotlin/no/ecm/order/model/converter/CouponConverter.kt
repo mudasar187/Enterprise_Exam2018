@@ -21,7 +21,8 @@ object CouponConverter {
 			id = entity.id.toString(),
 			code = entity.code,
 			description = entity.description,
-			expireAt = entity.expireAt.toString()
+			expireAt = entity.expireAt.toString(),
+			percentage = entity.percentage
 		)
 	}
 	
@@ -43,7 +44,9 @@ object CouponConverter {
 			id = dto.id!!.toLong(),
 			code = dto.code!!,
 			description = dto.description!!,
-			expireAt = parsedDateTime!!
+			expireAt = parsedDateTime!!,
+			percentage = dto.percentage!!
+			
 		)
 	}
 	

@@ -17,11 +17,16 @@ import org.springframework.stereotype.Service
 
 @Service
 class InvoiceService(
-        private var invoiceRepository: InvoiceRepository
+        private var invoiceRepository: InvoiceRepository,
+        private var ticketService: TicketService,
+        private var couponService: CouponService
 ) {
 
     @Value("\${movieService}")
     private lateinit var moviePath : String
+    
+    @Value("\${ticketPrice}")
+    private lateinit var ticketPrice: String
 
     val logger = logger<InvoiceService>()
 
@@ -75,6 +80,40 @@ class InvoiceService(
         return id.toString()
 
     }
+    
+    fun createInvoice(dto: InvoiceDto): InvoiceDto {
+        
+        if (dto.id != null) {
+            handleIllegalField("id")
+        }
+        
+        validateInvoiceDto(dto)
+    
+        ticketService.checkIfTicketsExistsInDatabase(dto.tickets!!)
+        
+        dto.tickets!!.forEach {
+            ticketService.create(it)
+        }
+    
+        //TODO check Coupon
+        if (dto.couponCode != null && !dto.couponCode!!.id.isNullOrBlank()){
+            val couponDto = couponService.get(null, dto.couponCode!!.id).first()
+            val discount = couponDto.percentage!! / 100 * (ticketPrice.toDouble() * dto.tickets!!.size)
+            
+            dto.totalPrice = (ticketPrice.toDouble() * dto.tickets!!.size) - discount
+        } else {
+            dto.totalPrice = ticketPrice.toDouble() * dto.tickets!!.size
+        }
+        
+        
+        
+        
+        //TODO check NowPlaying
+        
+        
+        
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private fun checkFOrInvoiceInDatabase(stringId: String?): Long {
         val id = ValidationHandler.validateId(stringId, "id")
@@ -88,6 +127,16 @@ class InvoiceService(
             else -> return id
         }
 
+    }
+    
+    private fun validateInvoiceDto(dto: InvoiceDto) {
+        when {
+            dto.username.isNullOrBlank() -> handleMissingField("cusername")
+            dto.orderDate.isNullOrBlank() -> handleMissingField("orderDate")
+            dto.nowPlayingId.isNullOrBlank() -> handleMissingField("nowPlayingId")
+            dto.tickets == null -> handleMissingField("tickets")
+            dto.totalPrice != null -> handleIllegalField("totlPrice")
+        }
     }
 
     private fun handleUnableToParse(fieldName: String){
@@ -107,5 +156,5 @@ class InvoiceService(
         logger.warn(errorMsg)
         throw UserInputValidationException(errorMsg)
     }
-
+	
 }

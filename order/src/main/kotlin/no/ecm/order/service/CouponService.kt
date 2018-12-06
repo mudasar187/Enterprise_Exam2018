@@ -91,6 +91,11 @@ class CouponService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
+			dto.percentage == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("percentage")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
+			}
 			
 			// New format for input = yyyy-MM-dd HH:mm:ss
 			else -> {
@@ -98,7 +103,7 @@ class CouponService {
 				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
 				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 				
-				val id = repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!)
+				val id = repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!, dto.percentage!!)
 				logger.info(InfoMessages.entityCreatedSuccessfully("coupon", id.toString()))
 				
 				return id.toString()
@@ -150,6 +155,11 @@ class CouponService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
+			updatedCouponDto.percentage == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("percentage")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
+			}
 
 			!updatedCouponDto.id.equals(id.toString()) -> {
 				val errorMsg = ExceptionMessages.notMachingIds("id")
@@ -168,7 +178,7 @@ class CouponService {
 				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 				
 				try {
-					repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!)
+					repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!, updatedCouponDto.percentage!!)
 				} finally {
 					//logger.info(InfoMessages.entitySuccessfullyUpdated("coupon"))
 				}

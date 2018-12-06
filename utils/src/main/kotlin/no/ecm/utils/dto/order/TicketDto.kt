@@ -13,5 +13,8 @@ data class TicketDto(
         var price: Double? = null,
 
         @ApiModelProperty("The seat of an Ticket, has the following format A1 <row>/<seat>")
-        var seat: String? = null
+        var seat: String? = null,
+
+        @ApiModelProperty("The id of an Invoice")
+        var invoiceId: String? = null
 )
