@@ -3,13 +3,11 @@ package no.ecm.movie
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import io.restassured.RestAssured
 import io.restassured.RestAssured.*
 import io.restassured.http.ContentType
 import io.restassured.response.Response
-import io.restassured.response.ValidatableResponse
 import no.ecm.utils.response.GenreResponse
 import no.ecm.utils.response.MovieResponse
 import no.ecm.utils.dto.movie.GenreDto
@@ -175,7 +173,7 @@ abstract class TestBase {
             .then()
             .extract().header("ETag")
     }
-    
+
     fun createNowPlayingWithoutChecks(nowPlayingDto: NowPlayingDto): Response? {
         return given().contentType(ContentType.JSON)
             .body(nowPlayingDto)
@@ -392,27 +390,30 @@ abstract class TestBase {
                         .withBody(json)
                 )
         )
+
+
     }
-    
-    protected fun stubInvalidCinemaResponse() {
-        
-        val json = """
-			{
-			    "code": 404,
-				"data": null,
-				"message": "Can't find Cinema with Id: 1000",
-				"status": "ERROR"
-            }
-		""".trimIndent()
-        
+
+    protected fun stubFailJsonResponse() {
+
+
         wireMockServer.stubFor(
-            get(urlMatching("/cinemas.*/rooms.*"))
-                .willReturn(aResponse()
-                    .withHeader("Content-Type", "application/json; charset=utf-8")
-                    .withHeader("Content-Length", "" + json.toByteArray(charset("utf-8")).size)
-                    .withBody(json)
-                )
+                get(urlMatching("/cinemas.*/rooms.*"))
+                        .willReturn(aResponse()
+                                .withHeader("Content-Type", "application/json; charset=utf-8")
+                                .withStatus(500)
+                                .withStatusMessage("Internal Server Error")
+                                .withBody("""
+                                    {
+                                        "code": 500,
+                                        "message": "Internal Server Error",
+                                        "data": null,
+                                        "status": "FAIL"
+                                    }
+                                """.trimIndent())
+                        )
         )
+
     }
     
 }

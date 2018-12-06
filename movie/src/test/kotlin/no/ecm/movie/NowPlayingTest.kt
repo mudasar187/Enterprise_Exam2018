@@ -1,6 +1,7 @@
 package no.ecm.movie
 
 import io.restassured.RestAssured.given
+import io.restassured.http.ContentType
 import io.restassured.response.Response
 import junit.framework.Assert.assertEquals
 import no.ecm.utils.dto.movie.GenreDto
@@ -19,14 +20,9 @@ class NowPlayingTest: TestBase() {
 		val cinemaId = 1
 		val roomId = 4
 		val movieId = createDefaultMovie()
-		//val time = "2018-12-20 20:00:00"
-		
+
 		val responseBody = getAMockRoomResponse(cinemaId, roomId)
 		stubJsonResponse(responseBody)
-		
-		//val cinemaService = RequestSpecBuilder().setBaseUri("http://localhost").setPort(8086).setBasePath("/").build()
-		//val roomId = given().spec(cinemaService).get("/cinemas/$cinemaId").then().extract().jsonPath().getLong("data.list[0].rooms[0].id")
-		//given().spec(cinemaService).get("/cinemas/$cinemaId").then().extract().body().jsonPath().prettyPrint()
 		
 		val newNowPlayingId = createNowPlaying(createDefaultNowPlayingDto(movieId))
 		
@@ -37,6 +33,24 @@ class NowPlayingTest: TestBase() {
 			.statusCode(200)
 			.body("data.list[0].id", CoreMatchers.equalTo(newNowPlayingId))
 	}
+
+	@Test
+	fun testInternalServerError() {
+
+		val movieId = createDefaultMovie()
+
+		stubFailJsonResponse()
+
+		given().contentType(ContentType.JSON)
+				.body(createDefaultNowPlayingDto(movieId))
+				.post(nowPlayingURL)
+				.then()
+				.statusCode(500)
+	}
+
+//	@Test
+//	fun testCircuitBreakerTriggered() {
+//	}
 	
 	@Test
 	fun createNowPlayingWithInvalidDataTest() {
