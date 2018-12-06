@@ -109,7 +109,7 @@ class InvoiceService(
     
         //TODO check Coupon
         if (dto.couponCode != null && !dto.couponCode!!.id.isNullOrBlank()){
-            val couponDto = couponService.get(null, dto.couponCode!!.id).first()
+            val couponDto = CouponConverter.entityToDto(couponService.getById(dto.couponCode!!.id))
             val discount = (couponDto.percentage!!.toDouble() / 100.toDouble()) * (ticketPrice.toDouble() * dto.tickets!!.size.toDouble())
             
             dto.totalPrice = (ticketPrice.toDouble() * dto.tickets!!.size.toDouble()) - discount

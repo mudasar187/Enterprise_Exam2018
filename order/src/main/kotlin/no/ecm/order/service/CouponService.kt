@@ -24,26 +24,13 @@ class CouponService {
 	
 	val logger = logger<CouponService>()
 	
-	fun get(paramCode: String?, paramId: String?) : MutableList<CouponDto> {
+	fun get(paramCode: String?) : MutableList<CouponDto> {
 		
-		//ValidationHandler.validateLimitAndOffset(offset, limit)
-		
-		val couponResultList: MutableList<CouponDto>
-		
-		//If NOT paramCode or paramId are present, return all coupons in DB
-		if (paramCode.isNullOrBlank() && paramId.isNullOrBlank()) {
+		//If paramCode are present, return coupon with given code
+		return if (!paramCode.isNullOrBlank()) {
 			
-			couponResultList = CouponConverter.entityListToDtoList(repository.findAll())
-			
-		}
-		
-		//If only paramCode are present, return coupon with given code
-		else if (!paramCode.isNullOrBlank() && paramId.isNullOrBlank()){
-			
-			couponResultList = try {
-				
+			try {
 				mutableListOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!)))
-			
 			} catch (e: Exception) {
 				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "code", paramCode!!)
 				logger.warn(errorMsg)
@@ -51,37 +38,17 @@ class CouponService {
 			}
 		}
 		
-		//If only paramId are present, return coupon with given id
+		//If NOT paramCode or paramId are present, return all coupons in DB
 		else {
-			val id = ValidationHandler.validateId(paramId, "id")
-			
-			couponResultList = try {
-				
-				mutableListOf(CouponConverter.entityToDto(repository.findById(id).get()))
-				
-			} catch (e: Exception) {
-				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
-				logger.warn(errorMsg)
-				throw NotFoundException(errorMsg, 404)
-			}
+			CouponConverter.entityListToDtoList(repository.findAll())
 		}
-		return couponResultList
 	}
 	
 	fun getById(paramId: String?): Coupon {
-		
 		val id = ValidationHandler.validateId(paramId, "id")
+		checkIfCouponExistInDb(id)
 		
-		return try {
-			
-			repository.findById(id).get()
-			
-		} catch (e: Exception) {
-			val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
-			logger.warn(errorMsg)
-			throw NotFoundException(errorMsg, 404)
-		}
-		
+		return repository.findById(id).get()
 	}
 	
 	fun create(dto: CouponDto): String {
@@ -250,4 +217,13 @@ class CouponService {
 		
 		return id.toString()
 	}
+	
+	private fun checkIfCouponExistInDb(id: Long) {
+		if (!repository.existsById(id)) {
+			val errorMsg = ExceptionMessages.notFoundMessage("Coupon", "id", id.toString())
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg)
+		}
+	}
+	
 }
