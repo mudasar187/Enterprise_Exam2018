@@ -162,7 +162,7 @@ class InvoiceService(
             invoice.tickets = TicketConverter.dtoListToEntityList(dto.tickets!!).toMutableSet()
 
             if (dto.couponCode != null){
-
+                couponService.getById(dto.couponCode!!.id)
             }
             invoiceRepository.save(invoice)
         } catch (e : Exception){

@@ -68,6 +68,22 @@ class CouponService {
 		return couponResultList
 	}
 	
+	fun getById(paramId: String?): Coupon {
+		
+		val id = ValidationHandler.validateId(paramId, "id")
+		
+		return try {
+			
+			repository.findById(id).get()
+			
+		} catch (e: Exception) {
+			val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg, 404)
+		}
+		
+	}
+	
 	fun create(dto: CouponDto): String {
 		
 		if (dto.id != null) {
