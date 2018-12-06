@@ -29,7 +29,8 @@ class DefaultData(
                 username = "jondoe",
                 orderDate = ZonedDateTime.now(),
                 coupon = coupon1,
-                nowPlayingId = 67898765)
+                nowPlayingId = 67898765,
+                paid = true)
 
         val invoice2 = Invoice(
                 username = "foobar",
@@ -43,7 +44,13 @@ class DefaultData(
                 coupon = coupon3,
                 nowPlayingId = 98765431)
 
-        invoiceRepository.saveAll(mutableListOf(invoice1, invoice2, invoice3))
+        val invoice4 = Invoice(
+                username = "jondoe",
+                orderDate = ZonedDateTime.now(),
+                coupon = coupon3,
+                nowPlayingId = 98765431)
+
+        invoiceRepository.saveAll(mutableListOf(invoice1, invoice2, invoice3, invoice4))
 
 
 
@@ -51,7 +58,8 @@ class DefaultData(
         val ticket2 = Ticket(price = 200.00, seat = "A2")
         val ticket3 = Ticket(price = 300.00, seat = "B6")
         val ticket4 = Ticket(price = 100.00, seat = "C9")
-        ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4))
+        val ticket5 = Ticket(price = 100.00, seat = "C9")
+        ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4, ticket5))
 
 
         val invoiceRes1 = invoiceRepository.findAllByNowPlayingId(67898765).first()
@@ -66,10 +74,8 @@ class DefaultData(
         invoiceRes3.tickets = mutableSetOf(ticket4)
         invoiceRepository.save(invoiceRes3)
 
-
-
-
-
-
+        val invoiceRes4 = invoiceRepository.findAllByUsernameIgnoreCaseAndNowPlayingId(invoice4.username, 98765431).first()
+        invoiceRes4.tickets = mutableSetOf(ticket5)
+        invoiceRepository.save(invoiceRes4)
     }
 }

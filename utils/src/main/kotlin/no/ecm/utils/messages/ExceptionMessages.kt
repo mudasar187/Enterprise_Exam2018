@@ -12,6 +12,10 @@ class ExceptionMessages{
             return "You can only use one filter at time"
         }
 
+        fun invalidFieldCombination(fields: String) : String {
+            return "You provided an invalid combination of query parameters: $fields"
+        }
+
         fun offsetAndLimitInvalid(): String {
             return "Offset must be grater than/or equal 0 and limit must be greater than/or equal 1"
         }

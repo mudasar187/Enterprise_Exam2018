@@ -26,6 +26,6 @@ data class InvoiceDto (
         var tickets: List<TicketDto>? = null,
         
         @ApiModelProperty("Payment status")
-        var isPaid: Boolean? = null
+        var isPaid: Boolean? = false
 
 )

@@ -22,8 +22,8 @@ class MovieApplicationConfig {
             // how long to wait before giving up a request?
             setProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", 1000) //default is 1000
             // how many failures before activating the CB?
-            setProperty("hystrix.command.default.circuitBreaker.requestVolumeThreshold", 10) //default 20
-            setProperty("hystrix.command.default.circuitBreaker.errorThresholdPercentage", 10)
+            setProperty("hystrix.command.default.circuitBreaker.requestVolumeThreshold", 2) //default 20
+            setProperty("hystrix.command.default.circuitBreaker.errorThresholdPercentage", 50)
             //for how long should the CB stop requests? after this, 1 single request will try to check if remote server is ok
             setProperty("hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds", 5000)
         }

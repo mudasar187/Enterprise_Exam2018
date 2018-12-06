@@ -7,7 +7,16 @@ import org.springframework.stereotype.Repository
 @Repository
 interface InvoiceRepository : CrudRepository<Invoice, Long>{
 
-    fun findAllByUsername(username: String): Iterable<Invoice>
+    fun findAllByUsernameIgnoreCase(username: String): Iterable<Invoice>
 
     fun findAllByNowPlayingId(nowPlayingId: Long): Iterable<Invoice>
+
+    fun findAllByPaid(paid: Boolean): Iterable<Invoice>
+
+    fun findAllByUsernameIgnoreCaseAndPaid(username: String, paid: Boolean): Iterable<Invoice>
+
+    fun findAllByUsernameIgnoreCaseAndNowPlayingId(username: String, nowPlayingId: Long): Iterable<Invoice>
+
+    fun findAllByPaidAndNowPlayingId(paid: Boolean, nowPlayingId: Long): Iterable<Invoice>
+
 }
