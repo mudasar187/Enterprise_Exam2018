@@ -1,6 +1,13 @@
 spring:
   application:
     name: gateway
+  datasource:
+    url: "jdbc:h2:mem:"
+    driver-class-name: "org.h2.Driver"
+  jpa:
+    database: "h2"
+    hibernate:
+      ddl-auto: "create-drop"
 
 eureka:
   instance:
@@ -13,8 +20,9 @@ eureka:
 
 server:
   port: 8084
-  servlet:
-    context-path: /api/v1
+
+
+userService: http://localhost:8081
 
 
 # Swagger bug, disable error for java.lang.NumberFormatException: For input string: ""

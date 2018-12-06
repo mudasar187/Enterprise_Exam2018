@@ -13,7 +13,7 @@ data class AuthDto(
         var password: String? = null,
 
         @ApiModelProperty("The role of an User")
-        var role: String? = null,
+        var role: Set<String>? = null,
 
         @ApiModelProperty("An Users current state, can disable an user")
         var enabled: Boolean? = null
