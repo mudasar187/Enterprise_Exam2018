@@ -11,11 +11,12 @@ interface InvoiceRepository : CrudRepository<Invoice, Long>{
 
     fun findAllByNowPlayingId(nowPlayingId: Long): Iterable<Invoice>
 
-    fun findAllByIsPaid(isPaid: Boolean): Iterable<Invoice>
+    fun findAllByPaid(paid: Boolean): Iterable<Invoice>
 
-    fun findAllByUsernameIgnoreCaseAndIsPaid(username: String, isPaid: Boolean): Iterable<Invoice>
+    fun findAllByUsernameIgnoreCaseAndPaid(username: String, paid: Boolean): Iterable<Invoice>
 
     fun findAllByUsernameIgnoreCaseAndNowPlayingId(username: String, nowPlayingId: Long): Iterable<Invoice>
 
-    fun findAllByIsPaidAndNowPlayingId(isPaid: Boolean, nowPlayingId: Long): Iterable<Invoice>
+    fun findAllByPaidAndNowPlayingId(paid: Boolean, nowPlayingId: Long): Iterable<Invoice>
+
 }

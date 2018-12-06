@@ -42,7 +42,7 @@ class InvoiceController(
 			nowPLayingId : String?,
 
 			@ApiParam("Boolean for if a invoice is paid")
-			@RequestParam("isPaid", required = false)
+			@RequestParam("paid", required = false)
 			isPaid : Boolean?,
 
 			@ApiParam("Offset in the list of invoices")
@@ -82,5 +82,20 @@ class InvoiceController(
 								page = PageDto(mutableListOf(dto))
 						).validated()
 				)
+	}
+
+	@ApiOperation("Delete a invoice by id")
+	@DeleteMapping(path = ["/{id}"])
+	fun deleteInvoiceById(
+			@ApiParam("id of the invoice")
+			@PathVariable("id")
+			id: String
+	): ResponseEntity<WrappedResponse<String?>> {
+		return ResponseEntity.ok(
+				ResponseDto(
+						code = HttpStatus.OK.value(),
+						page = PageDto(mutableListOf(invoiceService.deleteById(id)))
+				).validated()
+		)
 	}
 }

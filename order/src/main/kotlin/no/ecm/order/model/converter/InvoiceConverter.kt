@@ -14,7 +14,7 @@ object InvoiceConverter {
 			couponCode = CouponConverter.entityToDto(entity.coupon!!),
 			nowPlayingId = entity.nowPlayingId.toString(),
 			tickets = TicketConverter.entityListToDtoList(entity.tickets),
-			isPaid = entity.isPaid
+			isPaid = entity.paid
 		)
 	}
 	
@@ -25,7 +25,7 @@ object InvoiceConverter {
 			orderDate = dto.orderDate!!,
 			//coupon = CouponConverter.dtoToEntity(dto.couponCode!!),
 			nowPlayingId = dto.nowPlayingId!!.toLong(),
-			isPaid = dto.isPaid!!
+			paid = dto.isPaid!!
 			//tickets = TicketConverter.dtoListToEntityList(dto.tickets!!.toList()).toMutableSet()
 		)
 	}
