@@ -29,5 +29,5 @@ class Invoice (
         var nowPlayingId: Long? = null,
 
         @get:NotNull
-        var isPaid: Boolean = false
+        var paid: Boolean = false
 )
