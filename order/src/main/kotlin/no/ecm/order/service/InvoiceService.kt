@@ -110,12 +110,12 @@ class InvoiceService(
         //TODO check Coupon
         if (dto.couponCode != null && !dto.couponCode!!.id.isNullOrBlank()){
             val couponDto = couponService.get(null, dto.couponCode!!.id).first()
-            val discount = couponDto.percentage!! / 100 * (ticketPrice.toDouble() * dto.tickets!!.size)
+            val discount = (couponDto.percentage!!.toDouble() / 100.toDouble()) * (ticketPrice.toDouble() * dto.tickets!!.size.toDouble())
             
-            dto.totalPrice = (ticketPrice.toDouble() * dto.tickets!!.size) - discount
+            dto.totalPrice = (ticketPrice.toDouble() * dto.tickets!!.size.toDouble()) - discount
             dto.couponCode = couponDto
         } else {
-            dto.totalPrice = ticketPrice.toDouble() * dto.tickets!!.size
+            dto.totalPrice = ticketPrice.toDouble() * dto.tickets!!.size.toDouble()
         }
 
         //TODO check NowPlaying
@@ -162,7 +162,7 @@ class InvoiceService(
             invoice.tickets = TicketConverter.dtoListToEntityList(dto.tickets!!).toMutableSet()
 
             if (dto.couponCode != null){
-                couponService.getById(dto.couponCode!!.id)
+                invoice.coupon = couponService.getById(dto.couponCode!!.id)
             }
             invoiceRepository.save(invoice)
         } catch (e : Exception){
@@ -280,18 +280,7 @@ class InvoiceService(
                 throw HystrixBadRequestException("yoooo", UserInputValidationException(message = "hei", httpCode = 412))
             }
 
-//            val res = try {
-//                restTemplate.exchange(request, Void::class.java)
-//            } catch (e : HttpClientErrorException){
-//                val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
-//                logger.warn(body.message)
-//                throw HystrixBadRequestException(body.message!!, UserInputValidationException(message = body.message!!, httpCode = body.code!!))
-//            }
-//
             return NowPlayingReponse()
-//            println(res)
-//            println(res.statusCodeValue)
-//            return NowPlayingReponse(res.statusCodeValue)
         }
 
         override fun getFallback(): NowPlayingReponse {
