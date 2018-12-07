@@ -38,7 +38,7 @@ class TicketController {
 			   @RequestParam("limit", defaultValue = "10")
 			   limit: Int
 	): ResponseEntity<WrappedResponse<TicketDto>> {
-		val ticketResultList = service.get(null)
+		val ticketResultList = service.get()
 		
 		val pageDto = PageDtoGenerator<TicketDto>().generatePageDto(ticketResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/tickets")

@@ -5,7 +5,6 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import junit.framework.Assert.assertEquals
 import no.ecm.order.TestBase
-import no.ecm.utils.converter.ConvertionHandler
 import no.ecm.utils.converter.ConvertionHandler.Companion.convertTimeStampToZonedTimeDate
 import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.response.CouponResponseDto
@@ -340,12 +339,9 @@ class CouponTest : TestBase() {
 	}
 	
 	fun createInvalidCoupon(code: String?, description: String?, expireAt: String?, percentage: Int?, statusCode: Int) {
-		
-		val dto = CouponDto(null, code, description, expireAt, percentage)
-		
 		given()
 			.contentType(ContentType.JSON)
-			.body(dto)
+			.body(CouponDto(null, code, description, expireAt, percentage))
 			.post(couponURL)
 			.then()
 			.statusCode(statusCode)
@@ -372,7 +368,7 @@ class CouponTest : TestBase() {
 	}
 	
 	fun getEtagFromId(id: String): String {
-		return RestAssured.given().accept(ContentType.JSON)
+		return given().accept(ContentType.JSON)
 			.get("$couponURL/$id")
 			.then()
 			.extract().header("ETag")

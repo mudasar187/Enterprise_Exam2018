@@ -26,28 +26,9 @@ class TicketService {
 	
 	val logger = logger<TicketService>()
 	
-	fun get(paramId: String?): MutableList<TicketDto> {
+	fun get(): MutableList<TicketDto> {
 		
-		val ticketResultList: MutableList<TicketDto>
-		
-		if (paramId.isNullOrBlank()) {
-			
-			ticketResultList = TicketConverter.entityListToDtoList(repository.findAll())
-			
-		} else {
-			
-			val id = ValidationHandler.validateId(paramId, "id")
-			
-			ticketResultList = try {
-				mutableListOf(TicketConverter.entityToDto(repository.findById(id).get()))
-			} catch (e: Exception) {
-				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
-				logger.warn(errorMsg)
-				throw NotFoundException(errorMsg, 404)
-			}
-		}
-		
-		return ticketResultList
+		return TicketConverter.entityListToDtoList(repository.findAll())
 	}
 	
 	fun getById(paramId: String): Ticket {
@@ -131,8 +112,13 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
-			updatedTicketDto.price!!.isNaN() -> {
+			updatedTicketDto.price == null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
+			}
+			updatedTicketDto.invoiceId == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("invoiceId")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
@@ -208,22 +194,6 @@ class TicketService {
 		}
 		
 		return id.toString()
-	}
-	
-	fun checkIfTicketsExistsInDatabase(dtos: List<TicketDto>){
-		
-		dtos.forEach {
-			
-			val invoiceId = validateId(it.invoiceId, "id")
-			
-			ValidationHandler.validateSeatFormat(it.seat!!)
-			
-			if (repository.existsByInvoiceIdAndSeat(invoiceId, it.seat!!)) {
-				val errorMsg = ExceptionMessages.resourceAlreadyExists("ticket", "seat", it.seat!!)
-				logger.warn(errorMsg)
-				throw ConflictException(errorMsg)
-			}
-		}
 	}
 	
 	private fun checkIfTicketExistInDb(id: Long) {
