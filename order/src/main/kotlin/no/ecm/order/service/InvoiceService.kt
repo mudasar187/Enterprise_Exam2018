@@ -228,9 +228,8 @@ class InvoiceService(
         override fun run(): ResponseEntity<NowPlayingReponse> {
             
             val url = "$movieUri/$nowPlayingPath/${dto.nowPlayingId}"
-            println(url)
 
-            val response : ResponseEntity<NowPlayingReponse> = try {
+            val response = try {
                 
                 restTemplate.getForEntity(url, NowPlayingReponse::class.java)
                 
@@ -260,16 +259,14 @@ class InvoiceService(
         : HystrixCommand<NowPlayingReponse>(HystrixCommandGroupKey.Factory.asKey("Removing seats from Now Playing in Movie service")) {
 
         override fun run(): NowPlayingReponse {
+            
+            val url = "$movieUri/$nowPlayingPath/$nowPlayingId"
             val headers = HttpHeaders()
             headers.set("If-Match", eTag)
             headers.set("Content-Type", "application/merge-patch+json")
 
             val response : ResponseEntity<Void> = try {
-                restTemplate.exchange(
-                        "$movieUri/$nowPlayingPath/$nowPlayingId",
-                        HttpMethod.PATCH,
-                        HttpEntity(jsonPatchBody, headers),
-                        Void::class.java)
+                restTemplate.exchange(url, HttpMethod.PATCH, HttpEntity(jsonPatchBody, headers), Void::class.java)
             } catch (e : HttpClientErrorException){
                 val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
                 logger.warn(body.message)
@@ -281,7 +278,7 @@ class InvoiceService(
 
         override fun getFallback(): NowPlayingReponse {
 
-            logger.error("Critical error! Movie service not working properly")
+            logger.error("Critical error! Movie service crashed")
             logger.error("Circuit breaker status: $executionEvents")
 
             if(failedExecutionException is HttpServerErrorException) {

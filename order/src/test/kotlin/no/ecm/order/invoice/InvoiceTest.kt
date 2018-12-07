@@ -17,7 +17,7 @@ import org.junit.Test
 class InvoiceTest : TestBase() {
 
     @Test
-    fun emptyDbTest() {
+    fun stubResponsesTest() {
     
         val couponId = createDefaultCoupon()
         val nowPLayingId = "11"
@@ -33,9 +33,17 @@ class InvoiceTest : TestBase() {
             .get("/now-playings/11")
             .then()
             .statusCode(200)
-            .extract().body().jsonPath().prettyPrint()
         
-        assertTrue(true)
+        given()
+            .spec(nowPlayingSpec)
+            .body("""
+				{
+				    "seats": ["A1", "A2"]
+				}
+			""".trimIndent())
+            .patch("/now-playings/11")
+            .then()
+            .statusCode(204)
     }
 
     @Test
