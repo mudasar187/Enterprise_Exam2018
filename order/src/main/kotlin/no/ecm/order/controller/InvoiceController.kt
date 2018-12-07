@@ -19,9 +19,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
 
-@Api(value = "/order", description = "API for order entity")
+@Api(value = "/invoices", description = "API for order entity")
 @RequestMapping(
-	path = ["/order"],
+	path = ["/invoices"],
 	produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class InvoiceController(
