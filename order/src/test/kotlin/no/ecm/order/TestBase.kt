@@ -60,15 +60,11 @@ abstract class TestBase {
          */
 
         cleanInvoices()
-        //cleanTickets()
+        cleanTickets()
         cleanCoupons()
     }
 
     private fun cleanTickets(){
-        
-        println(RestAssured.baseURI + " " + RestAssured.port + " " + RestAssured.basePath)
-        
-        println(getDbCount("/tickets"))
         
         val response = RestAssured.given().accept(ContentType.JSON)
                 .param("limit", 100)

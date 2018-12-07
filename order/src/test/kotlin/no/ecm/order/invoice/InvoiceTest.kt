@@ -47,7 +47,7 @@ class InvoiceTest : TestBase() {
     }
 
     @Test
-    fun testCreateInvoice() {
+    fun createInvoiceTest() {
         val couponId = createDefaultCoupon()
         val nowPLayingId = "11"
         val seat = "A1"
@@ -63,8 +63,15 @@ class InvoiceTest : TestBase() {
             .then()
             .statusCode(201)
             .extract().response().jsonPath().prettyPrint()
-
     }
+    
+    @Test
+    fun findInvoiceTest() {
+        //TODO Fix this!
+        assertTrue(true)
+    }
+    
+    // HELP METHODS
 
     private fun createDefaultInvoiceDto(couponId: Long, nowPLayingId: String, seat: String): InvoiceDto {
         return InvoiceDto(
