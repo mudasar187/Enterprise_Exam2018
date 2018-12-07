@@ -12,6 +12,6 @@ object AuthenticationConverter {
     }
 
     fun dtoToEntity(dto: AuthenticationDto) : UserEntity {
-        return UserEntity(dto.username!!, dto.password!!, dto.role!!.toSet(), dto.enabled!!)
+        return UserEntity(dto.username!!, dto.password!!)
     }
 }

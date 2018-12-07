@@ -9,7 +9,7 @@ import javax.transaction.Transactional
 @Service
 @Transactional
 class AuthenticationService(
-        private val userCrud: AuthenticationRepository,
+        private val authenticationRepository: AuthenticationRepository,
         private val passwordEncoder: PasswordEncoder
 ){
 
@@ -19,13 +19,13 @@ class AuthenticationService(
         try {
             val hash = passwordEncoder.encode(password)
 
-            if (userCrud.existsById(username)) {
+            if (authenticationRepository.existsById(username)) {
                 return false
             }
 
             val user = UserEntity(username, hash, roles.map{"ROLE_$it"}.toSet())
 
-            userCrud.save(user)
+            authenticationRepository.save(user)
 
             return true
         } catch (e: Exception){

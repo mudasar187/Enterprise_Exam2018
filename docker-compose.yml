@@ -95,7 +95,7 @@ services:
       - postgres-cinema
 
 
-  gateway:
+  gateway-server:
     build:
       context: ./gateway
       dockerfile: Dockerfile

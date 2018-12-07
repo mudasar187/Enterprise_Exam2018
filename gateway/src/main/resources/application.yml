@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: gateway-server
   redis:
     host: redis
     port: 6379
@@ -28,18 +30,36 @@ spring:
         - id: creditcard-server
           uri: http://creditcard-server:8080
           predicates:
-            - Path=/creditcard-server:8080
+            - Path=/creditcard-server/**
           filters:
             - StripPrefix=1
         - id: cinema-server
           uri: http://cinema-server:8080
           predicates:
-            - Path:/cinema-server:8080
+            - Path=/cinema-server/**
           filters:
             - StripPrefix=1
         - id: auth-server
           uri: http://auth-server:8080
           predicates:
-            - Path:/auth-server:8080
+            - Path=/auth-server/**
           filters:
             - StripPrefix=1
+        - id: eureka
+          uri: http://eureka:8761
+          predicates:
+            - Path=/eureka/**
+          filters:
+            - StripPrefix=1
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+
+server:
+  port: 8080

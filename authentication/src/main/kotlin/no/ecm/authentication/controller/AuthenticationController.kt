@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
-@Api(value = "/auth-server", description = "API for authentication")
+@Api(value = "/auth", description = "API for authentication")
 @RequestMapping(
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
