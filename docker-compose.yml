@@ -15,8 +15,12 @@ services:
   postgres-cinema:
     image: "postgres:10"
 
+
   redis:
     image: "redis:latest"
+#  rabbitmq:
+#    image: "rabbitmq:3"
+
 
   eureka:
     build:
@@ -43,6 +47,15 @@ services:
 
 
   order-server:
+    build:
+      context: ./order
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-order
+
+  order-server-2:
     build:
       context: ./order
       dockerfile: Dockerfile
@@ -87,16 +100,16 @@ services:
       context: ./gateway
       dockerfile: Dockerfile
     ports:
-      - "9000:8080"
+      - "10000:8080"
     depends_on:
       - redis
       - eureka
-      - postgres-auth
+      - auth-server
       - user-server
       - order-server
       - movie-server
       - creditcard-server
       - cinema-server
 
-# This is not complete, need to have a database for auth, later add redis and RabbitMQ, and check out of replicas, need more?
+# add '-rabbitmq' where AMQP is used
 

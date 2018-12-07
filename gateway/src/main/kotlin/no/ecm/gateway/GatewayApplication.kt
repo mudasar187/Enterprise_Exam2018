@@ -8,14 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @SpringBootApplication(scanBasePackages = ["no.ecm.gateway"])
-@EnableEurekaClient
-class GatewayApplication{
-
-    @Bean
-    fun passwordEncoder() : PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
-}
+class GatewayApplication{}
 
 fun main(args: Array<String>) {
     SpringApplication.run(GatewayApplication::class.java, *args)

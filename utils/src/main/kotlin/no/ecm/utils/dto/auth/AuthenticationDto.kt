@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 
 @ApiModel("DTO representing user credentials")
-data class AuthDto(
+data class AuthenticationDto(
 
         @ApiModelProperty("The username of an User")
         var userName: String? = null,

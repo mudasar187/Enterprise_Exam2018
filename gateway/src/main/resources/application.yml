@@ -1,0 +1,45 @@
+spring:
+  redis:
+    host: redis
+    port: 6379
+  session:
+    store-type: redis
+  cloud:
+    gateway:
+      routes:
+        - id: user-server
+          uri: http://user-server:8080
+          predicates:
+            - Path=/user-server/**
+          filters:
+            - StripPrefix=1
+        - id: order-server
+          uri: http://order-server:8080
+          predicates:
+            - Path=/order-server/**
+          filters:
+            - StripPrefix=1
+        - id: movie-server
+          uri: http://movie-server:8080
+          predicates:
+            - Path=/movie-server/**
+          filters:
+            - StripPrefix=1
+        - id: creditcard-server
+          uri: http://creditcard-server:8080
+          predicates:
+            - Path=/creditcard-server:8080
+          filters:
+            - StripPrefix=1
+        - id: cinema-server
+          uri: http://cinema-server:8080
+          predicates:
+            - Path:/cinema-server:8080
+          filters:
+            - StripPrefix=1
+        - id: auth-server
+          uri: http://auth-server:8080
+          predicates:
+            - Path:/auth-server:8080
+          filters:
+            - StripPrefix=1

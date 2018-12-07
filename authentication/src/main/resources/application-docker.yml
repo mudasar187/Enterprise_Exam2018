@@ -1,6 +1,6 @@
 spring:
   application:
-    name: gateway
+    name: auth-server
 
   session:
     store-type: redis
@@ -30,3 +30,6 @@ eureka:
 
 server:
   port: 8080
+
+
+userService: http://user-server
