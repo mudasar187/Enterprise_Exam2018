@@ -9,8 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
-    <artifactId>gateway</artifactId>
-
+    <artifactId>authentication</artifactId>
 
     <dependencies>
         <!-- Project -->
@@ -76,8 +75,8 @@
 
         <!-- Database -->
         <!--<dependency>-->
-            <!--<groupId>org.postgresql</groupId>-->
-            <!--<artifactId>postgresql</artifactId>-->
+        <!--<groupId>org.postgresql</groupId>-->
+        <!--<artifactId>postgresql</artifactId>-->
         <!--</dependency>-->
 
         <!-- Test -->
@@ -118,6 +117,7 @@
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -128,5 +128,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>

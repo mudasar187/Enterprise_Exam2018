@@ -1,15 +1,15 @@
-package no.ecm.gateway.service
+package no.ecm.authentication.service
 
-import no.ecm.gateway.model.entity.Auth
-import no.ecm.gateway.repository.AuthRepository
+import no.ecm.authentication.model.entity.Authentication
+import no.ecm.authentication.repository.AuthenticationRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 
 @Service
 @Transactional
-class AuthService(
-        private val userCrud: AuthRepository,
+class AuthenticationService(
+        private val userCrud: AuthenticationRepository,
         private val passwordEncoder: PasswordEncoder
 ){
 
@@ -23,7 +23,7 @@ class AuthService(
                 return false
             }
 
-            val user = Auth(username, hash, roles.map{"ROLE_$it"}.toSet())
+            val user = Authentication(username, hash, roles.map{"ROLE_$it"}.toSet())
 
             userCrud.save(user)
 

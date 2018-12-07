@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
 
-  auth-db:
+  postgres-auth:
     image: "postgres:10"
   postgres-user:
     image: "postgres:10"
@@ -23,6 +23,14 @@ services:
       context: ./eureka
       dockerfile: Dockerfile
 
+  auth-server:
+    build:
+      context: ./authentication
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-auth
 
   user-server:
     build:
@@ -83,7 +91,7 @@ services:
     depends_on:
       - redis
       - eureka
-      - auth-db
+      - postgres-auth
       - user-server
       - order-server
       - movie-server

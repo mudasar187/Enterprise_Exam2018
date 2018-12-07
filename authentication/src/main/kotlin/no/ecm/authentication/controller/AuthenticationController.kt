@@ -1,7 +1,7 @@
-package no.ecm.gateway.controller
+package no.ecm.authentication.controller
 
 import io.swagger.annotations.Api
-import no.ecm.gateway.service.AuthService
+import no.ecm.authentication.service.AuthenticationService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -18,7 +18,7 @@ import java.security.Principal
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class AuthController(
-        private val authService: AuthService,
+        private val authService: AuthenticationService,
         private val authenticationManager: AuthenticationManager,
         private val userDetailsService: UserDetailsService
 ) {
