@@ -9,7 +9,6 @@ import no.ecm.order.model.converter.InvoiceConverter
 import no.ecm.order.model.converter.TicketConverter
 import no.ecm.order.model.entity.Invoice
 import no.ecm.order.repository.InvoiceRepository
-import no.ecm.utils.dto.movie.NowPlayingDto
 import no.ecm.utils.dto.order.InvoiceDto
 import no.ecm.utils.exception.InternalException
 import no.ecm.utils.exception.NotFoundException
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-import java.net.URI
 
 @Service
 class InvoiceService(
@@ -40,10 +38,12 @@ class InvoiceService(
 ) {
 
     @Value("\${movieService}")
-    private lateinit var moviePath : String
+    private lateinit var movieUri : String
     
     @Value("\${ticketPrice}")
     private lateinit var ticketPrice: String
+    
+    val nowPlayingPath = "now-playings"
 
     val logger = logger<InvoiceService>()
 
@@ -81,14 +81,14 @@ class InvoiceService(
     }
 
     fun findById(stringId: String?): Invoice {
-        val id = checkFOrInvoiceInDatabase(stringId)
+        val id = checkForInvoiceInDatabase(stringId)
 
         return invoiceRepository.findById(id).get()
     }
 
     fun deleteById(stringId: String?): String? {
 
-        val id = checkFOrInvoiceInDatabase(stringId)
+        val id = checkForInvoiceInDatabase(stringId)
 
         invoiceRepository.deleteById(id)
         val infoMsg = InfoMessages.entitySuccessfullyDeleted("invoice", "$id")
@@ -168,7 +168,7 @@ class InvoiceService(
         return InvoiceDto(id.toString())
     }
 
-    private fun checkFOrInvoiceInDatabase(stringId: String?): Long {
+    private fun checkForInvoiceInDatabase(stringId: String?): Long {
         val id = ValidationHandler.validateId(stringId, "id")
 
         when {
@@ -184,7 +184,7 @@ class InvoiceService(
     
     private fun validateInvoiceDto(dto: InvoiceDto) {
         when {
-            dto.username.isNullOrBlank() -> handleMissingField("cusername")
+            dto.username.isNullOrBlank() -> handleMissingField("username")
             dto.orderDate.isNullOrBlank() -> handleMissingField("orderDate")
             dto.nowPlayingId.isNullOrBlank() -> handleMissingField("nowPlayingId")
             dto.tickets == null -> handleMissingField("tickets")
@@ -226,11 +226,14 @@ class InvoiceService(
         : HystrixCommand<ResponseEntity<NowPlayingReponse>>(HystrixCommandGroupKey.Factory.asKey("Getting Now Playing information from Movie service")) {
 
         override fun run(): ResponseEntity<NowPlayingReponse> {
+            
+            val url = "$movieUri/$nowPlayingPath/${dto.nowPlayingId}"
+            println(url)
 
             val response : ResponseEntity<NowPlayingReponse> = try {
-                restTemplate.getForEntity(
-                        "$moviePath/now-playing/${dto.nowPlayingId}",
-                        NowPlayingReponse::class.java)
+                
+                restTemplate.getForEntity(url, NowPlayingReponse::class.java)
+                
             } catch (e : HttpClientErrorException){
                 val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
                 logger.warn(body.message)
@@ -263,7 +266,7 @@ class InvoiceService(
 
             val response : ResponseEntity<Void> = try {
                 restTemplate.exchange(
-                        "$moviePath/now-playing/$nowPlayingId",
+                        "$movieUri/$nowPlayingPath/$nowPlayingId",
                         HttpMethod.PATCH,
                         HttpEntity(jsonPatchBody, headers),
                         Void::class.java)

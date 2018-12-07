@@ -16,38 +16,35 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
-@SpringBootTest(
-        classes = [(OrderApplication::class)],
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(classes = [(OrderApplication::class)],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 abstract class TestBase {
 
     @LocalServerPort
     protected var port = 0
 
-    val nowPlayingURL = "/now-playing"
+    val nowPlayingURL = "/now-playings"
     val ticketURL = "/tickets"
     val couponURL = "/coupons"
     val invoiceUrl = "/invoices"
-
-//    companion object {
-//        private lateinit var wireMockServer: WireMockServer
-//
-//        @BeforeClass
-//        @JvmStatic
-//        fun initWireMock() {
-//
-//            wireMockServer = WireMockServer(wireMockConfig().port(8083))
-//            wireMockServer.start()
-//        }
-//
-//        @AfterClass
-//        @JvmStatic
-//        fun tearDown() {
-//            wireMockServer.stop()
-//        }
-//    }
+    
+    companion object {
+    	private lateinit var wireMockServer: WireMockServer
+        
+        @BeforeClass
+        @JvmStatic
+        fun initWireMock() {
+            wireMockServer = WireMockServer(wireMockConfig().port(8083))
+            wireMockServer.start()
+        }
+        
+        @AfterClass
+        @JvmStatic
+        fun tearDown() {
+            wireMockServer.stop()
+        }
+    }
 
     @Before
     @After
@@ -63,14 +60,19 @@ abstract class TestBase {
          */
 
         cleanInvoices()
-        cleanTickets()
+        //cleanTickets()
         cleanCoupons()
     }
 
     private fun cleanTickets(){
+        
+        println(RestAssured.baseURI + " " + RestAssured.port + " " + RestAssured.basePath)
+        
+        println(getDbCount("/tickets"))
+        
         val response = RestAssured.given().accept(ContentType.JSON)
                 .param("limit", 100)
-                .get(ticketURL)
+                .get("/tickets")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -115,7 +117,7 @@ abstract class TestBase {
         Assert.assertEquals(0, getDbCount(invoiceUrl))
     }
 
-    private fun getDbCount(url: String) : Int{
+    protected fun getDbCount(url: String) : Int{
         return RestAssured.given().accept(ContentType.JSON)
                 .get(url)
                 .then()
@@ -143,60 +145,69 @@ abstract class TestBase {
 
         return """
         {
-            code: 200,
-            message: null,
-            status: null,
-            data: {
-                list: [
+		    "code": 200,
+            "message": null,
+            "status": null,
+            "data": {
+                "list": [
                     {
-                        id: "$nowPlayingId",
-                        movieDto: {
-                            id: "4",
-                            title: "Inception",
-                            posterUrl: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-                            genre: [
+                        "id": "$nowPlayingId",
+                        "movieDto": {
+                            "id": "4",
+                            "title": "Inception",
+                            "posterUrl": "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+                            "genre": [
                                 {
-                                    id: "1",
-                                    name: "Action",
-                                    movies: null
+                                    "id": "1",
+                                    "name": "Action",
+                                    "movies": null
                                 }
                             ],
-                            movieDuration: 120,
-                            ageLimit: 13,
-                            nowPlaying: null
+                            "movieDuration": 120,
+                            "ageLimit": 13,
+                            "nowPlaying": null
                         },
-                        roomId: "4",
-                        cinemaId: "1",
-                        cinemaName: null,
-                        time: "2018-12-08T16:56:41.230+01:00[Europe/Berlin]",
-                        seats: [
-                        "$seat",
-                        "A3",
-                        "A5",
-                        "A7",
-                        "D2",
-                        "B1",
-                        "C2"
+                        "roomId": "4",
+                        "cinemaId": "1",
+                        "cinemaName": null,
+                        "time": "2018-12-08T16:56:41.230+01:00[Europe/Berlin]",
+                        "seats": [
+                            "$seat",
+                            "A3",
+                            "A5",
+                            "A7",
+                            "D2",
+                            "B1",
+                            "C2"
                         ]
                     }
                 ],
-                rangeMin: 0,
-                rangeMax: 0,
-                totalSize: 0,
-                _links: { }
+                "rangeMin": 0,
+                "rangeMax": 0,
+                "totalSize": 0,
+                "_links": { }
                 }
             }
         """.trimIndent()
     }
-
-//    protected fun stubJsonResponse(json: String) {
-//        wireMockServer.stubFor(
-//                get(urlMatching("/now-playing.*"))
-//                        .willReturn(aResponse()
-//                                .withHeader("Content-Type", "application/json; charset=utf-8")
-//                                .withHeader("Content-Length", "" + json.toByteArray(charset("utf-8")).size)
-//                                .withBody(json)
-//                        )
-//        )
-//    }
+    
+    protected fun stubNowPlayingResponse(responseBody: String) {
+        
+        wireMockServer.stubFor(get(urlMatching("/now-playings.*")).willReturn(
+            aResponse()
+                .withHeader("Content-Type", "application/json; charset=utf-8")
+                .withHeader("Content-Length", "" + responseBody.toByteArray(charset("utf-8")).size)
+                .withHeader("ETag", responseBody.hashCode().toString())
+                .withBody(responseBody)
+        ))
+        
+        wireMockServer.stubFor(patch(urlMatching("/now-playings.*"))
+            .withRequestBody(matchingJsonPath("$.seats"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json; charset=utf-8")
+                    .withStatus(204)
+        ))
+        
+    }
 }

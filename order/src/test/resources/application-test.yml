@@ -6,3 +6,16 @@ eureka:
     enabled: false
 
 movieService: http://localhost:8083
+
+# Disable Circuit Breaker (Hystrix)
+spring:
+  cloud:
+    circuit:
+      breaker:
+        enabled: false
+
+hystrix:
+  command:
+    default:
+      circuitBreaker:
+        enabled: false

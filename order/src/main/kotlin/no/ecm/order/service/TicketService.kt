@@ -67,7 +67,7 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
-			dto.price!!.isNaN() -> {
+			dto.price == null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)

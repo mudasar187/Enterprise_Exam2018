@@ -65,7 +65,6 @@ class DefaultData(
         val ticket5 = Ticket(price = 100.00, seat = "C9", invoiceId = invoiceRepository.save(invoice4).id)
         ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4, ticket5))
 
-
         val invoiceRes1 = invoiceRepository.findAllByNowPlayingId(67898765).first()
         invoiceRes1.tickets = mutableSetOf(ticket1, ticket2)
         invoiceRepository.save(invoiceRes1)

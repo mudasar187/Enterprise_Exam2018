@@ -18,6 +18,8 @@ class TicketTest : TicketTestBase() {
 			.extract()
 			.`as`(TicketResponseDto::class.java).data!!.list.size
 		
+		println(size)
+		
 		assertResultSize(size)
 	}
 	
