@@ -10,7 +10,7 @@ import javax.validation.constraints.Size
 
 @Entity
 @Table(name = "USERS")
-class Authentication (
+class UserEntity (
 
         @Id
         @get:NotBlank
@@ -20,7 +20,7 @@ class Authentication (
         @get:NotBlank
         var password: String,
 
-        @get:ElementCollection(targetClass = String::class)
+        @get:ElementCollection
         @get:NotNull
         var roles: Set<String>? = setOf(),
 

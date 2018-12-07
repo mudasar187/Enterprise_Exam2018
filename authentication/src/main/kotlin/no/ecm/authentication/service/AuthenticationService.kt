@@ -1,6 +1,6 @@
 package no.ecm.authentication.service
 
-import no.ecm.authentication.model.entity.Authentication
+import no.ecm.authentication.model.entity.UserEntity
 import no.ecm.authentication.repository.AuthenticationRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -23,7 +23,7 @@ class AuthenticationService(
                 return false
             }
 
-            val user = Authentication(username, hash, roles.map{"ROLE_$it"}.toSet())
+            val user = UserEntity(username, hash, roles.map{"ROLE_$it"}.toSet())
 
             userCrud.save(user)
 

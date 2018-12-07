@@ -39,8 +39,11 @@ class WebSecurityConfig(
                 //
                 .authorizeRequests()
                 .antMatchers("/user").authenticated()
-                .antMatchers("/signUp").permitAll()
+                .antMatchers("/signup").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/cinemas/*").permitAll()
+                .antMatchers("/movie-server/*").permitAll()
+                .antMatchers("/movie-server").permitAll()
                 .anyRequest().denyAll()
                 .and()
                 .csrf().disable()

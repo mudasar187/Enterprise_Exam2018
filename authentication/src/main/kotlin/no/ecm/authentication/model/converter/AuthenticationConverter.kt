@@ -1,17 +1,17 @@
 package no.ecm.authentication.model.converter
 
-import no.ecm.authentication.model.entity.Authentication
+import no.ecm.authentication.model.entity.UserEntity
 import no.ecm.utils.dto.auth.AuthenticationDto
 
 object AuthenticationConverter {
-    fun entityToDto (entity: Authentication): AuthenticationDto {
+    fun entityToDto (entity: UserEntity): AuthenticationDto {
         return AuthenticationDto(
-                userName = entity.username,
+                username = entity.username,
                 password = entity.password
         )
     }
 
-    fun dtoToEntity(dto: AuthenticationDto) : Authentication {
-        return Authentication(dto.userName!!, dto.password!!, dto.role!!, dto.enabled!!)
+    fun dtoToEntity(dto: AuthenticationDto) : UserEntity {
+        return UserEntity(dto.username!!, dto.password!!, dto.role!!.toSet(), dto.enabled!!)
     }
 }
