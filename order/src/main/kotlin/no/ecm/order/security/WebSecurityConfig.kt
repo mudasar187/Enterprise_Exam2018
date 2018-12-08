@@ -51,6 +51,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.DELETE, "/tickets/{id}").hasRole("ADMIN")
 
                 .antMatchers("/**").hasRole("ADMIN")
+
                 .anyRequest().denyAll()
                 .and()
                 .csrf().disable()
