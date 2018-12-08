@@ -2,9 +2,6 @@ package no.ecm.movie.model.converter
 
 import no.ecm.movie.model.entity.Genre
 import no.ecm.utils.dto.movie.GenreDto
-import no.ecm.utils.hal.PageDto
-import no.ecm.utils.validation.ValidationHandler
-import kotlin.streams.toList
 
 object GenreConverter {
 	

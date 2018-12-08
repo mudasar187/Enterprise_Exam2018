@@ -6,7 +6,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient
 
 @SpringBootApplication(scanBasePackages = ["no.ecm.gateway"])
 @EnableEurekaClient
-class GatewayApplication
+class GatewayApplication{}
 
 fun main(args: Array<String>) {
     SpringApplication.run(GatewayApplication::class.java, *args)

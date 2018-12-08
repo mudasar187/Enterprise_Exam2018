@@ -55,9 +55,10 @@
         </dependency>
         <dependency>
             <groupId>no.ecm</groupId>
-            <artifactId>auth</artifactId>
+            <artifactId>authentication</artifactId>
             <version>${project.version}</version>
         </dependency>
+
 
         <!-- Logging -->
         <dependency>

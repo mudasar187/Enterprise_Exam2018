@@ -5,4 +5,20 @@ eureka:
   client:
     enabled: false
 
+# Disable Circuit Breaker (Hystrix)
+spring:
+  cloud:
+    circuit:
+      breaker:
+        enabled: false
+
+  session:
+    store-type: none
+
+hystrix:
+  command:
+    default:
+      circuitBreaker:
+        enabled: false
+
 cinemaService: http://localhost:8086

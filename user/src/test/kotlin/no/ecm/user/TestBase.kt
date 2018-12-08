@@ -5,19 +5,14 @@ import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
-import no.ecm.user.UserApplication
 import no.ecm.user.repository.UserRepository
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.core.io.Resource
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.util.StreamUtils
-import java.nio.charset.StandardCharsets
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner::class)
@@ -58,7 +53,20 @@ abstract class TestBase {
 			.then()
 			.statusCode(200)
 			.extract().body().path<String>("data.createUser")
-			//.extract().response().body.prettyPeek()
+	}
+	
+	fun invalidUserQuery(query: String): ValidatableResponse? {
+		return given()
+			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
+			.body(query)
+			.post()
+			.then()
+			.statusCode(200)
+	}
+	
+	fun updateInvalidUser(query: String) {
+	
 	}
 	
 	fun getUserByUsername(username: String): ValidatableResponse? {

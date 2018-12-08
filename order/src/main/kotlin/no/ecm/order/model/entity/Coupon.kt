@@ -22,7 +22,9 @@ class Coupon(
         var description: String,
 
         @get:NotNull
-        var expireAt: ZonedDateTime
+        var expireAt: ZonedDateTime,
 
-        //TODO Add a runtime generated Boolean to display if a coupon has expired
+        @get:NotNull
+        var percentage: Int
+    
 )

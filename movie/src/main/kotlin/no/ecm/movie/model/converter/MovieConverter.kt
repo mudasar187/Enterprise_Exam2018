@@ -2,9 +2,6 @@ package no.ecm.movie.model.converter
 
 import no.ecm.movie.model.entity.Movie
 import no.ecm.utils.dto.movie.MovieDto
-import no.ecm.utils.hal.PageDto
-import no.ecm.utils.validation.ValidationHandler
-import kotlin.streams.toList
 
 object MovieConverter {
 	
@@ -15,8 +12,8 @@ object MovieConverter {
 			posterUrl = entity.posterUrl,
 			genre = GenreConverter.movieEntityListToDtoList(entity.genre).toMutableSet(),
 			movieDuration = entity.movieDuration,
-			ageLimit = entity.ageLimit,
-			nowPlaying = entity.nowPlaying?.let { NowPlayingConverter.movieEntityToDto(it) }
+			ageLimit = entity.ageLimit
+			//nowPlaying = entity.nowPlaying.map { NowPlayingConverter.movieEntityToDto(it) }.toMutableList()
 		)
 	}
 	

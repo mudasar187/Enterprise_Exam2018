@@ -2,6 +2,8 @@ version: '3.3'
 
 services:
 
+  postgres-auth:
+    image: "postgres:10"
   postgres-user:
     image: "postgres:10"
   postgres-order:
@@ -13,17 +15,33 @@ services:
   postgres-cinema:
     image: "postgres:10"
 
+
+  redis:
+    image: "redis:latest"
+#  rabbitmq:
+#    image: "rabbitmq:3"
+
+
   eureka:
     build:
       context: ./eureka
       dockerfile: Dockerfile
 
+  auth-server:
+    build:
+      context: ./authentication
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-auth
 
   user-server:
     build:
       context: ./user
       dockerfile: Dockerfile
     depends_on:
+      - redis
       - eureka
       - postgres-user
 
@@ -33,6 +51,16 @@ services:
       context: ./order
       dockerfile: Dockerfile
     depends_on:
+      - redis
+      - eureka
+      - postgres-order
+
+  order-server-2:
+    build:
+      context: ./order
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
       - eureka
       - postgres-order
 
@@ -42,6 +70,7 @@ services:
       context: ./movie
       dockerfile: Dockerfile
     depends_on:
+      - redis
       - eureka
       - postgres-movie
 
@@ -51,6 +80,7 @@ services:
       context: ./creditcard
       dockerfile: Dockerfile
     depends_on:
+      - redis
       - eureka
       - postgres-creditcard
 
@@ -60,23 +90,26 @@ services:
       context: ./cinema
       dockerfile: Dockerfile
     depends_on:
+      - redis
       - eureka
       - postgres-cinema
 
 
-  gateway:
+  gateway-server:
     build:
       context: ./gateway
       dockerfile: Dockerfile
     ports:
-      - "9000:8080"
+      - "10000:8080"
     depends_on:
+      - redis
       - eureka
+      - auth-server
       - user-server
       - order-server
       - movie-server
       - creditcard-server
       - cinema-server
 
-# This is not complete, need to have a database for auth, later add redis and RabbitMQ, and check out of replicas, need more?
+# add '-rabbitmq' where AMQP is used
 

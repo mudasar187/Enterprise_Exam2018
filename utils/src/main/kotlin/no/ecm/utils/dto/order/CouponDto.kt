@@ -2,7 +2,6 @@ package no.ecm.utils.dto.order
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
-import java.time.ZonedDateTime
 
 @ApiModel("DTO representing an Coupon")
 data class CouponDto(
@@ -17,5 +16,11 @@ data class CouponDto(
 	var description: String? = null,
 	
 	@ApiModelProperty("The expiration date of a Coupon")
-	var expireAt: String? = null //ZonedDateTime
+	var expireAt: String? = null,
+	
+	@ApiModelProperty("The percentage of price reduction")
+	var percentage: Int? = null
+
+
+
 )

@@ -1,25 +1,25 @@
 package no.ecm.user.model.converter
 
-import no.ecm.user.model.entity.User
+import no.ecm.user.model.entity.UserEntity
 import no.ecm.utils.dto.user.UserDto
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 object UserConverter {
 	
-	fun entityToDto(entity: User): UserDto {
+	fun entityToDto(entity: UserEntity): UserDto {
 		return UserDto(
 			username = entity.username,
-			dateOfBirth = entity.dateOfBitrh.toString(),
+			dateOfBirth = entity.dateOfBirth.toString(),
 			name = entity.name,
 			email = entity.email
 		)
 	}
 	
-	fun dtoToEntity(dto: UserDto) : User {
-		return User(
+	fun dtoToEntity(dto: UserDto) : UserEntity {
+		return UserEntity(
 			username = dto.username!!,
-			dateOfBitrh = convertToLocalDate(dto.dateOfBirth!!),
+			dateOfBirth = convertToLocalDate(dto.dateOfBirth!!),
 			name = dto.name!!,
 			email = dto.email!!
 		)

@@ -3,6 +3,7 @@ package no.ecm.order.service
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.order.model.converter.CouponConverter
+import no.ecm.order.model.entity.Coupon
 import no.ecm.order.repository.coupon.CouponRepository
 import no.ecm.utils.converter.ConvertionHandler
 import no.ecm.utils.dto.order.CouponDto
@@ -23,26 +24,13 @@ class CouponService {
 	
 	val logger = logger<CouponService>()
 	
-	fun get(paramCode: String?, paramId: String?) : MutableList<CouponDto> {
+	fun get(paramCode: String?) : MutableList<CouponDto> {
 		
-		//ValidationHandler.validateLimitAndOffset(offset, limit)
-		
-		val couponResultList: MutableList<CouponDto>
-		
-		//If NOT paramCode or paramId are present, return all coupons in DB
-		if (paramCode.isNullOrBlank() && paramId.isNullOrBlank()) {
+		//If paramCode are present, return coupon with given code
+		return if (!paramCode.isNullOrBlank()) {
 			
-			couponResultList = CouponConverter.entityListToDtoList(repository.findAll())
-			
-		}
-		
-		//If only paramCode are present, return coupon with given code
-		else if (!paramCode.isNullOrBlank() && paramId.isNullOrBlank()){
-			
-			couponResultList = try {
-				
+			try {
 				mutableListOf(CouponConverter.entityToDto(repository.findByCode(paramCode!!)))
-			
 			} catch (e: Exception) {
 				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "code", paramCode!!)
 				logger.warn(errorMsg)
@@ -50,21 +38,17 @@ class CouponService {
 			}
 		}
 		
-		//If only paramId are present, return coupon with given id
+		//If NOT paramCode or paramId are present, return all coupons in DB
 		else {
-			val id = ValidationHandler.validateId(paramId, "id")
-			
-			couponResultList = try {
-				
-				mutableListOf(CouponConverter.entityToDto(repository.findById(id).get()))
-				
-			} catch (e: Exception) {
-				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
-				logger.warn(errorMsg)
-				throw NotFoundException(errorMsg, 404)
-			}
+			CouponConverter.entityListToDtoList(repository.findAll())
 		}
-		return couponResultList
+	}
+	
+	fun getById(paramId: String?): Coupon {
+		val id = ValidationHandler.validateId(paramId, "id")
+		checkIfCouponExistInDb(id)
+		
+		return repository.findById(id).get()
 	}
 	
 	fun create(dto: CouponDto): String {
@@ -91,6 +75,11 @@ class CouponService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
+			dto.percentage == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("percentage")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
+			}
 			
 			// New format for input = yyyy-MM-dd HH:mm:ss
 			else -> {
@@ -98,7 +87,7 @@ class CouponService {
 				val validatedTimeStamp: String = ValidationHandler.validateTimeFormat(formattedTime)
 				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 				
-				val id = repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!)
+				val id = repository.createCoupon(dto.code!!, dto.description!!, parsedDateTime!!, dto.percentage!!)
 				logger.info(InfoMessages.entityCreatedSuccessfully("coupon", id.toString()))
 				
 				return id.toString()
@@ -150,6 +139,11 @@ class CouponService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
+			updatedCouponDto.percentage == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("percentage")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
+			}
 
 			!updatedCouponDto.id.equals(id.toString()) -> {
 				val errorMsg = ExceptionMessages.notMachingIds("id")
@@ -168,7 +162,7 @@ class CouponService {
 				val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 				
 				try {
-					repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!)
+					repository.updateCoupon(id, updatedCouponDto.code!!, updatedCouponDto.description!!, parsedDateTime!!, updatedCouponDto.percentage!!)
 				} finally {
 					//logger.info(InfoMessages.entitySuccessfullyUpdated("coupon"))
 				}
@@ -223,4 +217,13 @@ class CouponService {
 		
 		return id.toString()
 	}
+	
+	private fun checkIfCouponExistInDb(id: Long) {
+		if (!repository.existsById(id)) {
+			val errorMsg = ExceptionMessages.notFoundMessage("Coupon", "id", id.toString())
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg)
+		}
+	}
+	
 }

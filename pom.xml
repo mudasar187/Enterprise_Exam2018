@@ -9,6 +9,7 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
+		<module>authentication</module>
         <module>e2etest</module>
         <module>eureka</module>
         <module>gateway</module>
@@ -107,6 +108,9 @@
 
 		<!-- JACOCO REPORT -->
 		<version.jacoco>0.8.2</version.jacoco>
+
+		<!-- Circuit Breaker -->
+		<version.hystrix>1.5.12</version.hystrix>
 
 	</properties>
 
@@ -368,6 +372,13 @@
 			<!--<artifactId>spring-boot-starter-amqp</artifactId>-->
 			<!--<version>${spring.version}</version>-->
 			<!--</dependency>-->
+
+			<!-- Circuit Breaker -->
+			<dependency>
+				<groupId>com.netflix.hystrix</groupId>
+				<artifactId>hystrix-core</artifactId>
+				<version>${version.hystrix}</version>
+			</dependency>
 
 		</dependencies>
 	</dependencyManagement>

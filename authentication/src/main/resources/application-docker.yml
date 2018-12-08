@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: auth-server
+
+  session:
+    store-type: redis
+  redis:
+    host: redis
+    port: 6379
+  datasource:
+    url: "jdbc:postgresql://postgres-auth:5432/postgres"
+    username: "postgres"
+    password: ""
+    driver-class-name: "org.postgresql.Driver"
+  jpa:
+    database: "postgresql"
+    hibernate:
+      ddl-auto: "update"
+        # We should rather use Flyway. But for simplicity, here rely
+      # on Hibernate to handle the schema (which is usually not a good idea).
+    properties:
+     hibernate.temp.use_jdbc_metadata_defaults : false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+
+server:
+  port: 8080
+
+
+userService: http://user-server

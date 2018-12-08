@@ -3,16 +3,20 @@ package no.ecm.order.service
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.order.model.converter.TicketConverter
+import no.ecm.order.model.entity.Ticket
 import no.ecm.order.repository.ticket.TicketRepository
 import no.ecm.utils.dto.order.TicketDto
+import no.ecm.utils.exception.ConflictException
 import no.ecm.utils.exception.NotFoundException
 import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.validation.ValidationHandler
+import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import kotlin.reflect.jvm.internal.ReflectProperties
 
 @Service
 class TicketService {
@@ -22,31 +26,21 @@ class TicketService {
 	
 	val logger = logger<TicketService>()
 	
-	fun get(paramId: String?): MutableList<TicketDto> {
+	fun get(): MutableList<TicketDto> {
 		
-		val ticketResultList: MutableList<TicketDto>
+		return TicketConverter.entityListToDtoList(repository.findAll())
+	}
+	
+	fun getById(paramId: String): Ticket {
+		val id = ValidationHandler.validateId(paramId, "id")
+		checkIfTicketExistInDb(id)
 		
-		if (paramId.isNullOrBlank()) {
-			
-			ticketResultList = TicketConverter.entityListToDtoList(repository.findAll())
-			
-		} else {
-			
-			val id = ValidationHandler.validateId(paramId, "id")
-			
-			ticketResultList = try {
-				mutableListOf(TicketConverter.entityToDto(repository.findById(id).get()))
-			} catch (e: Exception) {
-				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
-				logger.warn(errorMsg)
-				throw NotFoundException(errorMsg, 404)
-			}
-		}
-		
-		return ticketResultList
+		return repository.findById(id).get()
 	}
 	
 	fun create(dto: TicketDto): String {
+		
+		val invoiceId = validateId(dto.invoiceId, "invoiceId")
 		
 		when {
 			dto.id != null -> {
@@ -54,7 +48,7 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
-			dto.price!!.isNaN() -> {
+			dto.price == null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
@@ -64,12 +58,18 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
+			repository.existsByInvoiceIdAndSeat(invoiceId, dto.seat!!) -> {
+				val errorMsg = ExceptionMessages.resourceAlreadyExists("ticket", "invoiceId and seat", "$invoiceId and ${dto.seat}")
+				logger.warn(errorMsg)
+				throw ConflictException(errorMsg)
+			}
 			
 			else -> {
 				
+				val validatedInvoiceId = validateId(dto.invoiceId, "invoiceId")
 				val validatedSeat = ValidationHandler.validateSeatFormat(dto.seat!!)
 				
-				val id = repository.createTicket(dto.price!!, validatedSeat)
+				val id = repository.createTicket(dto.price!!, validatedSeat, validatedInvoiceId)
 				logger.info(InfoMessages.entityCreatedSuccessfully("ticket", id.toString()))
 				
 				return id.toString()
@@ -112,8 +112,13 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
-			updatedTicketDto.price!!.isNaN() -> {
+			updatedTicketDto.price == null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
+			}
+			updatedTicketDto.invoiceId == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("invoiceId")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
@@ -121,7 +126,7 @@ class TicketService {
 			!updatedTicketDto.id.equals(paramId) -> {
 				val errorMsg = ExceptionMessages.notMachingIds("id")
 				logger.warn(errorMsg)
-				throw UserInputValidationException(errorMsg, 409)
+				throw ConflictException(errorMsg)
 			}
 			!repository.existsById(id) -> {
 				val errorMsg = ExceptionMessages.notFoundMessage("ticket", "id", paramId)
@@ -190,4 +195,13 @@ class TicketService {
 		
 		return id.toString()
 	}
+	
+	private fun checkIfTicketExistInDb(id: Long) {
+		if (!repository.existsById(id)) {
+			val errorMsg = ExceptionMessages.notFoundMessage("Ticket", "id", id.toString())
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg)
+		}
+	}
+	
 }

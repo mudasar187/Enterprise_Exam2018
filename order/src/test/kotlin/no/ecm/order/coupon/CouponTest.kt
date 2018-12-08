@@ -3,190 +3,147 @@ package no.ecm.order.coupon
 import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import junit.framework.Assert.assertEquals
+import no.ecm.order.TestBase
+import no.ecm.utils.converter.ConvertionHandler.Companion.convertTimeStampToZonedTimeDate
 import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.response.CouponResponseDto
 import org.hamcrest.CoreMatchers
 import org.junit.Test
 
-class CouponTest : CouponTestBase() {
+class CouponTest : TestBase() {
 	
-	//TODO Fix all sizes stuff after DELETE is done
-	/*
 	@Test
 	fun testCleanDb() {
-		assertResultSize(0)
-	}
-	*/
-	
-	@Test
-	fun getAllCouponsTest() {
-		val size = given().accept(ContentType.JSON).get()
-			.then()
-			.statusCode(200)
-			.extract()
-			.`as`(CouponResponseDto::class.java).data!!.list.size
-		
-		assertResultSize(size)
+		assertEquals(getDbCount(couponURL), 0)
 	}
 	
 	@Test
 	fun createCouponAndGetByIdTest() {
-		val size = given().accept(ContentType.JSON).get()
+		
+		val id = createDefaultCoupon()
+		
+		val result = given()
+			.get("$couponURL/$id")
 			.then()
 			.statusCode(200)
 			.extract()
-			.`as`(CouponResponseDto::class.java).data!!.list.size
+			.`as`(CouponResponseDto::class.java).data!!.list.first()
 		
-		val code = "1234559221"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
-		
-		val id = createCoupon(code, description, expireAt)
-		
-		given()
-			.get("/$id")
-			.then()
-			.statusCode(200)
-			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
-			.body("data.list[0].code", CoreMatchers.equalTo(code))
-			.body("data.list[0].description", CoreMatchers.equalTo(description))
+		checkDefaultCouponDto(result, id)
 	}
 	
 	@Test
 	fun createWithInvalidDataTest() {
-		val size = given().accept(ContentType.JSON).get()
-			.then()
-			.statusCode(200)
-			.extract()
-			.`as`(CouponResponseDto::class.java).data!!.list.size
 		val code = "1234554321"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		createInvalidCoupon("", description, expireAt, 400)
-		assertResultSize(size)
-		createInvalidCoupon(code, "", expireAt, 400)
-		assertResultSize(size)
-		createInvalidCoupon(code, description, "", 400)
-		assertResultSize(size)
+		createInvalidCoupon(null, description, expireAt, percentage, 400)
+		assertEquals(getDbCount(couponURL), 0)
+
+		createInvalidCoupon(code, null, expireAt, percentage, 400)
+		assertEquals(getDbCount(couponURL), 0)
 		
+		createInvalidCoupon(code, description, null, percentage, 400)
+		assertEquals(getDbCount(couponURL), 0)
+		
+		createInvalidCoupon(code, description, expireAt, null, 400)
+		assertEquals(getDbCount(couponURL), 0)
 	}
 	
 	@Test
 	fun updateWithInvalidDataTest() {
 		
-		val code = "1234914321"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
-		
 		val updatedCode = "0987654321"
 		val updatedDescription = "UpdatedDescription"
 		val updatedExpireAt = "2018-12-24 20:30:30"
+		val updatedPercentage = 20
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createDefaultCoupon()
 		val etag = getEtagFromId(id.toString())
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(CouponDto(null, code, updatedDescription, updatedExpireAt))
-			.put("/{id}")
+			.body(CouponDto(null, updatedCode, updatedDescription, updatedExpireAt, updatedPercentage))
+			.put("$couponURL/{id}")
 			.then()
 			.statusCode(400)
 		
-		given()
-			.contentType(ContentType.JSON)
-			.pathParam("id", id)
-			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), null, updatedDescription, updatedExpireAt))
-			.put("/{id}")
-			.then()
-			.statusCode(400)
-		
-		given()
-			.contentType(ContentType.JSON)
-			.pathParam("id", id)
-			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), updatedCode, null, updatedExpireAt))
-			.put("/{id}")
-			.then()
-			.statusCode(400)
-		
-		given()
-			.contentType(ContentType.JSON)
-			.pathParam("id", id)
-			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), updatedCode, updatedDescription, null))
-			.put("/{id}")
-			.then()
-			.statusCode(400)
-		
+		updateInvalidCoupon(id, null, updatedDescription, updatedExpireAt, updatedPercentage, etag)
+		updateInvalidCoupon(id, updatedCode, null, updatedExpireAt, updatedPercentage, etag)
+		updateInvalidCoupon(id, updatedCode, updatedDescription, null, updatedPercentage, etag)
+		updateInvalidCoupon(id, updatedCode, updatedDescription, updatedExpireAt, null, etag)
 	}
 	
 	@Test
 	fun getWithInvalidIdTest() {
 		
-		val code = "1234567899"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
+		createDefaultCoupon()
 		
-		createCoupon(code, description, expireAt)
+		given().auth().basic("admin", "admin")
+			.get("$couponURL/1000")
+			.then()
+			.statusCode(404)
+			.body("message", CoreMatchers.notNullValue())
+			.body("code", CoreMatchers.equalTo(404))
+			.body("data", CoreMatchers.nullValue())
+			.body("status", CoreMatchers.equalTo("ERROR"))
 		
-		given()
-			.get("/x")
+		given().auth().basic("admin", "admin")
+			.get("$couponURL/x")
 			.then()
 			.statusCode(400)
 			.body("message", CoreMatchers.notNullValue())
+			.body("code", CoreMatchers.equalTo(400))
+			.body("data", CoreMatchers.nullValue())
 			.body("status", CoreMatchers.equalTo("ERROR"))
-			.body("page", CoreMatchers.nullValue())
+	
 	}
 	
 	@Test
 	fun getByCodeTest() {
 		
-		val code = "1209348756"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
+		val code = "1234567899"
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createDefaultCoupon()
 		
-		given()
+		val resultDto = given().auth().basic("admin", "admin")
 			.param("code", code)
-			.get()
+			.get(couponURL)
 			.then()
 			.statusCode(200)
-			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
-			.body("data.list[0].code", CoreMatchers.equalTo(code))
-			.body("data.list[0].description", CoreMatchers.equalTo(description))
+			.extract().`as`(CouponResponseDto::class.java).data!!.list.first()
+		
+		checkDefaultCouponDto(resultDto, id)
 	}
 	
 	@Test
 	fun updateCouponTest() {
 		
-		val code = "0987654321"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
-		
-		val id = createCoupon(code, description, expireAt)
+		val id = createDefaultCoupon()
 		
 		val updatedCode = "0987654321"
 		val updatedDescription = "UpdatedDescription"
 		val updatedExpireAt = "2018-12-24 20:30:30"
+		val updatedPercentage = 20
 		
 		val etag = getEtagFromId(id.toString())
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
-			.put("/{id}")
+			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt, updatedPercentage))
+			.put("$couponURL/{id}")
 			.then()
 			.statusCode(204)
 		
-		given()
-			.get("/$id")
+		given().auth().basic("admin", "admin")
+			.get("$couponURL/$id")
 			.then()
 			.statusCode(200)
 			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
@@ -197,24 +154,21 @@ class CouponTest : CouponTestBase() {
 	@Test
 	fun updateCouponWithNonMatchingIdInPathAndBody() {
 		
-		val code = "0987654321"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
-		
-		val id = createCoupon(code, description, expireAt)
+		val id = createDefaultCoupon()
 		
 		val updatedCode = "0987654321"
 		val updatedDescription = "UpdatedDescription"
 		val updatedExpireAt = "2018-12-24 20:30:30"
+		val updatedPercentage = 20
 		
 		val etag = getEtagFromId(id.toString())
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", 12345)
 			.header("If-Match", etag)
-			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt))
-			.put("/{id}")
+			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt, updatedPercentage))
+			.put("coupons/{id}")
 			.then()
 			.statusCode(404)
 	}
@@ -222,62 +176,53 @@ class CouponTest : CouponTestBase() {
 	@Test
 	fun createCouponWithGivenIdTest() {
 		
-		//TODO Expand to more test cases
-		
 		val code = "45678123"
 		val description = "DefaultDescription"
 		val expireAt = "2019-01-01 01:00:00"
+		val percentage = 10
 		
-		val dto = CouponDto("1234", code, description, expireAt)
+		val dto = CouponDto("1234", code, description, expireAt, percentage)
 		
-		given().contentType(ContentType.JSON)
+		given().auth().basic("admin", "admin").contentType(ContentType.JSON)
 			.body(dto)
-			.post()
+			.post(couponURL)
 			.then()
 			.statusCode(400)
 			.body("message", CoreMatchers.notNullValue())
+			.body("code", CoreMatchers.equalTo(400))
+			.body("data", CoreMatchers.nullValue())
 			.body("status", CoreMatchers.equalTo("ERROR"))
-			.body("page", CoreMatchers.nullValue())
 	}
 	
 	@Test
 	fun deleteUnusedCouponTest() {
 		
-		// This test covers deletion of a coupon that is unused.
-		// Which means that no orders have been made using this coupon
-		// This will be tested in another test
+		val id = createDefaultCoupon()
 		
-		val code = "123412345"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
-		
-		val id = createCoupon(code, description, expireAt)
-		
-		given()
-			.delete("/$id")
+		given().auth().basic("admin", "admin")
+			.delete("$couponURL/$id")
 			.then()
 			.statusCode(200)
 		
-		given()
-			.get("/$id")
+		given().auth().basic("admin", "admin")
+			.get("$couponURL/$id")
 			.then()
 			.statusCode(404)
-		
 	}
 	
 	@Test
 	fun cachingGetAllTest() {
 		
-		val etag = RestAssured.given().accept(ContentType.JSON)
-			.get()
+		val etag = RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
+			.get(couponURL)
 			.then()
 			.statusCode(200)
 			.header("ETag", CoreMatchers.notNullValue())
 			.extract().header("ETag")
 		
-		given().accept(ContentType.JSON)
+		given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.header("If-None-Match", etag)
-			.get()
+			.get(couponURL)
 			.then()
 			.statusCode(304)
 			.content(CoreMatchers.equalTo(""))
@@ -286,22 +231,18 @@ class CouponTest : CouponTestBase() {
 	@Test
 	fun cachingGetByIdTest() {
 		
-		val code = "123412345"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
+		val id = createDefaultCoupon()
 		
-		val id = createCoupon(code, description, expireAt)
-		
-		val etag = RestAssured.given().accept(ContentType.JSON)
-			.get("/$id")
+		val etag = RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
+			.get("$couponURL/$id")
 			.then()
 			.statusCode(200)
 			.header("ETag", CoreMatchers.notNullValue())
 			.extract().header("ETag")
 		
-		given().accept(ContentType.JSON)
+		given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.header("If-None-Match", etag)
-			.get("/$id")
+			.get("$couponURL/$id")
 			.then()
 			.statusCode(304)
 			.content(CoreMatchers.equalTo(""))
@@ -310,23 +251,20 @@ class CouponTest : CouponTestBase() {
 	@Test
 	fun updateDescriptionTest() {
 		
-		val code = "6743903212"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
 		val updatedDescription = "UpdatedDescription"
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createDefaultCoupon()
 		val etag = getEtagFromId(id.toString())
 		
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"description\": \"$updatedDescription\"}")
-			.patch("/$id")
+			.patch("$couponURL/$id")
 			.then()
 			.statusCode(204)
 		
-		given()
-			.get("/$id")
+		given().auth().basic("admin", "admin")
+			.get("$couponURL/$id")
 			.then()
 			.statusCode(200)
 			.body("data.list[0].description", CoreMatchers.equalTo(updatedDescription))
@@ -335,45 +273,105 @@ class CouponTest : CouponTestBase() {
 	@Test
 	fun updateDescriptionNumberWithInvalidInformation() {
 		
-		val code = "98235610362"
-		val description = "DefaultDescription"
-		val expireAt = "2019-01-01 01:00:00"
 		val updatedDescription = "UpdatedDescription"
 		
-		val id = createCoupon(code, description, expireAt)
+		val id = createDefaultCoupon()
 		val etag = getEtagFromId(id.toString())
 		
 		//Invalid JSON Merge Patch syntax
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{seat: \"$updatedDescription\"}")
-			.patch("/$id")
+			.patch("$couponURL/$id")
 			.then()
 			.statusCode(409)
 		
 		//Update with id in JSON Merge Patch body
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"id\": \"$id\",\"seat\": \"$updatedDescription\"}")
-			.patch("/$id")
+			.patch("$couponURL/$id")
 			.then()
 			.statusCode(400)
 		
 		//Update with invalid update value
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
-			.patch("/$id")
+			.patch("$couponURL/$id")
 			.then()
 			.statusCode(400)
 		
 		//Update non existing ticket
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
-			.patch("/7777")
+			.patch("$couponURL/7777")
 			.then()
 			.statusCode(404)
+	}
+	
+	fun createDefaultCoupon(): Long {
+		return given().auth().basic("admin", "admin")
+			.contentType(ContentType.JSON)
+			.body(CouponDto(null, "1234567899", "DefaultDescription", "2019-01-01 01:00:00", 10))
+			.post(couponURL)
+			.then()
+			.statusCode(201)
+			.header("Location", CoreMatchers.containsString("/coupons/"))
+			.extract()
+			.`as`(CouponResponseDto::class.java).data!!.list.first().id!!.toLong()
+	}
+	
+	fun createCoupon(code: String, description: String, expireAt: String, percentage: Int): Long {
+		
+		val dto = CouponDto(null, code, description, expireAt, percentage)
+		
+		return given().auth().basic("admin", "admin")
+			.contentType(ContentType.JSON)
+			.body(dto)
+			.post(couponURL)
+			.then()
+			.statusCode(201)
+			.header("Location", CoreMatchers.containsString("/coupons/"))
+			.extract()
+			.`as`(CouponResponseDto::class.java).data!!.list.first().id!!.toLong()
+	}
+	
+	fun createInvalidCoupon(code: String?, description: String?, expireAt: String?, percentage: Int?, statusCode: Int) {
+		given().auth().basic("admin", "admin")
+			.contentType(ContentType.JSON)
+			.body(CouponDto(null, code, description, expireAt, percentage))
+			.post(couponURL)
+			.then()
+			.statusCode(statusCode)
+	}
+	
+	fun updateInvalidCoupon(id: Long, code: String?, description: String?, expireAt: String?, percentage: Int?, etag: String) {
+		
+		given().auth().basic("admin", "admin")
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(CouponDto(id.toString(), code, description, expireAt, percentage))
+			.put("$couponURL/{id}")
+			.then()
+			.statusCode(400)
+	}
+	
+	fun checkDefaultCouponDto(dto: CouponDto, id: Long) {
+		assertEquals(dto.id, id.toString())
+		assertEquals(dto.code, "1234567899")
+		assertEquals(dto.description, "DefaultDescription")
+		assertEquals(dto.expireAt, convertTimeStampToZonedTimeDate("2019-01-01 01:00:00.000000").toString())
+		assertEquals(dto.percentage, 10)
+	}
+	
+	fun getEtagFromId(id: String): String {
+		return given().auth().basic("admin", "admin").accept(ContentType.JSON)
+			.get("$couponURL/$id")
+			.then()
+			.extract().header("ETag")
 	}
 	
 }

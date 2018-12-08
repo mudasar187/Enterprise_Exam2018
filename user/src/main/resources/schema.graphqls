@@ -1,13 +1,13 @@
 type Query {
     # Get user by username
-    userById(id: String!) : User
+    userById(id: String!): User
 }
 
 type Mutation {
     # Create creditcard
-    createUser(user : InputUser) : String
+    createUser(user: InputUser): String
     deleteUserById(id: String!): String
-    updateUserById(id: String!, name: String, email: String): Boolean
+    updateUserById(id: String!, name: String, email: String): String
 }
 
 type User {
@@ -17,7 +17,7 @@ type User {
     dateOfBirth: String
     # Name of the user
     name: String
-    # User´s email
+    # UserEntity´s email
     email: String
 }
 
@@ -33,6 +33,6 @@ input InputUser {
     dateOfBirth: String
     # Name of the user
     name: String
-    # User´s email
+    # UserEntity´s email
     email: String
 }

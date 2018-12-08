@@ -19,9 +19,9 @@ class DefaultData(
     @PostConstruct
     fun createData(){
 
-        val coupon1 = Coupon(code = "halloween2018", description = "Halloween cupon 20% discount!", expireAt = ZonedDateTime.now())
-        val coupon2 = Coupon(code = "lastexam2018", description = "Cool discount for students with 50% !", expireAt = ZonedDateTime.now())
-        val coupon3 = Coupon(code = "christmas2018", description = "Christmas discount gives you 80% discount on 4 tickets!", expireAt = ZonedDateTime.now())
+        val coupon1 = Coupon(code = "halloween2018", description = "Halloween cupon 20% discount!", expireAt = ZonedDateTime.now(), percentage = 20)
+        val coupon2 = Coupon(code = "lastexam2018", description = "Cool discount for students with 50% !", expireAt = ZonedDateTime.now(), percentage = 50)
+        val coupon3 = Coupon(code = "christmas2018", description = "Christmas discount gives you 80% discount on 4 tickets!", expireAt = ZonedDateTime.now(), percentage = 80)
 
         couponRepository.saveAll(mutableListOf(coupon1, coupon2, coupon3))
         
@@ -29,30 +29,39 @@ class DefaultData(
                 username = "jondoe",
                 orderDate = ZonedDateTime.now(),
                 coupon = coupon1,
-                nowPlayingId = 67898765)
+                nowPlayingId = 67898765,
+                paid = true,
+                totalPrice = 320.0)
 
         val invoice2 = Invoice(
                 username = "foobar",
                 orderDate = ZonedDateTime.now(),
                 coupon = coupon2,
-                nowPlayingId = 47685675)
+                nowPlayingId = 47685675,
+                totalPrice = 150.0)
 
         val invoice3 = Invoice(
                 username = "farcar",
                 orderDate = ZonedDateTime.now(),
                 coupon = coupon3,
-                nowPlayingId = 98765431)
+                nowPlayingId = 98765431,
+                totalPrice = 20.0)
 
-        invoiceRepository.saveAll(mutableListOf(invoice1, invoice2, invoice3))
+        val invoice4 = Invoice(
+                username = "jondoe",
+                orderDate = ZonedDateTime.now(),
+                coupon = coupon3,
+                nowPlayingId = 98765431,
+                totalPrice = 20.0)
 
 
 
-        val ticket1 = Ticket(price = 200.00, seat = "A1")
-        val ticket2 = Ticket(price = 200.00, seat = "A2")
-        val ticket3 = Ticket(price = 300.00, seat = "B6")
-        val ticket4 = Ticket(price = 100.00, seat = "C9")
-        ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4))
-
+        val ticket1 = Ticket(price = 200.00, seat = "A1", invoiceId = invoiceRepository.save(invoice1).id)
+        val ticket2 = Ticket(price = 200.00, seat = "A2", invoiceId = invoiceRepository.save(invoice1).id)
+        val ticket3 = Ticket(price = 300.00, seat = "B6", invoiceId = invoiceRepository.save(invoice2).id)
+        val ticket4 = Ticket(price = 100.00, seat = "C9", invoiceId = invoiceRepository.save(invoice3).id)
+        val ticket5 = Ticket(price = 100.00, seat = "C9", invoiceId = invoiceRepository.save(invoice4).id)
+        ticketRepository.saveAll(mutableListOf(ticket1, ticket2, ticket3, ticket4, ticket5))
 
         val invoiceRes1 = invoiceRepository.findAllByNowPlayingId(67898765).first()
         invoiceRes1.tickets = mutableSetOf(ticket1, ticket2)
@@ -66,10 +75,8 @@ class DefaultData(
         invoiceRes3.tickets = mutableSetOf(ticket4)
         invoiceRepository.save(invoiceRes3)
 
-
-
-
-
-
+        val invoiceRes4 = invoiceRepository.findAllByUsernameIgnoreCaseAndNowPlayingId(invoice4.username, 98765431).first()
+        invoiceRes4.tickets = mutableSetOf(ticket5)
+        invoiceRepository.save(invoiceRes4)
     }
 }

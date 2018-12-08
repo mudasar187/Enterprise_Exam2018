@@ -11,6 +11,12 @@ eureka:
 spring:
   application:
     name: movie-server
+  redis:
+    host: redis
+    port: 6379
+  session:
+    # specify that session tokes should be stored in Redis
+    store-type: redis
   datasource:
     url: "jdbc:postgresql://postgres-movie:5432/postgres"
     username: "postgres"
@@ -20,6 +26,9 @@ spring:
     database: "postgresql"
     hibernate:
       ddl-auto: "update"
+    properties:
+     hibernate.temp.use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
 
 server:
   port: 8080

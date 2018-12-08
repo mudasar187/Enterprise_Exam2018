@@ -45,7 +45,7 @@ class CouponController {
 			limit: Int
 	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
-		val couponResultList = service.get(code, null)
+		val couponResultList = service.get(code)
 		
 		val pageDto = PageDtoGenerator<CouponDto>().generatePageDto(couponResultList, offset, limit)
 		val builder = UriComponentsBuilder.fromPath("/coupons")
@@ -58,24 +58,27 @@ class CouponController {
 	@GetMapping(path = ["/{id}"])
 	fun getById(@ApiParam("Id of the coupon to be returned")
 				@PathVariable("id", required = true)
-				id: String,
-				
+				paramId	: String,
+	
 				@ApiParam("Offset in the list of coupons")
 				@RequestParam("offset", defaultValue = "0")
 				offset: Int,
-				
+	
 				@ApiParam("Limit of coupons in a single retrieved page")
 				@RequestParam("limit", defaultValue = "10")
 				limit: Int
 	): ResponseEntity<WrappedResponse<CouponDto>> {
 		
-		val couponResultList = service.get(null, id)
+		val dto = CouponConverter.entityToDto(service.getById(paramId))
+		val etag = dto.hashCode().toString()
 		
-		val pageDto = PageDtoGenerator<CouponDto>().generatePageDto(couponResultList, offset, limit)
-		val builder = UriComponentsBuilder.fromPath("/coupons")
-		builder.queryParam("id", id)
-		
-		return HalLinkGenerator<CouponDto>().generateHalLinks(couponResultList, pageDto, builder, limit, offset)
+		return ResponseEntity
+			.status(200)
+			.eTag(etag)
+			.body(ResponseDto(
+				code = 200,
+				page = PageDto(mutableListOf(dto))
+			))
 	}
 	
 	@ApiOperation("Create a new coupon")
@@ -113,8 +116,8 @@ class CouponController {
 					 updatedCouponDto: CouponDto
 	): ResponseEntity<Void> {
 		
-		val currentDto = service.get(null, id)
-		EtagHandler<MutableList<CouponDto>>().validateEtags(currentDto, ifMatch)
+		val currentDto = CouponConverter.entityToDto(service.getById(id))
+		EtagHandler<CouponDto>().validateEtags(currentDto, ifMatch)
 		
 		service.put(id, updatedCouponDto)
 		return ResponseEntity.noContent().build()
@@ -134,8 +137,8 @@ class CouponController {
 						 @RequestBody jsonPatch: String
 	): ResponseEntity<Void> {
 		
-		val currentDto = service.get(null, id)
-		EtagHandler<MutableList<CouponDto>>().validateEtags(currentDto, ifMatch)
+		val currentDto = CouponConverter.entityToDto(service.getById(id))
+		EtagHandler<CouponDto>().validateEtags(currentDto, ifMatch)
 		
 		service.patchDescription(id, jsonPatch)
 		return ResponseEntity.noContent().build()

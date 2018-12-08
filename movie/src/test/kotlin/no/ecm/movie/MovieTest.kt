@@ -55,7 +55,7 @@ class MovieTest: TestBase() {
     fun testCreateDuplicateMovies() {
         createDefaultMovie()
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(createDefaultMovieDto(mutableSetOf(createDefaultGenreDto())))
                 .post(moviesUrl)
                 .then()
@@ -76,7 +76,7 @@ class MovieTest: TestBase() {
 
         val movieDto = createDefaultMovieDto(mutableSetOf(GenreDto(id = id.toString())))
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(movieDto)
                 .post(moviesUrl)
                 .then()
@@ -87,7 +87,7 @@ class MovieTest: TestBase() {
     fun testGetNonExistingMovie() {
         val id = createDefaultMovie()
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .get("$moviesUrl/${id}435")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -97,7 +97,7 @@ class MovieTest: TestBase() {
     fun testGetMoviesByTitle() {
         val (movie) = getMovieById(createDefaultMovie())
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .queryParam("title", movie.title)
                 .get(moviesUrl)
                 .then()
@@ -109,7 +109,7 @@ class MovieTest: TestBase() {
     fun testGetMovieByAgeLimit() {
         val (movie) = getMovieById(createDefaultMovie())
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .queryParam("ageLimit", movie.ageLimit)
                 .get(moviesUrl)
                 .then()
@@ -121,7 +121,7 @@ class MovieTest: TestBase() {
     fun testGetMoviesWithBothFilters() {
         val (movie) = getMovieById(createDefaultMovie())
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .queryParam("ageLimit", movie.ageLimit)
                 .queryParam("title", movie.title)
                 .get(moviesUrl)
@@ -133,7 +133,7 @@ class MovieTest: TestBase() {
     fun cachingTest() {
 
         val etag =
-                given()
+                given().auth().basic("admin", "admin")
                         .accept(ContentType.JSON)
                         .get(moviesUrl)
                         .then()
@@ -141,7 +141,7 @@ class MovieTest: TestBase() {
                         .header("ETag", CoreMatchers.notNullValue())
                         .extract().header("ETag")
 
-        given()
+        given().auth().basic("admin", "admin")
                 .accept(ContentType.JSON)
                 .header("If-None-Match", etag)
                 .get(moviesUrl)
@@ -162,7 +162,7 @@ class MovieTest: TestBase() {
         assertNotEquals(etag, etag2)
 
         //Null value for title
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag2)
                 .body("{\"title\": null}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -181,7 +181,7 @@ class MovieTest: TestBase() {
         Assert.assertEquals(posterUrl, patchedMovie.posterUrl)
 
         //Null value for title
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag2)
                 .body("{\"posterUrl\": null}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -195,7 +195,7 @@ class MovieTest: TestBase() {
 
         val ageLimit = defaultMovie.ageLimit!! + 3
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"ageLimit\": $ageLimit}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -206,7 +206,7 @@ class MovieTest: TestBase() {
         Assert.assertEquals(ageLimit, patchedMovie.ageLimit)
 
         //Wrong type of field (expected int, god string)
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag2)
                 .body("{\"ageLimit\": \"30\"}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -220,7 +220,7 @@ class MovieTest: TestBase() {
 
         val movieDuration = defaultMovie.movieDuration!! + 30
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"movieDuration\": $movieDuration}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -231,7 +231,7 @@ class MovieTest: TestBase() {
         Assert.assertEquals(movieDuration, patchedMovie.movieDuration)
 
         //Wrong type of field (expected int, god string)
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag2)
                 .body("{\"movieDuration\": \"30\"}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -246,7 +246,7 @@ class MovieTest: TestBase() {
         val genreName = createDefaultGenreDto().name!!.capitalize() + " test"
         val genreId = createGenre(GenreDto(name = genreName))
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"genre\": [{\"id\" : \"$genreId\"}]}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -258,7 +258,7 @@ class MovieTest: TestBase() {
         Assert.assertEquals(genreName, patchedMovie.genre!!.first().name)
 
         //Non existing genre
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag2)
                 .body("{\"genre\": [{\"id\" : \"${defaultMovie.genre!!.first().id + "2"}\"}]}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -270,7 +270,7 @@ class MovieTest: TestBase() {
     fun testPatchMovieNoIfMatchHeader() {
         val (defaultMovie, etag) = getMovieById(createDefaultMovie())
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .body("{\"title\": \"test\"}")
                 .patch("$moviesUrl/${defaultMovie.id}")
                 .then()
@@ -281,7 +281,7 @@ class MovieTest: TestBase() {
     fun testPatchWithNotMatchingEtag() {
         val (defaultMovie, etag) = getMovieById(createDefaultMovie())
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", "${etag.replace("\"", "")}123")
                 .body("{\"title\": \"test\"}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -294,7 +294,7 @@ class MovieTest: TestBase() {
         val (defaultMovie, etag) = getMovieById(createDefaultMovie())
 
         //Non existing movie
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"movieDuration\": \"30\"}")
                 .patch("$moviesUrl/${defaultMovie.id + "3"}")
@@ -302,7 +302,7 @@ class MovieTest: TestBase() {
                 .statusCode(HttpStatus.NOT_FOUND.value())
 
         //Bad JSON
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{movieDuration\": \"30\"")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -310,7 +310,7 @@ class MovieTest: TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         //Non existing movie
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"genre\": {\"id\" : \"${defaultMovie.genre!!.first().id}\"}}")
                 .patch("$moviesUrl/${defaultMovie.id}23")
@@ -318,7 +318,7 @@ class MovieTest: TestBase() {
                 .statusCode(HttpStatus.NOT_FOUND.value())
 
         //Bad array format in genre field
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"genre\": {\"id\" : \"${defaultMovie.genre!!.first().id}\"}}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -326,7 +326,7 @@ class MovieTest: TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         //Containing illegal field: id
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"id\": \"3\"}")
                 .patch("$moviesUrl/${defaultMovie.id}")
@@ -359,7 +359,7 @@ class MovieTest: TestBase() {
 
         defaultMovie.movieDuration = defaultMovie.movieDuration!! + 23
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(defaultMovie)
                 .put("$moviesUrl/${defaultMovie.id}")
@@ -379,7 +379,7 @@ class MovieTest: TestBase() {
 
         defaultMovie.id = defaultMovie.id  + "123"
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(defaultMovie)
                 .put("$moviesUrl/${defaultMovie.id}")
@@ -394,7 +394,7 @@ class MovieTest: TestBase() {
 
         defaultMovie.genre = null
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(defaultMovie)
                 .put("$moviesUrl/${defaultMovie.id}")
@@ -407,12 +407,12 @@ class MovieTest: TestBase() {
 
         val id = createDefaultMovie()
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .delete("$moviesUrl/$id")
                 .then()
                 .statusCode(HttpStatus.OK.value())
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .delete("$moviesUrl/$id")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -426,7 +426,7 @@ class MovieTest: TestBase() {
     }
 
     private fun getMovieById(id: String) : Pair<MovieDto, String> {
-        val response = given().contentType(ContentType.JSON)
+        val response = given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .get("$moviesUrl/$id")
                 .then()
                 .statusCode(HttpStatus.OK.value())
@@ -443,7 +443,7 @@ class MovieTest: TestBase() {
     }
 
     private fun createMovieInvalidOrMissingParameter(movieDto: MovieDto){
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(movieDto)
                 .post(moviesUrl)
                 .then()
@@ -451,7 +451,7 @@ class MovieTest: TestBase() {
     }
 
     private fun patchMovie(field: String, value: String, id: String, etag: String){
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"$field\": \"$value\"}")
                 .patch("$moviesUrl/$id")

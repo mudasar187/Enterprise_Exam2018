@@ -11,14 +11,22 @@ object TicketConverter {
 		return TicketDto(
 			id = entity.id.toString(),
 			price = entity.price,
-			seat = entity.seat
+			seat = entity.seat,
+			invoiceId = entity.invoiceId.toString()
 		)
 	}
 	
 	fun dtoToEntity(dto: TicketDto) : Ticket {
-		return Ticket(
-		
+		val ticket = Ticket(
+			price = dto.price,
+			invoiceId = dto.invoiceId!!.toLong(),
+			seat = dto.seat
 		)
+
+		if (!dto.id.isNullOrBlank()){
+			ticket.id = dto.id!!.toLong()
+		}
+		return ticket
 	}
 	
 	fun entityListToDtoList(entities: Iterable<Ticket>): MutableList<TicketDto> {
@@ -27,24 +35,6 @@ object TicketConverter {
 	
 	fun dtoListToEntityList(dto: Iterable<TicketDto>): MutableList<Ticket> {
 		return dto.map { dtoToEntity(it) }.toMutableList()
-	}
-	
-	fun dtoListToPageDto(ticketDtoList: List<TicketDto>,
-						 offset: Int,
-						 limit: Int): PageDto<TicketDto> {
-		
-		val dtoList: MutableList<TicketDto> =
-			ticketDtoList.stream()
-				.skip(offset.toLong())
-				.limit(limit.toLong())
-				.toList().toMutableList()
-		
-		return PageDto(
-			list = dtoList,
-			rangeMin = offset,
-			rangeMax = offset + dtoList.size - 1,
-			totalSize = ticketDtoList.size
-		)
 	}
 	
 }
