@@ -23,7 +23,7 @@ class CinemaTest : TestBase() {
     @Test
     fun testGetAllCinemas() {
 
-        val size = given().accept(ContentType.JSON)
+        val size = given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .get(cinemasUrl)
                 .then()
                 .statusCode(HttpStatus.OK.value())
@@ -39,7 +39,7 @@ class CinemaTest : TestBase() {
 
         assertEquals(0, getCinemasCount())
 
-        given()
+        given().auth().basic("admin", "admin")
                 .get("$cinemasUrl/100")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -58,7 +58,7 @@ class CinemaTest : TestBase() {
         assertEquals(4, getCinemasCount())
 
         // Not allowed to add two filters
-        given().accept(ContentType.JSON)
+        given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .queryParam("name", "Test Cinema 1")
                 .queryParam("location", "Oslo")
                 .get(cinemasUrl)
@@ -66,7 +66,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Get all cinemas with name: 'Test Cinema 1'
-        given().accept(ContentType.JSON)
+        given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .queryParam("name", "Test Cinema 1")
                 .get(cinemasUrl)
                 .then()
@@ -74,7 +74,7 @@ class CinemaTest : TestBase() {
                 .body("data.list.size()", CoreMatchers.equalTo(2))
 
         // Get all cinemas with location: 'Oslo'
-        given().accept(ContentType.JSON)
+        given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .queryParam("location", "Oslo")
                 .get(cinemasUrl)
                 .then()
@@ -82,7 +82,7 @@ class CinemaTest : TestBase() {
                 .body("data.list.size()", CoreMatchers.equalTo(2))
 
         // Get all cinemas with location: 'Bergen'
-        given().accept(ContentType.JSON)
+        given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .queryParam("location", "Bergen")
                 .get(cinemasUrl)
                 .then()
@@ -95,7 +95,7 @@ class CinemaTest : TestBase() {
     fun cachingTest() {
 
         val etag =
-                given()
+                given().auth().basic("admin", "admin")
                         .accept(ContentType.JSON)
                         .get(cinemasUrl)
                         .then()
@@ -103,7 +103,7 @@ class CinemaTest : TestBase() {
                         .header("ETag", CoreMatchers.notNullValue())
                         .extract().header("ETag")
 
-        given()
+        given().auth().basic("admin", "admin")
                 .accept(ContentType.JSON)
                 .header("If-None-Match", etag)
                 .get(cinemasUrl)
@@ -132,7 +132,7 @@ class CinemaTest : TestBase() {
 
         val dto = CinemaDto(null, cinemaName, cinemaLocation)
 
-        val locationURI = given()
+        val locationURI = given().auth().basic("admin", "admin")
                 .contentType(ContentType.JSON)
                 .body(dto)
                 .post("$cinemasUrl")
@@ -143,7 +143,7 @@ class CinemaTest : TestBase() {
 
         assertNotNull(locationURI)
 
-        given()
+        given().auth().basic("admin", "admin")
                 .contentType(ContentType.JSON)
                 .get("$locationURI") // locationURI which was returned back when created new cinema
                 .then()
@@ -201,7 +201,7 @@ class CinemaTest : TestBase() {
         val etag = getEtagForCinema("$id")
 
         // Update entity with new cinema name and new cinema location
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(CinemaDto(id.toString(), newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
@@ -225,7 +225,7 @@ class CinemaTest : TestBase() {
 
 
         // Wrong id in url path
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/100")
@@ -233,7 +233,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.NOT_FOUND.value())
 
         // Not matching id
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(CinemaDto("100", newCinemaName, newCinemaLocation))
                 .put("$cinemasUrl/$id")
@@ -241,7 +241,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to exclude name
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(CinemaDto("$id", "", newCinemaLocation))
                 .put("$cinemasUrl/$id")
@@ -249,7 +249,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to exclude location
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(CinemaDto("$id", newCinemaName, ""))
                 .put("$cinemasUrl/$id")
@@ -257,7 +257,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to add roomlist
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(CinemaDto("$id", newCinemaName, newCinemaLocation, roomList))
                 .put("$cinemasUrl/$id")
@@ -277,7 +277,7 @@ class CinemaTest : TestBase() {
         assertEquals(1, getCinemasCount())
 
         // Patch update name with new cinema name
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
@@ -288,7 +288,7 @@ class CinemaTest : TestBase() {
 
 
         // Patch update location with new location
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", newETag)
                 .body("{\"location\": \"$newCinemaLocation\"}")
                 .patch("$cinemasUrl/$id")
@@ -309,7 +309,7 @@ class CinemaTest : TestBase() {
 
 
         // Cinema id not exists
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/100")
@@ -317,7 +317,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.NOT_FOUND.value())
 
         // Invalid JSON format
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
@@ -325,7 +325,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to change id
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"id\": \"2\"}")
                 .patch("$cinemasUrl/$id")
@@ -333,7 +333,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Unable to parse name
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": 2}")
                 .patch("$cinemasUrl/$id")
@@ -341,7 +341,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Unbale to parse location
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"location\": 2}")
                 .patch("$cinemasUrl/$id")
@@ -349,7 +349,7 @@ class CinemaTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Not allowed to update roomlist
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"rooms\": $roomList}")
                 .patch("$cinemasUrl/$id")
@@ -362,7 +362,7 @@ class CinemaTest : TestBase() {
 
         assertEquals(0, getCinemasCount())
 
-        given()
+        given().auth().basic("admin", "admin")
                 .delete("$cinemasUrl/2")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -376,7 +376,7 @@ class CinemaTest : TestBase() {
         val etag = getEtagForCinema("$id")
 
         // Patch update name with new cinema name
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$newCinemaName\"}")
                 .patch("$cinemasUrl/$id")
