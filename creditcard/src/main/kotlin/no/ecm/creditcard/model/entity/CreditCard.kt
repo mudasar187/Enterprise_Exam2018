@@ -1,6 +1,5 @@
 package no.ecm.creditcard.model.entity
 
-import org.springframework.format.annotation.NumberFormat
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
