@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import io.restassured.RestAssured
+import io.restassured.RestAssured.basic
 import io.restassured.http.ContentType
 import no.ecm.utils.response.CouponResponseDto
 import no.ecm.utils.response.InvoiceResponse
@@ -52,6 +53,7 @@ abstract class TestBase {
         RestAssured.port = port
         RestAssured.basePath = "/"
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+        RestAssured.authentication = basic("admin", "admin")
 
         /*
            Here, we read each resource (GET), and then delete them
