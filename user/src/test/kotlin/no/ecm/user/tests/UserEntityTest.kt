@@ -11,7 +11,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 
-class UserTest : TestBase() {
+class UserEntityTest : TestBase() {
 	
 	
 	@Test

@@ -17,7 +17,7 @@ type User {
     dateOfBirth: String
     # Name of the user
     name: String
-    # User´s email
+    # UserEntity´s email
     email: String
 }
 
@@ -33,6 +33,6 @@ input InputUser {
     dateOfBirth: String
     # Name of the user
     name: String
-    # User´s email
+    # UserEntity´s email
     email: String
 }
