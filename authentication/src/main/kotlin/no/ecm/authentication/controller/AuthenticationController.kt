@@ -3,6 +3,7 @@ package no.ecm.authentication.controller
 import io.swagger.annotations.Api
 import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -28,6 +29,9 @@ class AuthController(
         private val userDetailsService: UserDetailsService
 ) {
 
+    @Value("\${adminCode}")
+    private lateinit var adminCode: String
+
 
     @RequestMapping("/user")
     fun user(user: Principal): ResponseEntity<Map<String, Any>> {
@@ -39,13 +43,17 @@ class AuthController(
 
     @PostMapping(path = ["/signup"],
             consumes = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
-    fun signIn(@RequestBody dto: AuthenticationDto)
+    fun signUp(@RequestBody dto: AuthenticationDto)
             : ResponseEntity<Void> {
 
         val userId : String = dto.username!!
         val password : String = dto.password!!
 
-        val registered = authService.createUser(userId, password, setOf("USER"))
+        val registered = if(!dto.secretPassword.isNullOrBlank() && dto.secretPassword.equals(adminCode)) {
+            authService.createUser(userId, password, setOf("ADMIN"))
+        } else {
+            authService.createUser(userId, password, setOf("USER"))
+        }
 
         if (!registered) {
             return ResponseEntity.status(400).build()
