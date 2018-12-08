@@ -24,7 +24,8 @@ class GenreTest: TestBase() {
         val dto = createDefaultGenreDto()
         dto.id = "1234"
 
-        given().contentType(ContentType.JSON)
+        given().auth()
+                .basic("admin", "admin").contentType(ContentType.JSON)
                 .body(dto)
                 .post(genresUrl)
                 .then()
@@ -51,7 +52,7 @@ class GenreTest: TestBase() {
         val dto = createDefaultGenreDto()
         dto.movies = mutableSetOf(MovieDto(title = "test"))
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(dto)
                 .post(genresUrl)
                 .then()
@@ -71,7 +72,7 @@ class GenreTest: TestBase() {
 
     @Test
     fun testCreateGenreWithEmptyName() {
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(GenreDto())
                 .post(genresUrl)
                 .then()
@@ -82,7 +83,7 @@ class GenreTest: TestBase() {
     fun testCreateGenreTwice() {
         createDefaultGenre()
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(createDefaultGenreDto())
                 .post(genresUrl)
                 .then()
@@ -93,7 +94,7 @@ class GenreTest: TestBase() {
     fun testGetGenreByName() {
         val (createdGenre) = getGenreById(createDefaultGenre().toLong())
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .queryParam("name", createdGenre.name)
                 .get(genresUrl)
                 .then()
@@ -107,7 +108,7 @@ class GenreTest: TestBase() {
         assertEquals(0, getGenreCount())
         val randomId = 1001
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .get("$genresUrl/$randomId")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -119,7 +120,7 @@ class GenreTest: TestBase() {
 
         val name = createdGenre.name + " test"
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$name\"}")
                 .patch("$genresUrl/${createdGenre.id}")
@@ -134,7 +135,7 @@ class GenreTest: TestBase() {
     @Test
     fun testBadJsonFormat() {
         val (response, etag) = getGenreById(createDefaultGenre().toLong())
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{name: \"action\"}")
                 .patch("$genresUrl/${response.id}")
@@ -145,7 +146,7 @@ class GenreTest: TestBase() {
     @Test
     fun testPatchContainingId() {
         val (response, etag) = getGenreById(createDefaultGenre().toLong())
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"id\": \"${response.id}\",\"name\": \"name\"}")
                 .patch("$genresUrl/${response.id}")
@@ -156,7 +157,7 @@ class GenreTest: TestBase() {
     @Test
     fun testPatchContainingMovie() {
         val (response, etag) = getGenreById(createDefaultGenre().toLong())
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"movies\": \"movie1\"}")
                 .patch("$genresUrl/${response.id}")
@@ -168,7 +169,7 @@ class GenreTest: TestBase() {
     fun testPatchWrongId() {
         val (response, etag) = getGenreById(createDefaultGenre().toLong())
         val name = "test"
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$name\"}")
                 .patch("$genresUrl/7777")
@@ -180,7 +181,7 @@ class GenreTest: TestBase() {
     fun testPatchGenreWithWrongNameFormat() {
         val (response, etag) = getGenreById(createDefaultGenre().toLong())
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": 1234}")
                 .patch("$genresUrl/${response.id}")
@@ -192,7 +193,7 @@ class GenreTest: TestBase() {
     fun testPatchWithoutNameInBody() {
         val (response, etag) = getGenreById(createDefaultGenre().toLong())
 
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"abc\": 1234}")
                 .patch("$genresUrl/${response.id}")
@@ -207,7 +208,7 @@ class GenreTest: TestBase() {
         createdGenre.name = createdGenre.name + " test"
         val id = createdGenre.id!!
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(createdGenre)
                 .put("$genresUrl/$id")
@@ -220,7 +221,7 @@ class GenreTest: TestBase() {
 
         val (createdGenre, etag) = getGenreById(createDefaultGenre().toLong())
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(createDefaultGenreDto())
                 .put("$genresUrl/${createdGenre.id}")
@@ -235,7 +236,7 @@ class GenreTest: TestBase() {
         val dto = createDefaultGenreDto()
         dto.id = (createdGenre.id!!.toLong() + 1).toString()
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(dto)
                 .put("$genresUrl/${createdGenre.id}")
@@ -252,7 +253,7 @@ class GenreTest: TestBase() {
 
         val id = createdGenre.id!!
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(createdGenre)
                 .put("$genresUrl/$id")
@@ -268,12 +269,12 @@ class GenreTest: TestBase() {
     fun testDeleteGenreThatDoesNotExist() {
         val id = createDefaultGenre().toLong()
 
-        given()
+        given().auth().basic("admin", "admin")
                 .delete("$genresUrl/$id")
                 .then()
                 .statusCode(HttpStatus.OK.value())
 
-        given()
+        given().auth().basic("admin", "admin")
                 .delete("$genresUrl/$id")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -281,7 +282,7 @@ class GenreTest: TestBase() {
     }
 
     private fun getGenreById(id: Long): Pair<GenreDto, String> {
-        val response = given().contentType(ContentType.JSON)
+        val response = given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .get("$genresUrl/$id")
                 .then()
                 .statusCode(HttpStatus.OK.value())

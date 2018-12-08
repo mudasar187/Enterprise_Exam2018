@@ -26,7 +26,7 @@ class NowPlayingTest: TestBase() {
 		
 		val newNowPlayingId = createNowPlaying(createDefaultNowPlayingDto(movieId))
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.pathParam("id", newNowPlayingId)
 			.get("$nowPlayingURL/{id}")
 			.then()
@@ -41,7 +41,7 @@ class NowPlayingTest: TestBase() {
 
 		stubFailJsonResponse()
 
-		given().contentType(ContentType.JSON)
+		given().auth().basic("admin", "admin").contentType(ContentType.JSON)
 				.body(createDefaultNowPlayingDto(movieId))
 				.post(nowPlayingURL)
 				.then()
@@ -119,7 +119,7 @@ class NowPlayingTest: TestBase() {
 		val roomId = 4
 		val movieId = createDefaultMovie()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.body("""
 				{
 				  "cinemaId": "1000",
@@ -134,7 +134,7 @@ class NowPlayingTest: TestBase() {
 			.then()
 			.statusCode(404)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.body("""
 				{
 				  "cinemaId": "$cinemaId",
@@ -162,7 +162,7 @@ class NowPlayingTest: TestBase() {
 		
 		createNowPlaying(createDefaultNowPlayingDto(movieId))
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.pathParam("id", 123456)
 			.get("$nowPlayingURL/{id}")
 			.then()
@@ -195,14 +195,14 @@ class NowPlayingTest: TestBase() {
 			time = "2018-12-12 16:00:00"
 		))
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.param("title", "My Movie Title")
 			.get(nowPlayingURL)
 			.then()
 			.statusCode(200)
 			.body("data.totalSize", CoreMatchers.equalTo(2))
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.param("date", "2018-12-12")
 			.get(nowPlayingURL)
 			.then()
@@ -222,7 +222,7 @@ class NowPlayingTest: TestBase() {
 		
 		createNowPlaying(createDefaultNowPlayingDto(movieId))
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.param("date", "2018-12-12")
 			.param("title", "My Movie Title")
 			.get(nowPlayingURL)
@@ -250,7 +250,7 @@ class NowPlayingTest: TestBase() {
 		val validJsonPatch = """{"seats": ["A1","B1","C1"]}"""
 		patchRequest(validJsonPatch, nowPlayingId, etag2).then().statusCode(204)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.pathParam("id", nowPlayingId)
 			.get("$nowPlayingURL/{id}")
 			.then()
@@ -272,7 +272,7 @@ class NowPlayingTest: TestBase() {
 		
 		val validJsonPatch = """{"seats": ["A1","B1","C1"]}"""
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType("application/merge-patch+json")
 			.pathParam("id", nowPlayingId)
 			.body(validJsonPatch)
@@ -358,13 +358,13 @@ class NowPlayingTest: TestBase() {
 		
 		val newNowPlayingId = createNowPlaying(createDefaultNowPlayingDto(movieId))
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.pathParam("id", newNowPlayingId)
 			.delete("$nowPlayingURL/{id}")
 			.then()
 			.statusCode(200)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.pathParam("id", newNowPlayingId)
 			.get("$nowPlayingURL/{id}")
 			.then()
@@ -373,7 +373,7 @@ class NowPlayingTest: TestBase() {
 	
 	@Test
 	fun testNonExistingNowPlaying() {
-		given()
+		given().auth().basic("admin", "admin")
 			.pathParam("id", 1234)
 			.delete("$nowPlayingURL/{id}")
 			.then()
@@ -388,7 +388,7 @@ class NowPlayingTest: TestBase() {
 	}
 	
 	private fun patchRequest(json: String, nowPlayingId: String, etag: String): Response {
-		return given()
+		return given().auth().basic("admin", "admin")
 			.contentType("application/merge-patch+json")
 			.pathParam("id", nowPlayingId)
 			.header("If-Match", etag)

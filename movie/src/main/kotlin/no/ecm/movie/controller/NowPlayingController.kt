@@ -12,6 +12,7 @@ import no.ecm.utils.hal.PageDto
 import no.ecm.utils.hal.PageDtoGenerator
 import no.ecm.utils.response.ResponseDto
 import no.ecm.utils.response.WrappedResponse
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -100,6 +101,7 @@ class NowPlayingController(
     }
 
     @ApiOperation("Update a seats using merge patch")
+    @CrossOrigin(origins = ["http://localhost:8082", "http://localhost:7082", "http://order-server"])
     @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
     fun patchNowPlaying(@ApiParam("The id of the Now Playing")
                    @PathVariable("id")
