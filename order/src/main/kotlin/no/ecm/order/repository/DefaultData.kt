@@ -54,8 +54,6 @@ class DefaultData(
                 nowPlayingId = 98765431,
                 totalPrice = 20.0)
 
-        //invoiceRepository.saveAll(mutableListOf(invoice1, invoice2, invoice3, invoice4))
-
 
 
         val ticket1 = Ticket(price = 200.00, seat = "A1", invoiceId = invoiceRepository.save(invoice1).id)

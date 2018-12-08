@@ -2,7 +2,6 @@ package no.ecm.utils.response
 
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.hal.PageDto
-import no.ecm.utils.response.WrappedResponse
 
 class GenreResponse (
         code: Int? = null,

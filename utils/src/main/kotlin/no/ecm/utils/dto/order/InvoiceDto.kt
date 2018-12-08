@@ -2,7 +2,6 @@ package no.ecm.utils.dto.order
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
-import java.time.ZonedDateTime
 
 @ApiModel("DTO representing an Order")
 data class InvoiceDto (

@@ -24,10 +24,7 @@ class Coupon(
         @get:NotNull
         var expireAt: ZonedDateTime,
 
-        //@get:NotNull
-        //@get:Size(min = 1, max = 100)
         @get:NotNull
         var percentage: Int
     
-    //TODO Add a runtime generated Boolean to display if a coupon has expired
 )

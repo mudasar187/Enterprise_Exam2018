@@ -1,6 +1,6 @@
 graphql:
   servlet:
-    mapping: /creditcard
+    mapping: /creditcards
     enabled: true
 
 eureka:

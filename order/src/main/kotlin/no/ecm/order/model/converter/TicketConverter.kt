@@ -37,22 +37,4 @@ object TicketConverter {
 		return dto.map { dtoToEntity(it) }.toMutableList()
 	}
 	
-	fun dtoListToPageDto(ticketDtoList: List<TicketDto>,
-						 offset: Int,
-						 limit: Int): PageDto<TicketDto> {
-		
-		val dtoList: MutableList<TicketDto> =
-			ticketDtoList.stream()
-				.skip(offset.toLong())
-				.limit(limit.toLong())
-				.toList().toMutableList()
-		
-		return PageDto(
-			list = dtoList,
-			rangeMin = offset,
-			rangeMax = offset + dtoList.size - 1,
-			totalSize = ticketDtoList.size
-		)
-	}
-	
 }

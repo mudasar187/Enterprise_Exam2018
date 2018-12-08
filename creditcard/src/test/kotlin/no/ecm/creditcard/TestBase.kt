@@ -36,7 +36,7 @@ abstract class TestBase {
 		// RestAssured configs shared by all the tests
 		RestAssured.baseURI = "http://localhost"
 		RestAssured.port = port
-		RestAssured.basePath = "/graphql"
+		RestAssured.basePath = "/creditcards"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
 		
 		creditCardRepository.deleteAll()
