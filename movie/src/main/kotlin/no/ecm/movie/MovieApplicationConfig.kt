@@ -20,7 +20,7 @@ class MovieApplicationConfig {
         //Hystrix configuration
         ConfigurationManager.getConfigInstance().apply {
             // how long to wait before giving up a request?
-            setProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", 1000) //default is 1000
+            setProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", 5000) //default is 1000
             // how many failures before activating the CB?
             setProperty("hystrix.command.default.circuitBreaker.requestVolumeThreshold", 2) //default 20
             setProperty("hystrix.command.default.circuitBreaker.errorThresholdPercentage", 50)

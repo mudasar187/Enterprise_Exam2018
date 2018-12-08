@@ -9,7 +9,6 @@ import no.ecm.order.model.converter.InvoiceConverter
 import no.ecm.order.model.converter.TicketConverter
 import no.ecm.order.model.entity.Invoice
 import no.ecm.order.repository.InvoiceRepository
-import no.ecm.utils.dto.movie.NowPlayingDto
 import no.ecm.utils.dto.order.InvoiceDto
 import no.ecm.utils.exception.InternalException
 import no.ecm.utils.exception.NotFoundException
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
-import java.net.URI
 
 @Service
 class InvoiceService(
@@ -40,10 +38,12 @@ class InvoiceService(
 ) {
 
     @Value("\${movieService}")
-    private lateinit var moviePath : String
+    private lateinit var movieUri : String
     
     @Value("\${ticketPrice}")
     private lateinit var ticketPrice: String
+    
+    val nowPlayingPath = "now-playings"
 
     val logger = logger<InvoiceService>()
 
@@ -81,14 +81,14 @@ class InvoiceService(
     }
 
     fun findById(stringId: String?): Invoice {
-        val id = checkFOrInvoiceInDatabase(stringId)
+        val id = checkForInvoiceInDatabase(stringId)
 
         return invoiceRepository.findById(id).get()
     }
 
     fun deleteById(stringId: String?): String? {
 
-        val id = checkFOrInvoiceInDatabase(stringId)
+        val id = checkForInvoiceInDatabase(stringId)
 
         invoiceRepository.deleteById(id)
         val infoMsg = InfoMessages.entitySuccessfullyDeleted("invoice", "$id")
@@ -106,7 +106,7 @@ class InvoiceService(
         validateInvoiceDto(dto)
 
         if (dto.couponCode != null && !dto.couponCode!!.id.isNullOrBlank()){
-            val couponDto = couponService.get(null, dto.couponCode!!.id).first()
+            val couponDto = CouponConverter.entityToDto(couponService.getById(dto.couponCode!!.id))
             val discount = (couponDto.percentage!!.toDouble() / 100.toDouble()) * (ticketPrice.toDouble() * dto.tickets!!.size.toDouble())
             
             dto.totalPrice = (ticketPrice.toDouble() * dto.tickets!!.size.toDouble()) - discount
@@ -168,7 +168,7 @@ class InvoiceService(
         return InvoiceDto(id.toString())
     }
 
-    private fun checkFOrInvoiceInDatabase(stringId: String?): Long {
+    private fun checkForInvoiceInDatabase(stringId: String?): Long {
         val id = ValidationHandler.validateId(stringId, "id")
 
         when {
@@ -184,7 +184,7 @@ class InvoiceService(
     
     private fun validateInvoiceDto(dto: InvoiceDto) {
         when {
-            dto.username.isNullOrBlank() -> handleMissingField("cusername")
+            dto.username.isNullOrBlank() -> handleMissingField("username")
             dto.orderDate.isNullOrBlank() -> handleMissingField("orderDate")
             dto.nowPlayingId.isNullOrBlank() -> handleMissingField("nowPlayingId")
             dto.tickets == null -> handleMissingField("tickets")
@@ -226,11 +226,13 @@ class InvoiceService(
         : HystrixCommand<ResponseEntity<NowPlayingReponse>>(HystrixCommandGroupKey.Factory.asKey("Getting Now Playing information from Movie service")) {
 
         override fun run(): ResponseEntity<NowPlayingReponse> {
+            
+            val url = "$movieUri/$nowPlayingPath/${dto.nowPlayingId}"
 
-            val response : ResponseEntity<NowPlayingReponse> = try {
-                restTemplate.getForEntity(
-                        "$moviePath/now-playing/${dto.nowPlayingId}",
-                        NowPlayingReponse::class.java)
+            val response = try {
+                
+                restTemplate.getForEntity(url, NowPlayingReponse::class.java)
+                
             } catch (e : HttpClientErrorException){
                 val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
                 logger.warn(body.message)
@@ -257,16 +259,14 @@ class InvoiceService(
         : HystrixCommand<NowPlayingReponse>(HystrixCommandGroupKey.Factory.asKey("Removing seats from Now Playing in Movie service")) {
 
         override fun run(): NowPlayingReponse {
+            
+            val url = "$movieUri/$nowPlayingPath/$nowPlayingId"
             val headers = HttpHeaders()
             headers.set("If-Match", eTag)
             headers.set("Content-Type", "application/merge-patch+json")
 
             val response : ResponseEntity<Void> = try {
-                restTemplate.exchange(
-                        "$moviePath/now-playing/$nowPlayingId",
-                        HttpMethod.PATCH,
-                        HttpEntity(jsonPatchBody, headers),
-                        Void::class.java)
+                restTemplate.exchange(url, HttpMethod.PATCH, HttpEntity(jsonPatchBody, headers), Void::class.java)
             } catch (e : HttpClientErrorException){
                 val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
                 logger.warn(body.message)
@@ -278,7 +278,7 @@ class InvoiceService(
 
         override fun getFallback(): NowPlayingReponse {
 
-            logger.error("Critical error! Movie service not working properly")
+            logger.error("Critical error! Movie service crashed")
             logger.error("Circuit breaker status: $executionEvents")
 
             if(failedExecutionException is HttpServerErrorException) {

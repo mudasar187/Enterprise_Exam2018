@@ -35,7 +35,7 @@ abstract class TestBase {
 
     val genresUrl = "/genres"
     val moviesUrl = "/movies"
-    val nowPlayingURL = "/now-playing"
+    val nowPlayingURL = "/now-playings"
     
     companion object {
     	private lateinit var wireMockServer: WireMockServer
