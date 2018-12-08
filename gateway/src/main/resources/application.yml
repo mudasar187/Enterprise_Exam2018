@@ -12,43 +12,43 @@ spring:
         - id: user-server
           uri: http://user-server:8080
           predicates:
-            - Path=/user-server/**
+            - Path=/user-service/**
           filters:
             - StripPrefix=1
         - id: order-server
           uri: http://order-server:8080
           predicates:
-            - Path=/order-server/**
+            - Path=/order-service/**
           filters:
             - StripPrefix=1
         - id: movie-server
           uri: http://movie-server:8080
           predicates:
-            - Path=/movie-server/**
+            - Path=/movie-service/**
           filters:
             - StripPrefix=1
         - id: creditcard-server
           uri: http://creditcard-server:8080
           predicates:
-            - Path=/creditcard-server/**
+            - Path=/creditcard-service/**
           filters:
             - StripPrefix=1
         - id: cinema-server
           uri: http://cinema-server:8080
           predicates:
-            - Path=/cinema-server/**
+            - Path=/cinema-service/**
           filters:
             - StripPrefix=1
         - id: auth-server
           uri: http://auth-server:8080
           predicates:
-            - Path=/auth-server/**
+            - Path=/auth-service/**
           filters:
             - StripPrefix=1
         - id: eureka
           uri: http://eureka:8761
           predicates:
-            - Path=/eureka/**
+            - Path=/eureka-dashboard/**
           filters:
             - StripPrefix=1
 
