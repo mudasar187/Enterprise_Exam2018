@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
-@Api(value = "/now-playing", description = "API for Now Playing entity")
+@Api(value = "/now-playings", description = "API for Now Playing entity")
 @RequestMapping(
-        path = ["/now-playing"],
+        path = ["/now-playings"],
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class NowPlayingController(

@@ -1,48 +1,35 @@
 package no.ecm.order.ticket
 
-import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import junit.framework.Assert.assertEquals
+import no.ecm.order.TestBase
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.response.TicketResponseDto
 import org.hamcrest.CoreMatchers
 import org.junit.Test
 
-class TicketTest : TicketTestBase() {
+class TicketTest : TestBase() {
 	
 	@Test
 	fun getAllTicketsTest() {
-		val size = RestAssured.given().accept(ContentType.JSON).get()
-			.then()
-			.statusCode(200)
-			.extract()
-			.`as`(TicketResponseDto::class.java).data!!.list.size
-		
-		assertResultSize(size)
+		assertEquals(getDbCount(ticketURL), 0)
 	}
 	
 	@Test
 	fun createTicketAndGetByIdTest() {
-		val size = RestAssured.given().accept(ContentType.JSON).get()
+		
+		val id = createDefaultTicket()
+		
+		val responseDto = given()
+			.get("$ticketURL/$id")
 			.then()
 			.statusCode(200)
 			.extract()
-			.`as`(TicketResponseDto::class.java).data!!.list.size
+			.`as`(TicketResponseDto::class.java).data!!.list.first()
+			
+		checkDefaultTicketDto(responseDto, id)
 		
-		val price = 200.5
-		val seat = "A2"
-		
-		val id = createTicket(price, seat)
-		
-		assertResultSize(size + 1)
-		
-		RestAssured.given()
-			.get("/$id")
-			.then()
-			.statusCode(200)
-			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
-			//FIXME .body("data.list[0].price", CoreMatchers.equalTo(price.toString()))
-			.body("data.list[0].seat", CoreMatchers.equalTo(seat))
 	}
 	
 	@Test
@@ -51,7 +38,7 @@ class TicketTest : TicketTestBase() {
 		val etag =
 			given()
 				.accept(ContentType.JSON)
-				.get()
+				.get(ticketURL)
 				.then()
 				.statusCode(200)
 				.header("ETag", CoreMatchers.notNullValue())
@@ -60,7 +47,7 @@ class TicketTest : TicketTestBase() {
 		given()
 			.accept(ContentType.JSON)
 			.header("If-None-Match", etag)
-			.get()
+			.get(ticketURL)
 			.then()
 			.statusCode(304)
 			.content(CoreMatchers.equalTo(""))
@@ -68,15 +55,11 @@ class TicketTest : TicketTestBase() {
 	
 	@Test
 	fun cachingGetByIdTest() {
-		
-		val price = 123.4
-		val seat = "A1"
-		
-		val id = createTicket(price, seat)
+		val id = createDefaultTicket()
 		
 		val etag = given()
 			.accept(ContentType.JSON)
-			.get("/$id")
+			.get("$ticketURL/$id")
 			.then()
 			.statusCode(200)
 			.header("ETag", CoreMatchers.notNullValue())
@@ -84,7 +67,7 @@ class TicketTest : TicketTestBase() {
 		
 		given().accept(ContentType.JSON)
 			.header("If-None-Match", etag)
-			.get("/$id")
+			.get("$ticketURL/$id")
 			.then()
 			.statusCode(304)
 			.content(CoreMatchers.equalTo(""))
@@ -103,73 +86,63 @@ class TicketTest : TicketTestBase() {
 		list.add(TicketDto(null, 200.1, "AA12"))
 		
 		list.forEach {
-			given().contentType(ContentType.JSON).body(it).post().then().statusCode(400)
+			given().contentType(ContentType.JSON).body(it).post(ticketURL).then().statusCode(400)
 		}
 	}
 	
 	@Test
 	fun createTicketWitInvalidDataTest() {
-		val size = RestAssured.given().accept(ContentType.JSON).get()
-			.then()
-			.statusCode(200)
-			.extract()
-			.`as`(TicketResponseDto::class.java).data!!.list.size
 		
 		val price = 123.4
 		val seat = "A1"
+		val invoiceId = "1"
 		
+		//create ticket with given id
 		given()
 			.contentType(ContentType.JSON)
-			.body("""
-				{
-					"price": "NaN",
-					"seat": $seat
-				}
-			""".trimIndent())
-			.post()
+			.body(TicketDto("123", price, seat, invoiceId))
+			.post(ticketURL)
 			.then()
 			.statusCode(400)
 		
-		given()
-			.contentType(ContentType.JSON)
-			.body("""
-				{
-					"price": $price,
-					"seat": 0
-				}
-			""".trimIndent())
-			.post()
-			.then()
-			.statusCode(400)
+		createInvalidTicket(null, seat, invoiceId)
+		assertEquals(getDbCount(ticketURL), 0)
 		
-		assertResultSize(size)
+		createInvalidTicket(price, null, invoiceId)
+		assertEquals(getDbCount(ticketURL), 0)
+		
+		createInvalidTicket(price, seat, null)
+		assertEquals(getDbCount(ticketURL), 0)
 	}
 	
 	@Test
-	fun deleteUnusedTicketTest() {
+	fun deleteTicketTest() {
 		
-		val price = 200.5
-		val seat = "A34"
-		
-		val id = createTicket(price, seat)
+		val id = createDefaultTicket()
 		
 		given()
-			.delete("/$id")
+			.delete("$ticketURL/$id")
 			.then()
 			.statusCode(200)
 		
 		given()
-			.get("/$id")
+			.get("$ticketURL/$id")
+			.then()
+			.statusCode(404)
+	}
+	
+	@Test
+	fun deleteInvalidTicketTest() {
+		given()
+			.delete("$ticketURL/12345")
 			.then()
 			.statusCode(404)
 	}
 	
 	@Test
 	fun deleteNonExistingTicketTest() {
-		val price = 200.5
-		val seat = "A12"
 		
-		val id = createTicket(price, seat)
+		createDefaultTicket()
 		
 		given()
 			.delete("/1234567")
@@ -180,22 +153,20 @@ class TicketTest : TicketTestBase() {
 	@Test
 	fun updateSeatNumber() {
 		
-		val price = 200.5
-		val seat = "E8"
 		val updatedSeat = "C3"
 		
-		val id = createTicket(price, seat)
+		val id = createDefaultTicket()
 		val etag = getEtagFromId(id.toString())
 		
 		given().contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"seat\": \"$updatedSeat\"}")
-			.patch("/$id")
+			.patch("$ticketURL/$id")
 			.then()
 			.statusCode(204)
 		
 		given()
-			.get("/$id")
+			.get("$ticketURL/$id")
 			.then()
 			.statusCode(200)
 			.body("data.list[0].seat", CoreMatchers.equalTo(updatedSeat))
@@ -204,18 +175,16 @@ class TicketTest : TicketTestBase() {
 	@Test
 	fun updateSeatNumberWithInvalidInformation() {
 		
-		val price = 200.5
-		val seat = "A8"
 		val updatedSeat = "C3"
 		
-		val id = createTicket(price, seat)
+		val id = createDefaultTicket()
 		val etag = getEtagFromId(id.toString())
 		
 		//Invalid JSON Merge Patch syntax
 		given().contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{seat: \"$updatedSeat\"}")
-			.patch("/$id")
+			.patch("$ticketURL/$id")
 			.then()
 			.statusCode(409)
 		
@@ -223,7 +192,7 @@ class TicketTest : TicketTestBase() {
 		given().contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"id\": $id,\"seat\": \"$updatedSeat\"}")
-			.patch("/$id")
+			.patch("$ticketURL/$id")
 			.then()
 			.statusCode(400)
 		
@@ -231,7 +200,7 @@ class TicketTest : TicketTestBase() {
 		given().contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
-			.patch("/$id")
+			.patch("$ticketURL/$id")
 			.then()
 			.statusCode(400)
 		
@@ -239,7 +208,7 @@ class TicketTest : TicketTestBase() {
 		given().contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
-			.patch("/666")
+			.patch("$ticketURL/666")
 			.then()
 			.statusCode(404)
 	}
@@ -247,26 +216,24 @@ class TicketTest : TicketTestBase() {
 	@Test
 	fun updateTicketTest() {
 		
-		val price = 200.5
-		val seat = "A10"
-		
-		val id = createTicket(price, seat)
+		val id = createDefaultTicket()
 		val etag = getEtagFromId(id.toString())
 		
 		val updatedPrice = 100.5
 		val updatedSeat = "C12"
+		val updatedInvoiceId = "2"
 		
 		given()
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
-			.put("/{id}")
+			.body(TicketDto(id.toString(), updatedPrice, updatedSeat, updatedInvoiceId))
+			.put("$ticketURL/{id}")
 			.then()
 			.statusCode(204)
 		
 		given()
-			.get("/$id")
+			.get("$ticketURL/$id")
 			.then()
 			.statusCode(200)
 			.body("data.list[0].id", CoreMatchers.equalTo(id.toString()))
@@ -277,10 +244,7 @@ class TicketTest : TicketTestBase() {
 	@Test
 	fun updateTicketWithNonMatchingIdInPathAndBody() {
 		
-		val price = 200.5
-		val seat = "A10"
-		
-		val id = createTicket(price, seat)
+		val id = createDefaultTicket()
 		val etag = getEtagFromId(id.toString())
 		
 		val updatedPrice = 100.5
@@ -291,46 +255,27 @@ class TicketTest : TicketTestBase() {
 			.pathParam("id", 8765)
 			.header("If-Match", etag)
 			.body(TicketDto(id.toString(), updatedPrice, updatedSeat))
-			.put("/{id}")
+			.put("$ticketURL/{id}")
 			.then()
 			.statusCode(404)
-		
 	}
 	
 	@Test
 	fun updateTicketWithInvalidData() {
 		
-		val price = 1200.5
-		val seat = "A20"
-		
-		val id = createTicket(price, seat)
+		val id = createDefaultTicket()
 		val etag = getEtagFromId(id.toString())
 		
 		val updatedPrice = 100.5
 		val updatedSeat = "C1"
+		val updatedInvoiceId = "2"
 		
 		given()
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(TicketDto(null, updatedPrice, updatedSeat))
-			.put("/{id}")
-			.then()
-			.statusCode(400)
-		
-		
-		given()
-			.contentType(ContentType.JSON)
-			.pathParam("id", id)
-			.header("If-Match", etag)
-			.body("""
-				{
-					"id": $id,
-					"price": "invaliddPrice",
-					"seat": $updatedSeat
-				}
-			""".trimIndent())
-			.put("/{id}")
+			.body(TicketDto(null, updatedPrice, updatedSeat, updatedInvoiceId))
+			.put("$ticketURL/{id}")
 			.then()
 			.statusCode(400)
 		
@@ -338,16 +283,79 @@ class TicketTest : TicketTestBase() {
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
-			.body(TicketDto(id.toString(), updatedPrice, null))
-			.put("/{id}")
+			.body(TicketDto(id.toString(), null, updatedSeat, updatedInvoiceId))
+			.put("$ticketURL/{id}")
 			.then()
 			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(TicketDto(id.toString(), updatedPrice, null, updatedInvoiceId))
+			.put("$ticketURL/{id}")
+			.then()
+			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(TicketDto(id.toString(), updatedPrice, updatedSeat, null))
+			.put("$ticketURL/{id}")
+			.then()
+			.statusCode(400)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", 666)
+			.header("If-Match", etag)
+			.body(TicketDto(id.toString(), updatedPrice, updatedSeat, updatedInvoiceId))
+			.put("$ticketURL/{id}")
+			.then()
+			.statusCode(404)
+		
+		given()
+			.contentType(ContentType.JSON)
+			.pathParam("id", id)
+			.header("If-Match", etag)
+			.body(TicketDto("666", updatedPrice, updatedSeat, updatedInvoiceId))
+			.put("$ticketURL/{id}")
+			.then()
+			.statusCode(409)
 	}
 	
-	@Test
-	fun createWithInvalidData() {
+	private fun createDefaultTicket(): Long {
+		return given()
+			.contentType(ContentType.JSON)
+			.body(TicketDto(null, 200.5, "A1", "1"))
+			.post(ticketURL)
+			.then()
+			.statusCode(201)
+			.extract()
+			.jsonPath().getLong("data.list[0].id")
+	}
+	
+	private fun createInvalidTicket(price: Double?, seat: String?, invoiceId: String?) {
+		given()
+			.contentType(ContentType.JSON)
+			.body(TicketDto(null, price, seat, invoiceId))
+			.post(ticketURL)
+			.then()
+			.statusCode(400)
 		
-		val price = 1450.5
-		val seat = "A25"
+	}
+	
+	private fun checkDefaultTicketDto(dto: TicketDto, id: Long) {
+		assertEquals(dto.id, id.toString())
+		assertEquals(dto.seat, "A1")
+		assertEquals(dto.price, 200.5)
+	}
+	
+	fun getEtagFromId(id: String): String {
+		return given().accept(ContentType.JSON)
+			.get("$ticketURL/$id")
+			.then()
+			.extract().header("ETag")
 	}
 }

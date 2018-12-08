@@ -3,6 +3,7 @@ package no.ecm.order.service
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.ecm.order.model.converter.TicketConverter
+import no.ecm.order.model.entity.Ticket
 import no.ecm.order.repository.ticket.TicketRepository
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.exception.ConflictException
@@ -25,28 +26,16 @@ class TicketService {
 	
 	val logger = logger<TicketService>()
 	
-	fun get(paramId: String?): MutableList<TicketDto> {
+	fun get(): MutableList<TicketDto> {
 		
-		val ticketResultList: MutableList<TicketDto>
+		return TicketConverter.entityListToDtoList(repository.findAll())
+	}
+	
+	fun getById(paramId: String): Ticket {
+		val id = ValidationHandler.validateId(paramId, "id")
+		checkIfTicketExistInDb(id)
 		
-		if (paramId.isNullOrBlank()) {
-			
-			ticketResultList = TicketConverter.entityListToDtoList(repository.findAll())
-			
-		} else {
-			
-			val id = ValidationHandler.validateId(paramId, "id")
-			
-			ticketResultList = try {
-				mutableListOf(TicketConverter.entityToDto(repository.findById(id).get()))
-			} catch (e: Exception) {
-				val errorMsg = ExceptionMessages.notFoundMessage("coupon", "id", paramId!!)
-				logger.warn(errorMsg)
-				throw NotFoundException(errorMsg, 404)
-			}
-		}
-		
-		return ticketResultList
+		return repository.findById(id).get()
 	}
 	
 	fun create(dto: TicketDto): String {
@@ -59,7 +48,7 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
-			dto.price!!.isNaN() -> {
+			dto.price == null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
@@ -123,8 +112,13 @@ class TicketService {
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
-			updatedTicketDto.price!!.isNaN() -> {
+			updatedTicketDto.price == null -> {
 				val errorMsg = ExceptionMessages.missingRequiredField("price")
+				logger.warn(errorMsg)
+				throw UserInputValidationException(errorMsg, 400)
+			}
+			updatedTicketDto.invoiceId == null -> {
+				val errorMsg = ExceptionMessages.missingRequiredField("invoiceId")
 				logger.warn(errorMsg)
 				throw UserInputValidationException(errorMsg, 400)
 			}
@@ -202,19 +196,12 @@ class TicketService {
 		return id.toString()
 	}
 	
-	fun checkIfTicketsExistsInDatabase(dtos: List<TicketDto>){
-		
-		dtos.forEach {
-			
-			val invoiceId = validateId(it.invoiceId, "id")
-			
-			ValidationHandler.validateSeatFormat(it.seat!!)
-			
-			if (repository.existsByInvoiceIdAndSeat(invoiceId, it.seat!!)) {
-				val errorMsg = ExceptionMessages.resourceAlreadyExists("ticket", "seat", it.seat!!)
-				logger.warn(errorMsg)
-				throw ConflictException(errorMsg)
-			}
+	private fun checkIfTicketExistInDb(id: Long) {
+		if (!repository.existsById(id)) {
+			val errorMsg = ExceptionMessages.notFoundMessage("Ticket", "id", id.toString())
+			logger.warn(errorMsg)
+			throw NotFoundException(errorMsg)
 		}
 	}
+	
 }
