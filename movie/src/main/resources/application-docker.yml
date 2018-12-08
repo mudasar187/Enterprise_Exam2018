@@ -20,6 +20,9 @@ spring:
     database: "postgresql"
     hibernate:
       ddl-auto: "update"
+    properties:
+     hibernate.temp.use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
 
 server:
   port: 8080
