@@ -39,6 +39,8 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/genres/{id}").hasRole("ADMIN")
 
+                .antMatchers("/**").hasRole("ADMIN")
+
                 .anyRequest().denyAll()
                 .and()
                 .csrf().disable()
