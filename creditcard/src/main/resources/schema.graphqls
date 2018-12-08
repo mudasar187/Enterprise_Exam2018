@@ -5,7 +5,7 @@ type Query {
 
 type Mutation {
     # Create creditcard
-    createCreditCard(creditCard : InputCreditCard) : String
+    createCreditCard(creditCard : InputCreditCard): String
     deleteCreditCardById(id: String!): String
 }
 

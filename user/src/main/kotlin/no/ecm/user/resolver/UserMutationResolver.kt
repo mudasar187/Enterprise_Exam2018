@@ -107,7 +107,7 @@ class UserMutationResolver(
 				val user = userRepository.findById(userId).get()
 				
 				if (user.username!! != userId) {
-					val errorMsg = ExceptionMessages.subIdNotMatchingParentId(user.username!!, userId!!)
+					val errorMsg = ExceptionMessages.subIdNotMatchingParentId(user.username!!, userId)
 					logger.warn(errorMsg)
 					return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
 				}

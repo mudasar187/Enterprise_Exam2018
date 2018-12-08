@@ -81,6 +81,16 @@ abstract class TestBase {
 			//.extract().response().body.prettyPeek()
 	}
 	
+	fun invalidUserQuery(query: String): ValidatableResponse? {
+		return given()
+			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
+			.body(query)
+			.post()
+			.then()
+			.statusCode(200)
+	}
+	
 	fun getCreditcardById(id: String): ValidatableResponse? {
 		
 		val getQuery = """
