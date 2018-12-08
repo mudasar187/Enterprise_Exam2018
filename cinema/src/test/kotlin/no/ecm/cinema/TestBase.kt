@@ -14,13 +14,11 @@ import org.junit.runner.RunWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.test.context.junit4.SpringRunner
 
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner::class)
-@SpringBootTest(
-        classes = [(CinemaApplication::class)],
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RunWith(SpringRunner::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class TestBase {
 
     @LocalServerPort
@@ -41,7 +39,7 @@ abstract class TestBase {
            one by one (DELETE)
          */
 
-        val response = given().accept(ContentType.JSON)
+        val response = given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .param("limit", 50)
                 .get(cinemasUrl)
                 .then()
@@ -50,7 +48,7 @@ abstract class TestBase {
                 .`as`(CinemaResponse::class.java)
 
         response.data!!.list.forEach {
-            given()
+            given().auth().basic("admin", "admin")
                     .delete("$cinemasUrl/${it.id}")
                     .then()
                     .statusCode(200)
@@ -65,7 +63,7 @@ abstract class TestBase {
      */
 
     fun getCinemasCount(): Int {
-        return given().accept(ContentType.JSON)
+        return given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .get(cinemasUrl)
                 .then()
                 .statusCode(200)
@@ -77,7 +75,7 @@ abstract class TestBase {
 
         val dto = CinemaDto(null, name, location, null)
 
-        return given().contentType(ContentType.JSON)
+        return given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(dto)
                 .post(cinemasUrl)
                 .then()
@@ -89,7 +87,7 @@ abstract class TestBase {
     fun createInvalidCinema(id: String, name: String, location: String, rooms: MutableList<RoomDto>?, statusCode: Int) {
         val dto = CinemaDto(id, name, location, rooms)
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(dto)
                 .post(cinemasUrl)
                 .then()
@@ -97,7 +95,7 @@ abstract class TestBase {
     }
 
     fun checkCinemaData(id: String, name: String, location: String) {
-        given()
+        given().auth().basic("admin", "admin")
                 .get("$cinemasUrl/$id")
                 .then()
                 .statusCode(200)
@@ -108,7 +106,7 @@ abstract class TestBase {
 
     fun getEtagForCinema(id: String): String {
 
-        return given()
+        return given().auth().basic("admin", "admin")
                 .get("$cinemasUrl/$id")
                 .then()
                 .statusCode(200)
@@ -121,7 +119,7 @@ abstract class TestBase {
      */
 
     fun getRoomsCount(id: String): Int {
-        return given().accept(ContentType.JSON)
+        return given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .get("$cinemasUrl/$id/rooms")
                 .then()
                 .statusCode(200)
@@ -133,7 +131,7 @@ abstract class TestBase {
 
         val dto = RoomDto(null, name, seats, "$id")
 
-        return given().contentType(ContentType.JSON)
+        return given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(dto)
                 .post("$cinemasUrl/$id/rooms")
                 .then()
@@ -146,7 +144,7 @@ abstract class TestBase {
 
         val dto = RoomDto(roomId, name, seats, "$cinemaId")
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(dto)
                 .post("$cinemasUrl/$cinemaUrlId/rooms")
                 .then()
@@ -154,7 +152,7 @@ abstract class TestBase {
     }
 
     fun checkRoomData(cinemaId: String, roomid: String, name: String, seatOne: String, seatTwo: String) {
-        given()
+        given().auth().basic("admin", "admin")
                 .get("$cinemasUrl/$cinemaId/rooms/$roomid")
                 .then()
                 .statusCode(200)
@@ -166,7 +164,7 @@ abstract class TestBase {
 
     fun getEtagForRoom(cinemaId: String, roomId: String): String {
 
-        return given()
+        return given().auth().basic("admin", "admin")
                 .get("$cinemasUrl/$cinemaId/rooms/$roomId")
                 .then()
                 .statusCode(200)

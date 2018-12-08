@@ -12,6 +12,9 @@ spring:
       breaker:
         enabled: false
 
+  session:
+    store-type: none
+
 hystrix:
   command:
     default:

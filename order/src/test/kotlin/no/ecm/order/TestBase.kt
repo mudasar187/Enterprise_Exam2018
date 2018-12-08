@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import io.restassured.RestAssured
+import io.restassured.RestAssured.basic
 import io.restassured.http.ContentType
 import no.ecm.utils.response.CouponResponseDto
 import no.ecm.utils.response.InvoiceResponse
@@ -16,8 +17,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
-@SpringBootTest(classes = [(OrderApplication::class)],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 abstract class TestBase {
 
@@ -53,6 +53,7 @@ abstract class TestBase {
         RestAssured.port = port
         RestAssured.basePath = "/"
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+        RestAssured.authentication = basic("admin", "admin")
 
         /*
            Here, we read each resource (GET), and then delete them
@@ -66,7 +67,7 @@ abstract class TestBase {
 
     private fun cleanTickets(){
         
-        val response = RestAssured.given().accept(ContentType.JSON)
+        val response = RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .param("limit", 100)
                 .get("/tickets")
                 .then()
@@ -74,7 +75,7 @@ abstract class TestBase {
                 .extract()
                 .`as`(TicketResponseDto::class.java)
 
-        response.data!!.list.forEach { RestAssured.given()
+        response.data!!.list.forEach { RestAssured.given().auth().basic("admin", "admin")
                 .delete("$ticketURL/${ it.id }")
                 .then()
                 .statusCode(200) }
@@ -82,7 +83,7 @@ abstract class TestBase {
     }
 
     private fun cleanCoupons(){
-        val response = RestAssured.given().accept(ContentType.JSON)
+        val response = RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .param("limit", 100)
                 .get(couponURL)
                 .then()
@@ -90,7 +91,7 @@ abstract class TestBase {
                 .extract()
                 .`as`(CouponResponseDto::class.java)
 
-        response.data!!.list.forEach { RestAssured.given()
+        response.data!!.list.forEach { RestAssured.given().auth().basic("admin", "admin")
                 .delete("$couponURL/${ it.id }")
                 .then()
                 .statusCode(200) }
@@ -98,7 +99,8 @@ abstract class TestBase {
     }
 
     private fun cleanInvoices(){
-        val response = RestAssured.given().accept(ContentType.JSON)
+        val response = RestAssured.given().auth()
+                .basic("admin", "admin").accept(ContentType.JSON)
                 .param("limit", 100)
                 .get(invoiceUrl)
                 .then()
@@ -107,6 +109,7 @@ abstract class TestBase {
                 .`as`(InvoiceResponse::class.java)
 
         response.data!!.list.forEach { RestAssured.given()
+                .auth().basic("admin", "admin")
                 .delete("$invoiceUrl/${ it.id }")
                 .then()
                 .statusCode(200) }
@@ -114,7 +117,7 @@ abstract class TestBase {
     }
 
     protected fun getDbCount(url: String) : Int{
-        return RestAssured.given().accept(ContentType.JSON)
+        return RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .get(url)
                 .then()
                 .statusCode(200)
@@ -123,7 +126,7 @@ abstract class TestBase {
     }
 
     private fun cleanDb(url: String) {
-        val response = RestAssured.given().accept(ContentType.JSON)
+        val response = RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .param("limit", 100)
                 .get(url)
                 .then()
@@ -131,7 +134,7 @@ abstract class TestBase {
                 .extract()
                 .`as`(TicketResponseDto::class.java)
 
-        response.data!!.list.forEach { RestAssured.given()
+        response.data!!.list.forEach { RestAssured.given().auth().basic("admin", "admin")
                 .delete("$url/${ it.id }")
                 .then()
                 .statusCode(200) }

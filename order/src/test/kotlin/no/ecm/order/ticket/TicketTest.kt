@@ -145,7 +145,7 @@ class TicketTest : TestBase() {
 		createDefaultTicket()
 		
 		given()
-			.delete("/1234567")
+			.delete("tickets/1234567")
 			.then()
 			.statusCode(404)
 	}
@@ -270,7 +270,7 @@ class TicketTest : TestBase() {
 		val updatedSeat = "C1"
 		val updatedInvoiceId = "2"
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -279,7 +279,7 @@ class TicketTest : TestBase() {
 			.then()
 			.statusCode(400)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -288,7 +288,7 @@ class TicketTest : TestBase() {
 			.then()
 			.statusCode(400)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -297,7 +297,7 @@ class TicketTest : TestBase() {
 			.then()
 			.statusCode(400)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -306,7 +306,7 @@ class TicketTest : TestBase() {
 			.then()
 			.statusCode(400)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", 666)
 			.header("If-Match", etag)
@@ -315,7 +315,7 @@ class TicketTest : TestBase() {
 			.then()
 			.statusCode(404)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -326,7 +326,7 @@ class TicketTest : TestBase() {
 	}
 	
 	private fun createDefaultTicket(): Long {
-		return given()
+		return given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.body(TicketDto(null, 200.5, "A1", "1"))
 			.post(ticketURL)
@@ -337,7 +337,7 @@ class TicketTest : TestBase() {
 	}
 	
 	private fun createInvalidTicket(price: Double?, seat: String?, invoiceId: String?) {
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.body(TicketDto(null, price, seat, invoiceId))
 			.post(ticketURL)
@@ -353,7 +353,7 @@ class TicketTest : TestBase() {
 	}
 	
 	fun getEtagFromId(id: String): String {
-		return given().accept(ContentType.JSON)
+		return given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.get("$ticketURL/$id")
 			.then()
 			.extract().header("ETag")

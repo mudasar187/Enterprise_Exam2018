@@ -40,7 +40,7 @@ class RoomTest : TestBase() {
 
         val cinemaId = createCinema(cinemaName, cinemaLocation)
 
-        given().accept(ContentType.JSON)
+        given().auth().basic("admin", "admin").accept(ContentType.JSON)
                 .get("$cinemasUrl/$cinemaId/rooms/2")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -97,7 +97,7 @@ class RoomTest : TestBase() {
         val etag = getEtagForRoom("$cinemaId", "$roomId")
 
         // Patch update name with new room name
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$newRoomName\"}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -107,7 +107,7 @@ class RoomTest : TestBase() {
         val newETag = getEtagForRoom("$cinemaId", "$roomId")
 
         // Patch update seats with new seats
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", newETag)
                 .body("{\"seats\": [\"B1\", \"B2\"]}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -130,7 +130,7 @@ class RoomTest : TestBase() {
         val etag = getEtagForRoom("$cinemaId", "$roomId")
 
         // Room not found
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$newRoomName\"}")
                 .patch("$cinemasUrl/$cinemaId/rooms/100")
@@ -138,7 +138,7 @@ class RoomTest : TestBase() {
                 .statusCode(HttpStatus.NOT_FOUND.value())
 
         // Id should not be set
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"id\": 2}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -146,7 +146,7 @@ class RoomTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Invalid JSON format
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{[\"name\": $newRoomName}]")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -154,7 +154,7 @@ class RoomTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Unable to parse name
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": 123}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -162,7 +162,7 @@ class RoomTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Unable to parse seats
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"seats\": 123}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -181,7 +181,7 @@ class RoomTest : TestBase() {
         val etag = getEtagForRoom("$cinemaId", "$roomId")
 
         // Update the entity with new room name and new seats
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(RoomDto("$roomId", newRoomName, newRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -201,7 +201,7 @@ class RoomTest : TestBase() {
         val etag = getEtagForRoom("$cinemaId", "$roomId")
 
         // Not allowed to give id
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(RoomDto("100", newRoomName, newRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -209,7 +209,7 @@ class RoomTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // The given Cinema id in DTO doesn't match the cinema id in the database
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(RoomDto("$roomId", newRoomName, newRoomSeats, "100"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
@@ -217,7 +217,7 @@ class RoomTest : TestBase() {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
 
         // Room with id 100 not exists
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .header("If-Match", etag)
                 .body(RoomDto("$roomId", newRoomName, newRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/100")
@@ -235,7 +235,7 @@ class RoomTest : TestBase() {
 
         assertEquals(1, getRoomsCount("$cinemaId"))
 
-        given()
+        given().auth().basic("admin", "admin")
                 .delete("$cinemasUrl/$cinemaId/rooms/$roomId")
                 .then()
                 .statusCode(HttpStatus.OK.value())
@@ -248,7 +248,7 @@ class RoomTest : TestBase() {
 
         val cinemaId = createCinema(cinemaName, cinemaLocation)
 
-        given()
+        given().auth().basic("admin", "admin")
                 .delete("$cinemasUrl/$cinemaId/rooms/100")
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
@@ -262,7 +262,7 @@ class RoomTest : TestBase() {
         val roomId = createRoomForSpecificCinema("$cinemaId", roomName, roomSeats)
 
         // Create room with invalid seats
-        given().contentType(ContentType.JSON)
+        given().auth().basic("admin", "admin").contentType(ContentType.JSON)
                 .body(RoomDto("$roomId", newRoomName, invalidRoomSeats, "$cinemaId"))
                 .put("$cinemasUrl/$cinemaId/rooms/$roomId")
                 .then()
@@ -279,7 +279,7 @@ class RoomTest : TestBase() {
         val etag = getEtagForRoom("$cinemaId", "$roomId")
 
         // Patch update name with new cinema name
-        given().contentType("application/merge-patch+json")
+        given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
                 .header("If-Match", etag)
                 .body("{\"name\": \"$newRoomName\"}")
                 .patch("$cinemasUrl/$cinemaId/rooms/$roomId")

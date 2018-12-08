@@ -25,8 +25,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
-@SpringBootTest(classes = [(MovieApplication::class)],
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 abstract class TestBase {
 
@@ -83,6 +82,7 @@ abstract class TestBase {
 
         response.data!!.list.forEach {
             given()
+                    .auth().basic("admin", "admin")
                     .delete("$nowPlayingURL/${it.id}")
                     .then()
                     .statusCode(200) }
@@ -100,6 +100,9 @@ abstract class TestBase {
                 .`as`(GenreResponse::class.java)
 
         response.data!!.list.forEach { given()
+                .auth().basic("admin", "admin")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
                 .delete("$genresUrl/${ it.id }")
                 .then()
                 .statusCode(200) }
@@ -117,6 +120,7 @@ abstract class TestBase {
                 .`as`(MovieResponse::class.java)
 
         response.data!!.list.forEach { given()
+                .auth().basic("admin", "admin")
                 .delete("$moviesUrl/${ it.id }")
                 .then()
                 .statusCode(200) }
@@ -152,7 +156,9 @@ abstract class TestBase {
     }
     
     fun createNowPlaying(nowPlayingDto: NowPlayingDto): String {
-        val response = given().contentType(ContentType.JSON)
+        val response = given()
+            .auth().basic("admin", "admin")
+            .contentType(ContentType.JSON)
             .body(nowPlayingDto)
             .post(nowPlayingURL)
             .then()
@@ -176,12 +182,14 @@ abstract class TestBase {
 
     fun createNowPlayingWithoutChecks(nowPlayingDto: NowPlayingDto): Response? {
         return given().contentType(ContentType.JSON)
-            .body(nowPlayingDto)
-            .post(nowPlayingURL)
+                .auth().basic("admin", "admin")
+                .body(nowPlayingDto)
+                .post(nowPlayingURL)
     }
 
     fun createGenre(genreDto: GenreDto): String {
         val response = given().contentType(ContentType.JSON)
+                .auth().basic("admin", "admin")
                 .body(genreDto)
                 .post(genresUrl)
                 .then()
@@ -227,6 +235,7 @@ abstract class TestBase {
 
     fun createMovie(movieDto: MovieDto) : String {
         return given().contentType(ContentType.JSON)
+                .auth().basic("admin", "admin")
                 .body(movieDto)
                 .post(moviesUrl)
                 .then()

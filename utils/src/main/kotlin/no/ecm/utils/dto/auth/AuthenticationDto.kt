@@ -10,5 +10,8 @@ data class AuthenticationDto(
         var username: String? = null,
 
         @ApiModelProperty("The password of an User")
-        var password: String? = null
+        var password: String? = null,
+
+        @ApiModelProperty("Secret password to create admin user")
+        var secretPassword: String? = null
 )

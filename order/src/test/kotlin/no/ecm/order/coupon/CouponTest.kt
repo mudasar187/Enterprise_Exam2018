@@ -64,7 +64,7 @@ class CouponTest : TestBase() {
 		val id = createDefaultCoupon()
 		val etag = getEtagFromId(id.toString())
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -84,7 +84,7 @@ class CouponTest : TestBase() {
 		
 		createDefaultCoupon()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.get("$couponURL/1000")
 			.then()
 			.statusCode(404)
@@ -93,7 +93,7 @@ class CouponTest : TestBase() {
 			.body("data", CoreMatchers.nullValue())
 			.body("status", CoreMatchers.equalTo("ERROR"))
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.get("$couponURL/x")
 			.then()
 			.statusCode(400)
@@ -111,7 +111,7 @@ class CouponTest : TestBase() {
 		
 		val id = createDefaultCoupon()
 		
-		val resultDto = given()
+		val resultDto = given().auth().basic("admin", "admin")
 			.param("code", code)
 			.get(couponURL)
 			.then()
@@ -133,7 +133,7 @@ class CouponTest : TestBase() {
 		
 		val etag = getEtagFromId(id.toString())
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -142,7 +142,7 @@ class CouponTest : TestBase() {
 			.then()
 			.statusCode(204)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.get("$couponURL/$id")
 			.then()
 			.statusCode(200)
@@ -163,12 +163,12 @@ class CouponTest : TestBase() {
 		
 		val etag = getEtagFromId(id.toString())
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", 12345)
 			.header("If-Match", etag)
 			.body(CouponDto(id.toString(), updatedCode, updatedDescription, updatedExpireAt, updatedPercentage))
-			.put("/{id}")
+			.put("coupons/{id}")
 			.then()
 			.statusCode(404)
 	}
@@ -183,7 +183,7 @@ class CouponTest : TestBase() {
 		
 		val dto = CouponDto("1234", code, description, expireAt, percentage)
 		
-		given().contentType(ContentType.JSON)
+		given().auth().basic("admin", "admin").contentType(ContentType.JSON)
 			.body(dto)
 			.post(couponURL)
 			.then()
@@ -199,12 +199,12 @@ class CouponTest : TestBase() {
 		
 		val id = createDefaultCoupon()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.delete("$couponURL/$id")
 			.then()
 			.statusCode(200)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.get("$couponURL/$id")
 			.then()
 			.statusCode(404)
@@ -213,14 +213,14 @@ class CouponTest : TestBase() {
 	@Test
 	fun cachingGetAllTest() {
 		
-		val etag = RestAssured.given().accept(ContentType.JSON)
+		val etag = RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.get(couponURL)
 			.then()
 			.statusCode(200)
 			.header("ETag", CoreMatchers.notNullValue())
 			.extract().header("ETag")
 		
-		given().accept(ContentType.JSON)
+		given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.header("If-None-Match", etag)
 			.get(couponURL)
 			.then()
@@ -233,14 +233,14 @@ class CouponTest : TestBase() {
 		
 		val id = createDefaultCoupon()
 		
-		val etag = RestAssured.given().accept(ContentType.JSON)
+		val etag = RestAssured.given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.get("$couponURL/$id")
 			.then()
 			.statusCode(200)
 			.header("ETag", CoreMatchers.notNullValue())
 			.extract().header("ETag")
 		
-		given().accept(ContentType.JSON)
+		given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.header("If-None-Match", etag)
 			.get("$couponURL/$id")
 			.then()
@@ -256,14 +256,14 @@ class CouponTest : TestBase() {
 		val id = createDefaultCoupon()
 		val etag = getEtagFromId(id.toString())
 		
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"description\": \"$updatedDescription\"}")
 			.patch("$couponURL/$id")
 			.then()
 			.statusCode(204)
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.get("$couponURL/$id")
 			.then()
 			.statusCode(200)
@@ -279,7 +279,7 @@ class CouponTest : TestBase() {
 		val etag = getEtagFromId(id.toString())
 		
 		//Invalid JSON Merge Patch syntax
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{seat: \"$updatedDescription\"}")
 			.patch("$couponURL/$id")
@@ -287,7 +287,7 @@ class CouponTest : TestBase() {
 			.statusCode(409)
 		
 		//Update with id in JSON Merge Patch body
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"id\": \"$id\",\"seat\": \"$updatedDescription\"}")
 			.patch("$couponURL/$id")
@@ -295,7 +295,7 @@ class CouponTest : TestBase() {
 			.statusCode(400)
 		
 		//Update with invalid update value
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
 			.patch("$couponURL/$id")
@@ -303,7 +303,7 @@ class CouponTest : TestBase() {
 			.statusCode(400)
 		
 		//Update non existing ticket
-		given().contentType("application/merge-patch+json")
+		given().auth().basic("admin", "admin").contentType("application/merge-patch+json")
 			.header("If-Match", etag)
 			.body("{\"abc\": 123}")
 			.patch("$couponURL/7777")
@@ -312,7 +312,7 @@ class CouponTest : TestBase() {
 	}
 	
 	fun createDefaultCoupon(): Long {
-		return given()
+		return given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.body(CouponDto(null, "1234567899", "DefaultDescription", "2019-01-01 01:00:00", 10))
 			.post(couponURL)
@@ -327,7 +327,7 @@ class CouponTest : TestBase() {
 		
 		val dto = CouponDto(null, code, description, expireAt, percentage)
 		
-		return given()
+		return given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.body(dto)
 			.post(couponURL)
@@ -339,7 +339,7 @@ class CouponTest : TestBase() {
 	}
 	
 	fun createInvalidCoupon(code: String?, description: String?, expireAt: String?, percentage: Int?, statusCode: Int) {
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.body(CouponDto(null, code, description, expireAt, percentage))
 			.post(couponURL)
@@ -349,7 +349,7 @@ class CouponTest : TestBase() {
 	
 	fun updateInvalidCoupon(id: Long, code: String?, description: String?, expireAt: String?, percentage: Int?, etag: String) {
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.contentType(ContentType.JSON)
 			.pathParam("id", id)
 			.header("If-Match", etag)
@@ -368,7 +368,7 @@ class CouponTest : TestBase() {
 	}
 	
 	fun getEtagFromId(id: String): String {
-		return given().accept(ContentType.JSON)
+		return given().auth().basic("admin", "admin").accept(ContentType.JSON)
 			.get("$couponURL/$id")
 			.then()
 			.extract().header("ETag")

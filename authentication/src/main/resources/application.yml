@@ -34,3 +34,6 @@ logging:
         models:
           parameters:
             AbstractSerializableParameter: error
+
+
+adminCode: $2y$12$wePwvk5.P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6
