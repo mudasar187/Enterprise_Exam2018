@@ -4,9 +4,11 @@ package no.ecm.user
 import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
+import io.restassured.response.Response
 import io.restassured.response.ValidatableResponse
 import no.ecm.user.UserApplication
 import no.ecm.user.repository.UserRepository
+import no.ecm.utils.dto.user.UserDto
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -58,7 +60,20 @@ abstract class TestBase {
 			.then()
 			.statusCode(200)
 			.extract().body().path<String>("data.createUser")
-			//.extract().response().body.prettyPeek()
+	}
+	
+	fun invalidUserQuery(query: String): ValidatableResponse? {
+		return given()
+			.accept(ContentType.JSON)
+			.contentType(ContentType.JSON)
+			.body(query)
+			.post()
+			.then()
+			.statusCode(200)
+	}
+	
+	fun updateInvalidUser(query: String) {
+	
 	}
 	
 	fun getUserByUsername(username: String): ValidatableResponse? {
