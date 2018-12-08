@@ -28,13 +28,13 @@ class InvoiceTest : TestBase() {
     
         val nowPlayingSpec = RequestSpecBuilder().setBaseUri("http://localhost").setPort(8083).setBasePath("/").build()
         
-        given()
+        given().auth().basic("admin", "admin")
             .spec(nowPlayingSpec)
             .get("/now-playings/11")
             .then()
             .statusCode(200)
         
-        given()
+        given().auth().basic("admin", "admin")
             .spec(nowPlayingSpec)
             .body("""
 				{
@@ -55,7 +55,7 @@ class InvoiceTest : TestBase() {
         val json = getAMockNowPlayingResponse(nowPLayingId, seat)
         stubNowPlayingResponse(json)
 
-        given()
+        given().auth().basic("admin", "admin")
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .body(createDefaultInvoiceDto(couponId, nowPLayingId, seat))
@@ -91,7 +91,7 @@ class InvoiceTest : TestBase() {
         val percentage = 10
         val dto = CouponDto(null, code, description, expireAt, percentage)
 
-        return RestAssured.given()
+        return RestAssured.given().auth().basic("admin", "admin")
                 .contentType(ContentType.JSON)
                 .body(dto)
                 .post(couponURL)
