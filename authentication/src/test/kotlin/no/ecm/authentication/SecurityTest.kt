@@ -7,7 +7,6 @@ import no.ecm.authentication.repository.AuthenticationRepository
 import no.ecm.utils.dto.auth.AuthenticationDto
 import no.ecm.utils.dto.auth.RegistrationDto
 import no.ecm.utils.dto.user.UserDto
-import org.awaitility.Awaitility.await
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers
@@ -58,20 +57,29 @@ class SecurityTest {
 
         @ClassRule
         @JvmField
-        val redis = KGenericContainer("redis:latest")
-                .withExposedPorts(6379)
+        val redis = KGenericContainer("redis:latest").withExposedPorts(6379)
+
+        @ClassRule
+        @JvmField
         val rabbitMQ = KGenericContainer("rabbitmq:3").withExposedPorts(5672)
 
 
         class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
             override fun initialize(configurableApplicationContext: ConfigurableApplicationContext) {
 
-                val host = redis.containerIpAddress
-                val port = redis.getMappedPort(6379)
+                val redisHost = redis.containerIpAddress
+                val redisPort = redis.getMappedPort(6379)
+
+                val rabbitHost = rabbitMQ.containerIpAddress
+                val rabbitPort = rabbitMQ.getMappedPort(5672)
+
+
 
                 TestPropertyValues
-                        .of("spring.redis.host=$host", "spring.redis.port=$port")
-                        .applyTo(configurableApplicationContext.environment);
+                        .of("spring.redis.host=$redisHost", "spring.redis.port=$redisPort",
+                                "spring.rabbitmq.host=$rabbitHost", "spring.rabbitmq.port=$rabbitPort")
+                        .applyTo(configurableApplicationContext.environment)
+
             }
         }
     }
