@@ -19,6 +19,8 @@ spring:
   redis:
     host: redis
     port: 6379
+  rabbitmq:
+    host: rabbitmq
   session:
     # specify that session tokes should be stored in Redis
     store-type: redis

@@ -17,8 +17,8 @@ services:
 
   redis:
     image: "redis:latest"
-#  rabbitmq:
-#    image: "rabbitmq:3"
+  rabbitmq:
+    image: "rabbitmq:3"
 
   eureka:
     build:
@@ -33,6 +33,7 @@ services:
       - redis
       - eureka
       - postgres-auth
+      - rabbitmq
 
   user-server:
     build:
@@ -42,6 +43,7 @@ services:
       - redis
       - eureka
       - postgres-user
+      - rabbitmq
 
   order-server:
     build:

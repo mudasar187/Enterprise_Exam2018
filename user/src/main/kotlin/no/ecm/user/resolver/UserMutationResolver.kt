@@ -5,11 +5,15 @@ import graphql.execution.DataFetcherResult
 import graphql.servlet.GenericGraphQLError
 import no.ecm.user.model.converter.UserConverter
 import no.ecm.user.repository.UserRepository
+import no.ecm.utils.dto.auth.RegistrationDto
 import no.ecm.utils.dto.user.UserDto
 import no.ecm.utils.logger
 import no.ecm.utils.messages.ExceptionMessages
 import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.messages.InfoMessages.Companion.entitySuccessfullyDeleted
+import org.springframework.amqp.rabbit.annotation.RabbitHandler
+import org.springframework.amqp.rabbit.annotation.RabbitListener
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
@@ -19,6 +23,16 @@ import org.springframework.stereotype.Component
 class UserMutationResolver(
 	private var userRepository: UserRepository
 ) : GraphQLMutationResolver {
+
+
+
+	//as anonymous queues have random names, we need to resolve them at runtime
+	@RabbitListener(queues = ["#{queue.name}"])
+	fun receiver(dto: RegistrationDto) {
+		println("::::::::::::::::::::::::::::::::")
+		println(dto)
+		println(dto.username)
+	}
 	
 	val logger = logger<UserMutationResolver>()
 	

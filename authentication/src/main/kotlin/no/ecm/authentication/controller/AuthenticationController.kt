@@ -1,8 +1,10 @@
 package no.ecm.authentication.controller
 
 import io.swagger.annotations.Api
+import no.ecm.authentication.service.AmqpService
 import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
+import no.ecm.utils.dto.auth.RegistrationDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -25,7 +27,8 @@ import java.security.Principal
 class AuthController(
         private val authService: AuthenticationService,
         private val authenticationManager: AuthenticationManager,
-        private val userDetailsService: UserDetailsService
+        private val userDetailsService: UserDetailsService,
+        private val amqpService: AmqpService
 ) {
 
     @Value("\${adminCode}")
@@ -42,7 +45,7 @@ class AuthController(
 
     @PostMapping(path = ["/signup"],
             consumes = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
-    fun signUp(@RequestBody dto: AuthenticationDto)
+    fun signUp(@RequestBody dto: RegistrationDto)
             : ResponseEntity<Void> {
 
         val userId : String = dto.username!!
@@ -66,6 +69,8 @@ class AuthController(
         if (token.isAuthenticated) {
             SecurityContextHolder.getContext().authentication = token
         }
+
+        amqpService.send(dto, "INFO")
 
         return ResponseEntity.status(204).build()
     }
