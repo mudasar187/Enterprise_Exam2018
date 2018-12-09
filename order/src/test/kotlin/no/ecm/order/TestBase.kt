@@ -34,7 +34,7 @@ abstract class TestBase {
         @BeforeClass
         @JvmStatic
         fun initWireMock() {
-            wireMockServer = WireMockServer(wireMockConfig().port(8083))
+            wireMockServer = WireMockServer(wireMockConfig().port(7083))
             wireMockServer.start()
         }
         

@@ -5,7 +5,7 @@ eureka:
   client:
     enabled: false
 
-movieService: http://localhost:8083
+movieService: http://localhost:7083
 
 # Disable Circuit Breaker (Hystrix)
 spring:

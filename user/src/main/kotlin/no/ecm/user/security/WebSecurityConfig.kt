@@ -24,13 +24,13 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .and()
                 .authorizeRequests()
 
-                .antMatchers(HttpMethod.GET, "/users/**")
+                .antMatchers(HttpMethod.GET, "/graphql/**")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.
                     the "@" resolves a current bean.
                   */
                 .access("hasRole('USER') and @userSecurity.checkId(authentication)")
-                .antMatchers(HttpMethod.POST, "/users/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/graphql/**").authenticated()
                 .antMatchers("/**").hasRole("ADMIN")
 
                 .anyRequest().denyAll()
