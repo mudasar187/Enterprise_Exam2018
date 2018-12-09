@@ -1,7 +1,5 @@
 package no.ecm.utils.dto.user
 
-import java.time.LocalDate
-
 data class UserDto (
 
         var username: String? = null,

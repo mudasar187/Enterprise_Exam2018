@@ -19,9 +19,4 @@ class Ticket (
 
         @get:NotNull
         var invoiceId: Long? = null
-    
-
-//        @get:ManyToOne(fetch = FetchType.EAGER)
-//        @get:JoinColumn(name = "order_id")
-//        var invoice: Invoice? = null
 )

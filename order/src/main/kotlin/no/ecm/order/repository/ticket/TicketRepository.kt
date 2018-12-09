@@ -7,7 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface TicketRepository: CrudRepository<Ticket, Long>, TicketRepositoryCustom {
 
-    fun findAllBySeat(seat: String): Iterable<Ticket>
-    
     fun existsByInvoiceIdAndSeat(invoiceId: Long, seat: String): Boolean
 }

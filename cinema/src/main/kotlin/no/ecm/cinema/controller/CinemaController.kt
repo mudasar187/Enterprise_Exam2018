@@ -4,7 +4,6 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import no.ecm.cinema.model.converter.CinemaConverter
-import no.ecm.cinema.model.converter.RoomConverter
 import no.ecm.cinema.service.CinemaService
 import no.ecm.cinema.service.RoomService
 import no.ecm.utils.cache.EtagHandler

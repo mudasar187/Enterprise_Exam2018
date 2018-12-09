@@ -79,17 +79,6 @@ class CouponController {
 				code = 200,
 				page = PageDto(mutableListOf(dto))
 			))
-		
-		/*
-		val couponResultList = service.get(null, paramId)
-		
-		val pageDto = PageDtoGenerator<CouponDto>().generatePageDto(couponResultList, offset, limit)
-		val builder = UriComponentsBuilder.fromPath("/coupons")
-		builder.queryParam("paramId", paramId)
-		
-		return HalLinkGenerator<CouponDto>().generateHalLinks(couponResultList, pageDto, builder, limit, offset)
-		
-		*/
 	}
 	
 	@ApiOperation("Create a new coupon")

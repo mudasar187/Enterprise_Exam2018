@@ -2,27 +2,18 @@ package no.ecm.user
 
 
 import io.restassured.RestAssured
-import io.restassured.RestAssured.basic
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import io.restassured.response.Response
 import io.restassured.response.ValidatableResponse
-import no.ecm.user.UserApplication
 import no.ecm.user.model.entity.UserEntity
 import no.ecm.user.repository.UserRepository
-import no.ecm.utils.dto.user.UserDto
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.core.io.Resource
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.util.StreamUtils
-import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 
 @ActiveProfiles("test")

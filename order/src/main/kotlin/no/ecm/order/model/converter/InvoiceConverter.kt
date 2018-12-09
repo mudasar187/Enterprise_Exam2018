@@ -32,23 +32,16 @@ object InvoiceConverter {
 		val parsedDateTime = ConvertionHandler.convertTimeStampToZonedTimeDate(validatedTimeStamp)
 		
 		return Invoice(
-			//id = dto.id!!.toLong(),
 			username = dto.username!!,
 			orderDate = parsedDateTime!!,
-			//coupon = CouponConverter.dtoToEntity(dto.couponCode!!), //FIXME
 			nowPlayingId = dto.nowPlayingId!!.toLong(),
 			paid = dto.isPaid!!,
 			totalPrice = dto.totalPrice
-			//tickets = TicketConverter.dtoListToEntityList(dto.tickets!!.toList()).toMutableSet() //FIXME
 		)
 	}
 	
 	fun entityListToDtoList(entities: Iterable<Invoice>): MutableList<InvoiceDto> {
 		return entities.map { entityToDto(it) }.toMutableList()
-	}
-	
-	fun dtoListToEntityList(dto: Iterable<InvoiceDto>): List<Invoice> {
-		return dto.map { dtoToEntity(it) }
 	}
 	
 }
