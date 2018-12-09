@@ -76,7 +76,7 @@ class ExceptionMessages{
             return "Missing required header: $header"
         }
 
-        fun unathorizedUser(username: String) : String {
+        fun unauthorizedUser(username: String) : String {
             return "$username is not authorized to to perform this action"
         }
 

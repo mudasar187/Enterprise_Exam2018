@@ -64,7 +64,7 @@ class UserMutationResolver(
 				}
 			}
 		} else {
-			val errorMsg = ExceptionMessages.unathorizedUser(auth.name)
+			val errorMsg = ExceptionMessages.unauthorizedUser(auth.name)
 			logger.warn(errorMsg)
 			return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
 		}
@@ -87,7 +87,7 @@ class UserMutationResolver(
 			logger.info(msg)
 			return DataFetcherResult(msg, listOf())
 		} else {
-			val errorMsg = ExceptionMessages.unathorizedUser(auth.name)
+			val errorMsg = ExceptionMessages.unauthorizedUser(auth.name)
 			logger.warn(errorMsg)
 			return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
 		}
@@ -142,7 +142,7 @@ class UserMutationResolver(
 				}
 			}
 		} else {
-			val errorMsg = ExceptionMessages.unathorizedUser(auth.name)
+			val errorMsg = ExceptionMessages.unauthorizedUser(auth.name)
 			logger.warn(errorMsg)
 			return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
 		}
