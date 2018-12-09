@@ -56,7 +56,7 @@ abstract class TestBase {
                     }
                     """.trimIndent()
 		
-		return given().auth().basic("admin", "admin").auth().basic("admin", "admin")
+		return given().auth().basic("$username", "123")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(createQuery)

@@ -4,6 +4,7 @@ import no.ecm.user.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -23,12 +24,13 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .and()
                 .authorizeRequests()
 
-                .antMatchers("/users/**")
+                .antMatchers(HttpMethod.GET, "/users/**")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.
                     the "@" resolves a current bean.
                   */
                 .access("hasRole('USER') and @userSecurity.checkId(authentication)")
+                .antMatchers(HttpMethod.POST, "/users/**").authenticated()
                 .antMatchers("/**").hasRole("ADMIN")
 
                 .anyRequest().denyAll()
