@@ -1,6 +1,6 @@
 graphql:
   servlet:
-    mapping: /graphql
+    mapping: /users
     enabled: true
 
 
