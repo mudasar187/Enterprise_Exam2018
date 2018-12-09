@@ -18,14 +18,13 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.core.io.Resource
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.util.StreamUtils
 import java.nio.charset.StandardCharsets
 
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner::class)
-@SpringBootTest(
-	classes = [(UserApplication::class)],
-	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RunWith(SpringRunner::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class TestBase {
 	
 	@LocalServerPort
@@ -39,7 +38,7 @@ abstract class TestBase {
 		// RestAssured configs shared by all the tests
 		RestAssured.baseURI = "http://localhost"
 		RestAssured.port = port
-		RestAssured.basePath = "/graphql"
+		RestAssured.basePath = "/users"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
 		
 		userRepository.deleteAll()
