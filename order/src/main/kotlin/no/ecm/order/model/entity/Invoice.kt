@@ -12,7 +12,7 @@ class Invoice (
         @get:GeneratedValue
         var id: Long? = null,
 
-        @get:OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL]) //(mappedBy = "invoice", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+        @get:OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
         var tickets: MutableSet<Ticket> = mutableSetOf(),
 
         @get:NotBlank

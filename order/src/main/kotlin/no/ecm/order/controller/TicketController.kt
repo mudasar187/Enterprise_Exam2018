@@ -71,15 +71,6 @@ class TicketController {
 				code = 200,
 				page = PageDto(mutableListOf(dto))
 			))
-		/*
-		val ticketResultList =  service.get(id)
-		
-		val pageDto = PageDtoGenerator<TicketDto>().generatePageDto(ticketResultList, offset, limit)
-		val builder = UriComponentsBuilder.fromPath("/tickets")
-		builder.queryParam("id", id)
-		
-		return HalLinkGenerator<TicketDto>().generateHalLinks(ticketResultList, pageDto, builder, limit, offset)
-		*/
 	}
 	
 	@ApiOperation("Create a new ticket")

@@ -13,7 +13,7 @@ class CreditCardTest : TestBase() {
 	@Test
 	fun testCreateAndGetById() {
 		
-		val username = "johndoe"
+		val username = "foobar"
 		val creditcardNumber = "12345"
 		val cvc = 123
 		val expDate = "20/01"
@@ -39,7 +39,7 @@ class CreditCardTest : TestBase() {
 	@Test
 	fun createDuplicateCreditCard() {
 		
-		val username = "johndoe"
+		val username = "foobar"
 		val creditcardNumber = "12345"
 		val cvc = 123
 		val expDate = "20/01"
@@ -59,7 +59,7 @@ class CreditCardTest : TestBase() {
 	@Test
 	fun testCreateCreditCardWithInvalidData() {
 		
-		val username = "johndoe"
+		val username = "foobar"
 		val creditcardNumber = "12345"
 		val cvc = 123
 		val expDate = "20/01"
@@ -103,17 +103,17 @@ class CreditCardTest : TestBase() {
 	}
 	
 	@Test
-	fun testGetNonExistingCreditcard() {
+	fun testGetNonExistingCreditcardThatYouDontWon() {
 		
 		getCreditcardById("-1")!!
-			.statusCode(200)
+			.statusCode(403)
 			.body("data.creditcardById", equalTo(null))
 	}
 	
 	@Test
 	fun testDeleteCreditcard() {
 		
-		val username = "johndoe"
+		val username = "foobar"
 		val creditcardNumber = "12345"
 		val cvc = 123
 		val expDate = "20/01"

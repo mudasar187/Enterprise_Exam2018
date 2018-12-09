@@ -24,7 +24,6 @@ abstract class TestBase {
     @LocalServerPort
     protected var port = 0
 
-    val nowPlayingURL = "/now-playings"
     val ticketURL = "/tickets"
     val couponURL = "/coupons"
     val invoiceUrl = "/invoices"

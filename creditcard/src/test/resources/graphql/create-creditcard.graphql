@@ -1,8 +1,0 @@
-mutation {
-        createCreditCard(creditCard: {
-        expirationDate: "03/20",
-        cvc: "123",
-        username: "johndoe",
-        cardNumber: "12345"
-    })
-}

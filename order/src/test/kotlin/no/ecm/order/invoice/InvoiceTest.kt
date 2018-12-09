@@ -16,7 +16,7 @@ class InvoiceTest : TestBase() {
     @Test
     fun stubResponsesTest() {
     
-        val couponId = createDefaultCoupon()
+        createDefaultCoupon()
         val nowPlayingId = "11"
         val seat = "A1"
     

@@ -2,7 +2,6 @@ package no.ecm.utils.dto.movie
 
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
-import java.time.ZonedDateTime
 
 @ApiModel("DTO representing an Movie playing now")
 data class NowPlayingDto(

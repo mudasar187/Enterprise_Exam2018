@@ -41,7 +41,6 @@ class WebSecurityConfig(
                 .antMatchers("/user").authenticated()
                 .antMatchers("/signup").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/**").hasRole("ADMIN")
                 .anyRequest().denyAll()
                 .and()
                 .csrf().disable()

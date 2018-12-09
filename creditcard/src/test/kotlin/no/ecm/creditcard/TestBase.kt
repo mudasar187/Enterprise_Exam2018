@@ -2,6 +2,7 @@ package no.ecm.creditcard
 
 
 import io.restassured.RestAssured
+import io.restassured.RestAssured.basic
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
@@ -9,20 +10,14 @@ import no.ecm.creditcard.repository.CreditCardRepository
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.core.io.Resource
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.util.StreamUtils
-import java.nio.charset.StandardCharsets
+import org.springframework.test.context.junit4.SpringRunner
 
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner::class)
-@SpringBootTest(
-	classes = [(CreditCardApplication::class)],
-	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RunWith(SpringRunner::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class TestBase {
 	
 	@LocalServerPort
@@ -31,22 +26,6 @@ abstract class TestBase {
 	@field:Autowired
 	private lateinit var creditCardRepository: CreditCardRepository
 	
-	//TODO make these files work
-	@Value("classpath/graphql/get-creditcard.graphql")
-	private lateinit var getCreditcardFile: Resource
-	
-	@Value("classpath/graphql/create-creditcard.graphql")
-	private lateinit var createCreditcardFile: Resource
-	
-	
-	fun getCreditcardPayload(): String {
-		return StreamUtils.copyToString(getCreditcardFile.inputStream, StandardCharsets.UTF_8)
-	}
-	
-	fun createCreditcardPayload(): String {
-		return StreamUtils.copyToString(createCreditcardFile.inputStream, StandardCharsets.UTF_8)
-	}
-	
 	@Before
 	fun clean() {
 		// RestAssured configs shared by all the tests
@@ -54,6 +33,7 @@ abstract class TestBase {
 		RestAssured.port = port
 		RestAssured.basePath = "/creditcards"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+		RestAssured.authentication = basic("foobar", "123")
 		
 		creditCardRepository.deleteAll()
 	}
@@ -73,7 +53,6 @@ abstract class TestBase {
 			.then()
 			.statusCode(200)
 			.extract().body().path<String>("data.createCreditCard")
-			//.extract().response().body.prettyPeek()
 	}
 	
 	fun invalidUserQuery(query: String): ValidatableResponse? {
