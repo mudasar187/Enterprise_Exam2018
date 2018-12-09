@@ -49,7 +49,7 @@ class UserTest : TestBase() {
                     }
                     """.trimIndent()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(createQuery)
@@ -140,7 +140,7 @@ class UserTest : TestBase() {
                     }
                     """.trimIndent()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(deleteQuery)
@@ -160,7 +160,7 @@ class UserTest : TestBase() {
                     }
                     """.trimIndent()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(deleteQuery)
