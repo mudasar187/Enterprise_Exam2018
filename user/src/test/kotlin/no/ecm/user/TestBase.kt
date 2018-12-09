@@ -32,7 +32,7 @@ abstract class TestBase {
 		// RestAssured configs shared by all the tests
 		RestAssured.baseURI = "http://localhost"
 		RestAssured.port = port
-		RestAssured.basePath = "/users"
+		RestAssured.basePath = "/graphql"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
 
 		userRepository.deleteAll()
