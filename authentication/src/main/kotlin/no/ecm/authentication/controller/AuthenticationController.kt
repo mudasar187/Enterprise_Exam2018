@@ -1,6 +1,5 @@
 package no.ecm.authentication.controller
 
-import io.swagger.annotations.Api
 import no.ecm.authentication.service.AmqpService
 import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
@@ -48,7 +47,7 @@ class AuthController(
     fun signUp(@RequestBody dto: RegistrationDto)
             : ResponseEntity<Void> {
 
-        val userId : String = dto.username!!
+        val userId : String = dto.userInfo!!.username!!
         val password : String = dto.password!!
 
         val registered = if(!dto.secretPassword.isNullOrBlank() && dto.secretPassword.equals(adminCode)) {
@@ -70,7 +69,10 @@ class AuthController(
             SecurityContextHolder.getContext().authentication = token
         }
 
-        amqpService.send(dto, "INFO")
+        /**
+         * AMQP
+         */
+        amqpService.send(dto.userInfo!!, "USER-REGISTRATION")
 
         return ResponseEntity.status(204).build()
     }

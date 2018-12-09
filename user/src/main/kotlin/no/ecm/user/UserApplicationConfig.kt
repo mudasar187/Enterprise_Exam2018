@@ -21,10 +21,10 @@ class UserApplicationConfig {
     }
 
     @Bean
-    fun binding_INFO(direct: DirectExchange, queue: Queue): Binding {
+    fun binding_UserRegistration(direct: DirectExchange, queue: Queue): Binding {
         return BindingBuilder
                 .bind(queue)
                 .to(direct)
-                .with("INFO")
+                .with("USER-REGISTRATION")
     }
 }

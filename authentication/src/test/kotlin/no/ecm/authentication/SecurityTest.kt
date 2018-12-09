@@ -5,10 +5,16 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import no.ecm.authentication.repository.AuthenticationRepository
 import no.ecm.utils.dto.auth.AuthenticationDto
+import no.ecm.utils.dto.auth.RegistrationDto
+import no.ecm.utils.dto.user.UserDto
+import org.awaitility.Awaitility.await
 import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers
 import org.junit.Assert.assertNotEquals
+import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,7 +28,10 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
+import org.testcontainers.containers.DockerComposeContainer
 import org.testcontainers.containers.GenericContainer
+import java.io.File
+import java.util.concurrent.TimeUnit
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -51,6 +60,8 @@ class SecurityTest {
         @JvmField
         val redis = KGenericContainer("redis:latest")
                 .withExposedPorts(6379)
+        val rabbitMQ = KGenericContainer("rabbitmq:3").withExposedPorts(5672)
+
 
         class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
             override fun initialize(configurableApplicationContext: ConfigurableApplicationContext) {
@@ -88,9 +99,8 @@ class SecurityTest {
      */
     private fun testRegisterAsUserOrAdmin(id: String, password: String, adminCode: String?): String {
 
-
         val sessionCookie = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(id, password, adminCode))
+                .body(RegistrationDto(password, adminCode, UserDto(id)))
                 .post("/signup")
                 .then()
                 .statusCode(204)
