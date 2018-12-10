@@ -8,12 +8,9 @@ import no.ecm.utils.dto.auth.AuthenticationDto
 import no.ecm.utils.dto.auth.RegistrationDto
 import no.ecm.utils.dto.user.UserDto
 import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers
 import org.junit.Assert.assertNotEquals
-import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,10 +24,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
-import org.testcontainers.containers.DockerComposeContainer
 import org.testcontainers.containers.GenericContainer
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
