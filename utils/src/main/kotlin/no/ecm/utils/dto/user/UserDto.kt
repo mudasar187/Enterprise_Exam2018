@@ -1,5 +1,7 @@
 package no.ecm.utils.dto.user
 
+import java.io.Serializable
+
 data class UserDto (
 
         var username: String? = null,
@@ -9,4 +11,4 @@ data class UserDto (
         var name: String? = null,
 
         var email: String? = null
-)
+) : Serializable

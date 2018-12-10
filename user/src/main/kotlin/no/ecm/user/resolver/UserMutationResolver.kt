@@ -3,8 +3,8 @@ package no.ecm.user.resolver
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import graphql.execution.DataFetcherResult
 import graphql.servlet.GenericGraphQLError
-import no.ecm.user.model.converter.UserConverter
 import no.ecm.user.repository.UserRepository
+import no.ecm.user.service.UserService
 import no.ecm.utils.dto.user.UserDto
 import no.ecm.utils.logger
 import no.ecm.utils.messages.ExceptionMessages
@@ -17,56 +17,21 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserMutationResolver(
-	private var userRepository: UserRepository
+	private var userRepository: UserRepository,
+	private var userService: UserService
 ) : GraphQLMutationResolver {
-	
+
 	val logger = logger<UserMutationResolver>()
 	
 	fun createUser(input: UserDto): DataFetcherResult<String> {
 		val auth = SecurityContextHolder.getContext().authentication
 
-		if (auth.name == input.username || isAdmin()) {
-			when {
-				input.username.isNullOrBlank() -> {
-					val errorMsg = ExceptionMessages.missingRequiredField("username")
-					logger.warn(errorMsg)
-					return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
-				}
-				input.dateOfBirth.isNullOrBlank() -> {
-					val errorMsg = ExceptionMessages.missingRequiredField("dateOfBirth")
-					logger.warn(errorMsg)
-					return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
-				}
-				input.email.isNullOrBlank() -> {
-					val errorMsg = ExceptionMessages.missingRequiredField("email")
-					logger.warn(errorMsg)
-					return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
-				}
-				input.name.isNullOrBlank() -> {
-					val errorMsg = ExceptionMessages.missingRequiredField("name")
-					logger.warn(errorMsg)
-					return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
-				}
-
-				userRepository.existsById(input.username!!) -> {
-					val errorMsg = ExceptionMessages.resourceAlreadyExists("user", "username", input.username!!)
-					logger.warn(errorMsg)
-					return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
-				}
-
-				else -> {
-
-					val id = userRepository.save(UserConverter.dtoToEntity(input)).username.toString()
-					val msg = InfoMessages.entityCreatedSuccessfully("user", id)
-					logger.info(msg)
-
-					return DataFetcherResult(id, listOf())
-				}
-			}
+		return if (auth.name == input.username || isAdmin()) {
+			userService.createUser(input)
 		} else {
 			val errorMsg = ExceptionMessages.unauthorizedUser(auth.name)
 			logger.warn(errorMsg)
-			return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
+			DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
 		}
 	}
 	
