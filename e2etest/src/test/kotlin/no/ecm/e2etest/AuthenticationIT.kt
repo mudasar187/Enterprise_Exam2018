@@ -19,6 +19,19 @@ class AuthenticationIT: TestBase() {
 
     companion object {
 
+        @BeforeClass
+        @JvmStatic
+        fun checkEnvironment(){
+
+            /*
+                TODO
+                Looks like currently some issues in running Docker-Compose on Travis
+             */
+
+            val travis = System.getProperty("TRAVIS") != null
+            Assume.assumeTrue(!travis)
+        }
+
         class KDockerComposeContainer(path: File) : DockerComposeContainer<KDockerComposeContainer>(path)
 
 
