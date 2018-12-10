@@ -130,3 +130,16 @@
   display:inline-block;
   padding: 0.2rem;
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #282c34;
+}
+
+.header a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: aliceblue;
+}
