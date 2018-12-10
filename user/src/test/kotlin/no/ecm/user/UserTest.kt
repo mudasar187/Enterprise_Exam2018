@@ -243,17 +243,14 @@ class UserTest : TestBase() {
 		invalidUserQuery(noUsername)!!
 			.body("data.updateUserById", CoreMatchers.nullValue())
 			.body("errors.message[0]", CoreMatchers.notNullValue())
-			.extract().body().jsonPath().prettyPrint()
 		
 		invalidUserQuery(noName)!!
 			.body("data.updateUserById", CoreMatchers.nullValue())
 			.body("errors.message[0]", CoreMatchers.notNullValue())
-			.extract().body().jsonPath().prettyPrint()
 		
 		invalidUserQuery(noEmail)!!
 			.body("data.updateUserById", CoreMatchers.nullValue())
 			.body("errors.message[0]", CoreMatchers.notNullValue())
-			.extract().body().jsonPath().prettyPrint()
 		
 	}
 }
