@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-//import './HeaderStyle.css';
+import axios from "axios";
+import urls from "../utils/Urls"
+
 
 class Header extends Component {
 
@@ -13,9 +15,20 @@ class Header extends Component {
 	}
 
 	componentDidMount() {
-		//TODO check auth and set state
-
+		this.checkAuth()
 	}
+
+	checkAuth = () => {
+		axios.get(urls.authUserUrl).then(
+			res => {
+				if (res.status === 200) {
+					this.setState({authenticated: true});
+				}
+			}
+		).catch(err => {
+			this.setState({error: err})
+		});
+	};
 
 	renderLinks() {
 		if (this.state.authenticated) {

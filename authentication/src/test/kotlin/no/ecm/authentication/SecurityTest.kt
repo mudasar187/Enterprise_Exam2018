@@ -5,10 +5,9 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import no.ecm.authentication.repository.AuthenticationRepository
 import no.ecm.utils.dto.auth.AuthenticationDto
-import no.ecm.utils.dto.auth.RegistrationDto
-import no.ecm.utils.dto.user.UserDto
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
+import org.junit.*
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.ClassRule
@@ -30,7 +29,7 @@ import org.testcontainers.containers.GenericContainer
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = [(SecurityTest.Companion.Initializer::class)])
 @ActiveProfiles("test")
-class SecurityTest {
+class SecurityTest : TestBase() {
 
     @Autowired
     private lateinit var authenticationRepository: AuthenticationRepository
@@ -41,7 +40,23 @@ class SecurityTest {
     @Value("\${adminCode}")
     private lateinit var adminCode: String
 
+    val name = "foo"
+    val pwd = "bar"
+
     companion object {
+
+        @BeforeClass
+        @JvmStatic
+        fun checkEnvironment(){
+
+            /*
+                TODO
+                Looks like currently some issues in running Docker-Compose on Travis
+             */
+
+            val travis = System.getProperty("TRAVIS") != null
+            Assume.assumeTrue(!travis)
+        }
 
         class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
 
@@ -95,41 +110,8 @@ class SecurityTest {
                 .statusCode(401)
     }
 
-
-    /**
-     *   Utility function used to create a new user in the database with user role or admin role
-     */
-    private fun testRegisterAsUserOrAdmin(id: String, password: String, adminCode: String?): String {
-
-        val sessionCookie = given().contentType(ContentType.JSON)
-                .body(RegistrationDto(password, adminCode, UserDto(id)))
-                .post("/signup")
-                .then()
-                .statusCode(204)
-                .header("Set-Cookie", CoreMatchers.not(CoreMatchers.equalTo(null)))
-                .extract().cookie("SESSION")
-
-        /*
-            From now on, the user/admin is authenticated based on USER role or ADMIN role
-            I do not need to use userid/password in the following requests.
-            But each further request will need to have the SESSION cookie.
-         */
-
-        return sessionCookie
-    }
-
-    private fun checkAuthenticatedCookie(cookie: String, expectedCode: Int){
-        given().cookie("SESSION", cookie)
-                .get("/user")
-                .then()
-                .statusCode(expectedCode)
-    }
-
     @Test
     fun testLoginWithUserRole() {
-
-        val name = "foo"
-        val pwd = "bar"
 
         checkAuthenticatedCookie("invalid cookie", 401)
 

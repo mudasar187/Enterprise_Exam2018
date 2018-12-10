@@ -12,9 +12,6 @@ class AmqpService(
     // As anonymous queues have random names, we need to resolve them at runtime
     @RabbitListener(queues = ["#{queue.name}"])
     fun receiver(dto: UserDto) {
-        println("::::::::::::::::::::::::::::::::")
-        println(dto)
-        println(dto.username)
         userService.createUser(dto)
     }
 }

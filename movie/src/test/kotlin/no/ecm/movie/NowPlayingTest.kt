@@ -50,6 +50,7 @@ class NowPlayingTest: TestBase() {
 				.statusCode(500)
 	}
 
+
 	@Test
 	fun testFindByCinemaId() {
 		assertEquals(nowPlayingCount(), 0)
