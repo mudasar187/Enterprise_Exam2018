@@ -15,7 +15,7 @@ class UserTest : TestBase() {
 	@Test
 	fun testCreateAndGetById() {
 		
-		val username = "frodo55"
+		val username = "foobar"
 		val email = "frodo@shire.no"
 		val name = "Frodo Baggins"
 		val dateOfBirth = "2018-11-04"
@@ -49,7 +49,7 @@ class UserTest : TestBase() {
                     }
                     """.trimIndent()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(createQuery)
@@ -121,7 +121,7 @@ class UserTest : TestBase() {
 	@Test
 	fun testDeleteUser() {
 		
-		val username = "frodo55"
+		val username = "foobar"
 		val email = "frodo@shire.no"
 		val name = "Frodo Baggins"
 		val dateOfBirth = "2018-11-04"
@@ -140,7 +140,7 @@ class UserTest : TestBase() {
                     }
                     """.trimIndent()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(deleteQuery)
@@ -160,7 +160,7 @@ class UserTest : TestBase() {
                     }
                     """.trimIndent()
 		
-		given()
+		given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(deleteQuery)
@@ -174,7 +174,7 @@ class UserTest : TestBase() {
 	
 	@Test
 	fun testUpdateUser() {
-		val username = "frodo55"
+		val username = "foobar"
 		val email = "frodo@shire.no"
 		val name = "Frodo Baggins"
 		val dateOfBirth = "2018-11-04"
@@ -212,7 +212,7 @@ class UserTest : TestBase() {
 	@Test
 	fun testUpdateUserWithInvalidData() {
 		
-		val username = "frodo55"
+		val username = "foobar"
 		val email = "frodo@shire.no"
 		val name = "Frodo Baggins"
 		val dateOfBirth = "2018-11-04"
@@ -243,17 +243,14 @@ class UserTest : TestBase() {
 		invalidUserQuery(noUsername)!!
 			.body("data.updateUserById", CoreMatchers.nullValue())
 			.body("errors.message[0]", CoreMatchers.notNullValue())
-			.extract().body().jsonPath().prettyPrint()
 		
 		invalidUserQuery(noName)!!
 			.body("data.updateUserById", CoreMatchers.nullValue())
 			.body("errors.message[0]", CoreMatchers.notNullValue())
-			.extract().body().jsonPath().prettyPrint()
 		
 		invalidUserQuery(noEmail)!!
 			.body("data.updateUserById", CoreMatchers.nullValue())
 			.body("errors.message[0]", CoreMatchers.notNullValue())
-			.extract().body().jsonPath().prettyPrint()
 		
 	}
 }

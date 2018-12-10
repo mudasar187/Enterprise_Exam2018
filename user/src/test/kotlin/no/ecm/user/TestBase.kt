@@ -5,6 +5,7 @@ import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
+import no.ecm.user.model.entity.UserEntity
 import no.ecm.user.repository.UserRepository
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -12,13 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.test.context.junit4.SpringRunner
+import java.time.LocalDate
 
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner::class)
-@SpringBootTest(
-	classes = [(UserApplication::class)],
-	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RunWith(SpringRunner::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class TestBase {
 	
 	@LocalServerPort
@@ -34,8 +34,10 @@ abstract class TestBase {
 		RestAssured.port = port
 		RestAssured.basePath = "/graphql"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
-		
+
 		userRepository.deleteAll()
+		val admin = UserEntity(username = "admin", dateOfBirth = LocalDate.now(), name = "Admin user", email = "admin@mail.com")
+		userRepository.save(admin)
 	}
 	
 	fun createUser(username: String, dateOfBirth: String, name: String, email: String) : String? {
@@ -45,7 +47,7 @@ abstract class TestBase {
                     }
                     """.trimIndent()
 		
-		return given()
+		return given().auth().basic("$username", "123")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(createQuery)
@@ -56,7 +58,7 @@ abstract class TestBase {
 	}
 	
 	fun invalidUserQuery(query: String): ValidatableResponse? {
-		return given()
+		return given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.body(query)
@@ -79,7 +81,7 @@ abstract class TestBase {
 			}
 		""".trimIndent()
 		
-		return given()
+		return given().auth().basic("admin", "admin")
 			.accept(ContentType.JSON)
 			.contentType(ContentType.JSON)
 			.queryParam("query", getQuery)

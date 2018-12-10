@@ -23,7 +23,7 @@ class InvoiceTest : TestBase() {
         val json = getAMockNowPlayingResponse(nowPlayingId, seat)
         stubNowPlayingResponse(json)
     
-        val nowPlayingSpec = RequestSpecBuilder().setBaseUri("http://localhost").setPort(8083).setBasePath("/").build()
+        val nowPlayingSpec = RequestSpecBuilder().setBaseUri("http://localhost").setPort(7083).setBasePath("/").build()
         
         given().auth().basic("admin", "admin")
             .spec(nowPlayingSpec)
@@ -59,7 +59,6 @@ class InvoiceTest : TestBase() {
             .post(invoiceUrl)
             .then()
             .statusCode(201)
-            .extract().response().jsonPath().prettyPrint()
     }
     
     @Test

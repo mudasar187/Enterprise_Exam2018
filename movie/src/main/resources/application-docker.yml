@@ -34,3 +34,9 @@ server:
   port: 8080
 
 cinemaService: http://cinema-server
+
+
+cinema-server:
+  ribbon:
+    eureka:
+      enabled: true

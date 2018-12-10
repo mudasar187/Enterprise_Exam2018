@@ -10,8 +10,10 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.Cache
 import org.springframework.cache.annotation.EnableCaching
+import org.springframework.cloud.client.loadbalancer.LoadBalanced
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 
@@ -23,8 +25,19 @@ class EhCacheConfig {
 		This is the actual bean that we want, and that we will @Autowire
 		in our service beans when doing HTTP calls.
 	 */
-	
+
+	@LoadBalanced
+	@Profile("docker")
 	@Bean
+	fun restTemplateBalancer(httpClient: HttpClient): RestTemplate {
+		val requestFactory = HttpComponentsClientHttpRequestFactory()
+		requestFactory.httpClient = httpClient
+		return RestTemplate(requestFactory)
+	}
+
+
+	@Bean
+	@Profile("!docker")
 	fun restTemplate(httpClient: HttpClient): RestTemplate {
 		val requestFactory = HttpComponentsClientHttpRequestFactory()
 		requestFactory.httpClient = httpClient

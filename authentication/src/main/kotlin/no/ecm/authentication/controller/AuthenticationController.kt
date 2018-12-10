@@ -1,8 +1,9 @@
 package no.ecm.authentication.controller
 
-import io.swagger.annotations.Api
+import no.ecm.authentication.service.AmqpService
 import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
+import no.ecm.utils.dto.auth.RegistrationDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -19,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.security.Principal
 
-@Api(value = "/auth", description = "API for authentication")
 @RequestMapping(
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
 class AuthController(
         private val authService: AuthenticationService,
         private val authenticationManager: AuthenticationManager,
-        private val userDetailsService: UserDetailsService
+        private val userDetailsService: UserDetailsService,
+        private val amqpService: AmqpService
 ) {
 
     @Value("\${adminCode}")
@@ -43,10 +44,10 @@ class AuthController(
 
     @PostMapping(path = ["/signup"],
             consumes = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
-    fun signUp(@RequestBody dto: AuthenticationDto)
+    fun signUp(@RequestBody dto: RegistrationDto)
             : ResponseEntity<Void> {
 
-        val userId : String = dto.username!!
+        val userId : String = dto.userInfo!!.username!!
         val password : String = dto.password!!
 
         val registered = if(!dto.secretPassword.isNullOrBlank() && dto.secretPassword.equals(adminCode)) {
@@ -67,6 +68,11 @@ class AuthController(
         if (token.isAuthenticated) {
             SecurityContextHolder.getContext().authentication = token
         }
+
+        /**
+         * AMQP
+         */
+        amqpService.send(dto.userInfo!!, "USER-REGISTRATION")
 
         return ResponseEntity.status(204).build()
     }

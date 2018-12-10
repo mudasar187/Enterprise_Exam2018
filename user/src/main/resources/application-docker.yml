@@ -1,6 +1,6 @@
 graphql:
   servlet:
-    mapping: /user
+    mapping: /graphql
     enabled: true
 
 eureka:
@@ -16,6 +16,14 @@ eureka:
 spring:
   application:
     name: user-server
+  redis:
+    host: redis
+    port: 6379
+  rabbitmq:
+    host: rabbitmq
+  session:
+    # specify that session tokes should be stored in Redis
+    store-type: redis
   datasource:
     url: "jdbc:postgresql://postgres-user:5432/postgres"
     username: "postgres"

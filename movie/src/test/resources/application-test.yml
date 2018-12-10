@@ -21,4 +21,4 @@ hystrix:
       circuitBreaker:
         enabled: false
 
-cinemaService: http://localhost:8086
+cinemaService: http://localhost:7086

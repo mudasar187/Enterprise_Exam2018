@@ -2,6 +2,7 @@ package no.ecm.creditcard
 
 
 import io.restassured.RestAssured
+import io.restassured.RestAssured.basic
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.restassured.response.ValidatableResponse
@@ -9,20 +10,14 @@ import no.ecm.creditcard.repository.CreditCardRepository
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.core.io.Resource
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.util.StreamUtils
-import java.nio.charset.StandardCharsets
+import org.springframework.test.context.junit4.SpringRunner
 
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner::class)
-@SpringBootTest(
-	classes = [(CreditCardApplication::class)],
-	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RunWith(SpringRunner::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class TestBase {
 	
 	@LocalServerPort
@@ -36,8 +31,9 @@ abstract class TestBase {
 		// RestAssured configs shared by all the tests
 		RestAssured.baseURI = "http://localhost"
 		RestAssured.port = port
-		RestAssured.basePath = "/creditcards"
+		RestAssured.basePath = "/graphql"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
+		RestAssured.authentication = basic("foobar", "123")
 		
 		creditCardRepository.deleteAll()
 	}
