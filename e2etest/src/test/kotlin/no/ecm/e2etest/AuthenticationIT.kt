@@ -14,9 +14,6 @@ import java.util.concurrent.TimeUnit
 
 class AuthenticationIT: TestBase() {
 
-    val name = "testName"
-    val password = "testPassword"
-
     companion object {
 
         @BeforeClass
@@ -24,7 +21,6 @@ class AuthenticationIT: TestBase() {
         fun checkEnvironment(){
 
             /*
-                TODO
                 Looks like currently some issues in running Docker-Compose on Travis
              */
 
@@ -71,8 +67,9 @@ class AuthenticationIT: TestBase() {
 
         checkAuthenticatedCookie("invalid cookie", 401)
 
-        val id = createUniqueId()
-        val cookie = testRegisterUser(id, password)
+        val username = createUniqueId()
+        val password = createUniqueId()
+        val cookie = testRegisterUser(username, password, null)
 
         given().get("/auth-service/user")
                 .then()
@@ -82,7 +79,7 @@ class AuthenticationIT: TestBase() {
                 .get("/auth-service/user")
                 .then()
                 .statusCode(200)
-                .body("name", CoreMatchers.equalTo(id))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_USER"))
 
 
@@ -90,12 +87,12 @@ class AuthenticationIT: TestBase() {
             Trying to access with userId/password will reset
             the SESSION token.
          */
-        val basic = given().auth().basic(id, password)
+        val basic = given().auth().basic(username, password)
                 .get("/auth-service/user")
                 .then()
                 .statusCode(200)
                 .cookie("SESSION") // new SESSION cookie
-                .body("name", CoreMatchers.equalTo(id))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_USER"))
                 .extract().cookie("SESSION")
 
@@ -106,7 +103,7 @@ class AuthenticationIT: TestBase() {
             Same with /login
          */
         val login = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(id, password))
+                .body(AuthenticationDto(username, password))
                 .post("/auth-service/login")
                 .then()
                 .statusCode(204)
@@ -121,8 +118,10 @@ class AuthenticationIT: TestBase() {
     @Test
     fun testWrongLogin() {
 
+
+
         val noAuth = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, password))
+                .body(AuthenticationDto("hgfd", "hgfds"))
                 .post("/auth-service/login")
                 .then()
                 .statusCode(400)
@@ -130,15 +129,50 @@ class AuthenticationIT: TestBase() {
 
         checkAuthenticatedCookie(noAuth, 401)
 
-        testRegisterUser(name, password)
+        val username = createUniqueId()
+        val password = createUniqueId()
+        testRegisterUser(username, password, null)
 
         val auth = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, password))
+                .body(AuthenticationDto(username, password))
                 .post("/auth-service/login")
                 .then()
                 .statusCode(204)
                 .extract().cookie("SESSION")
 
         checkAuthenticatedCookie(auth, 200)
+    }
+
+
+    /**
+     * Since AMQP sends all information except from password to user-service we can check if it is saved in user-service too
+     */
+    @Test
+    fun testIfUserDetailsIsSavedInUserService() {
+
+        val password = createUniqueId()
+        val username = createUniqueId()
+        val cookie = testRegisterUser(username, password, null)
+
+        val getQuery = """
+			{
+  				userById(id: "$username") {
+    				username, email, name, dateOfBirth
+  				}
+			}
+		""".trimIndent()
+
+        given().cookie("SESSION", cookie)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", getQuery)
+                .get("/user-service/graphql")
+                .then()
+                .statusCode(200)
+                .body("data.userById.username", Matchers.equalTo(username))
+                .body("data.userById.name", Matchers.equalTo("Foo Bar"))
+                .body("data.userById.dateOfBirth", Matchers.equalTo("1986-02-03"))
+
+
     }
 }

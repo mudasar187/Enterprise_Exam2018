@@ -41,7 +41,6 @@ class AmqpTest {
 		fun checkEnvironment(){
 
 			/*
-                TODO
                 Looks like currently some issues in running Docker-Compose on Travis
              */
 
