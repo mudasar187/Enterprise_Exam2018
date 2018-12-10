@@ -106,5 +106,14 @@ services:
       - creditcard-server
       - cinema-server
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - gateway-server
+
 # add '-rabbitmq' where AMQP is used
 

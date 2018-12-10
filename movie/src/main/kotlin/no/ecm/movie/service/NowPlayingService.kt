@@ -24,6 +24,7 @@ import no.ecm.utils.messages.ExceptionMessages.Companion.notFoundMessage
 import no.ecm.utils.messages.InfoMessages
 import no.ecm.utils.response.RoomResponse
 import no.ecm.utils.validation.ValidationHandler
+import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -44,13 +45,18 @@ class NowPlayingService(
     val logger = logger<NowPlayingService>()
 
 
-    fun find(title: String?, date: String?): MutableList<NowPlayingDto> {
+    fun find(title: String?, date: String?, cinemaStringId: String?): MutableList<NowPlayingDto> {
 
-        val nowPlaying = if (!title.isNullOrBlank() && date != null){
+        val nowPlaying = if (!title.isNullOrBlank() && date != null ||
+                !title.isNullOrBlank() && !cinemaStringId.isNullOrBlank() ||
+                !date.isNullOrBlank() && !cinemaStringId.isNullOrBlank()){
             logger.warn(inputFilterInvalid())
             throw UserInputValidationException(ExceptionMessages.inputFilterInvalid())
         }else if (!title.isNullOrBlank()){
             nowPlayingRepository.findAllByMovie_TitleContainsIgnoreCase(title!!).toMutableList()
+        }else if (!cinemaStringId.isNullOrBlank()){
+            val cinemaId = validateId(cinemaStringId!!, "cinemaId")
+            nowPlayingRepository.findAllByCinemaId(cinemaId).toMutableList()
         }else if (date != null){
             val start = convertTimeStampToZonedTimeDate(
                     ValidationHandler.validateTimeFormat("$date 00:00:00.000000"))

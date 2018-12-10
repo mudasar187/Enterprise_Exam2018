@@ -1,0 +1,145 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 40vmin;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.grid {
+  margin: 2rem;
+  width: calc(100% - 4rem);
+  display: grid;
+  grid: auto-flow / repeat(3,1fr);
+  grid-gap: 1rem;
+}
+
+@media (min-width: 1281px) {
+
+.grid {
+  grid: auto / repeat(4,1fr);
+
+}
+}
+
+/*
+  ##Device = Laptops, Desktops
+  ##Screen = B/w 1025px to 1280px
+*/
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+
+  .grid {
+    grid: auto / repeat(4,1fr);
+
+  }
+
+
+}
+
+/*
+  ##Device = Tablets, Ipads (portrait)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) {
+
+  .grid {
+    grid: auto / repeat(3,1fr);
+
+  }
+}
+
+/*
+  ##Device = Tablets, Ipads (landscape)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+
+  .grid {
+    grid: auto / repeat(3,1fr);
+
+  }
+}
+
+/*
+  ##Device = Low Resolution Tablets, Mobiles (Landscape)
+  ##Screen = B/w 481px to 767px
+*/
+
+@media (min-width: 481px) and (max-width: 767px) {
+
+  .grid {
+    grid: auto / repeat(1,1fr);
+
+  }
+
+}
+
+/*
+  ##Device = Most of the Smartphones Mobiles (Portrait)
+  ##Screen = B/w 320px to 479px
+*/
+
+@media (min-width: 320px) and (max-width: 480px) {
+
+
+  .grid {
+    grid: auto / repeat(1,1fr);
+
+  }
+
+}
+
+/*img {*/
+  /*width: 100%;*/
+/*}*/
+
+.tile {
+  max-width: 100px;
+}
+
+
+.genre {
+  display:inline-block;
+  padding: 0.2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #282c34;
+}
+
+.header a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: aliceblue;
+}
