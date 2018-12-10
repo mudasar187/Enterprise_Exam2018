@@ -10,7 +10,7 @@ export default (props) => {
 		parsedTime = moment(time).tz("Europe/Berlin").format("dddd MMM Mo kk:mm")
 	}
 	return (
-		<div>
+		<div className="grid-item">
 			{props.nowPlaying !== null
 				? <div>
 					<p>{parsedTime}</p>

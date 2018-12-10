@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from "axios";
 import NowPlaying from "./NowPlaying";
+import Flexbox from 'flexbox-react';
 
 
 class NowPlayings extends Component{
@@ -27,17 +28,22 @@ class NowPlayings extends Component{
 		).catch(err => {
 			this.setState({error : err})
 		});
-	}
+	};
+
+
 
 	render() {
 		return (
 			<div>
-				{this.state.nowPlayings !== null
-					? this.state.nowPlayings.map( item => {
-						return <NowPlaying key={item.id} nowPlaying={item}/>
-						})
-					: <p>No elemts in nowplaying</p>
-				}
+				<div className="grid">
+					{this.state.nowPlayings !== null
+						? this.state.nowPlayings.map( item => {
+							return <NowPlaying key={item.id} nowPlaying={item}/>
+							})
+						: <p>No elemts in nowplaying</p>
+					}
+				</div>
+
 			</div>
 		);
 	}
