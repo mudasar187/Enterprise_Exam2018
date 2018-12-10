@@ -7,6 +7,8 @@ import junit.framework.Assert.assertEquals
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.dto.movie.NowPlayingDto
+import no.ecm.utils.response.GenreResponse
+import no.ecm.utils.response.NowPlayingReponse
 import org.hamcrest.CoreMatchers
 import org.junit.Test
 
@@ -48,10 +50,30 @@ class NowPlayingTest: TestBase() {
 				.statusCode(500)
 	}
 
-//	@Test
-//	fun testCircuitBreakerTriggered() {
-//	}
-	
+	@Test
+	fun testFindByCinemaId() {
+		assertEquals(nowPlayingCount(), 0)
+
+		val cinemaId = 1
+		val roomId = 4
+		val movieId = createDefaultMovie()
+
+		val responseBody = getAMockRoomResponse(cinemaId, roomId)
+		stubJsonResponse(responseBody)
+
+		val newNowPlayingId = createNowPlaying(createDefaultNowPlayingDto(movieId))
+
+		val res = given().accept(ContentType.JSON)
+				.param("cinemaId", cinemaId)
+				.get(nowPlayingURL)
+				.then()
+				.statusCode(200)
+				.extract()
+				.`as`(NowPlayingReponse::class.java)
+
+		assertEquals(cinemaId.toString(), res.data!!.list.first().cinemaId)
+	}
+
 	@Test
 	fun createNowPlayingWithInvalidDataTest() {
 		

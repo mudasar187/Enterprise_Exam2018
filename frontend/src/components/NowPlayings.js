@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from "axios";
-import NowPlaying from "./NowPlaying";
-import Flexbox from 'flexbox-react';
+import NowPlaying from "./sub/NowPlaying";
+import urls from "../utils/Urls"
 
 
 class NowPlayings extends Component{
@@ -9,9 +9,13 @@ class NowPlayings extends Component{
 	constructor(props) {
 		super(props);
 
+		const {cinemaId} = props.location.state;
+		console.log(cinemaId); // "bar"
+
 		this.state = {
 			nowPlayings: null,
-			error: null
+			error: null,
+			cinemaId: cinemaId
 		};
 
 		this.getNowPlayings();
@@ -19,15 +23,17 @@ class NowPlayings extends Component{
 
 	getNowPlayings = () => {
 
-		const url = "http://localhost:7083/now-playings";
+		if (this.state.cinemaId !== null) {
+			const url = `${urls.nowPlayingsUrl}?cinemaId=${this.state.cinemaId}`;
 
-		axios.get(url).then(
-			res => {
-				this.setState({nowPlayings : res.data.data.list});
-			}
-		).catch(err => {
-			this.setState({error : err})
-		});
+			axios.get(url).then(
+				res => {
+					this.setState({nowPlayings: res.data.data.list});
+				}
+			).catch(err => {
+				this.setState({error: err})
+			});
+		}
 	};
 
 

@@ -39,6 +39,10 @@ class NowPlayingController(
                       @RequestParam("date", required = false)
                       date: String?,
 
+                      @ApiParam("cinemaId of the movie")
+                      @RequestParam("cinemaId", required = false)
+                      cinemaId: String?,
+
                       @ApiParam("Offset in the list of genres")
                       @RequestParam("offset", defaultValue = "0")
                       offset: Int,
@@ -46,7 +50,7 @@ class NowPlayingController(
                       @ApiParam("Limit of genres in a single retrieved page")
                       @RequestParam("limit", defaultValue = "10")
                       limit: Int): ResponseEntity<WrappedResponse<NowPlayingDto>> {
-        val nowPlayingDtos = nowPlayingService.find(title, date)
+        val nowPlayingDtos = nowPlayingService.find(title, date, cinemaId)
 
         val builder = UriComponentsBuilder.fromPath("/now-playing")
 
