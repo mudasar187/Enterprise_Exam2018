@@ -59,7 +59,6 @@ class InvoiceTest : TestBase() {
             .post(invoiceUrl)
             .then()
             .statusCode(201)
-            .extract().response().jsonPath().prettyPrint()
     }
     
     @Test

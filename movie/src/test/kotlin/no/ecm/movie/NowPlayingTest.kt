@@ -47,10 +47,6 @@ class NowPlayingTest: TestBase() {
 				.then()
 				.statusCode(500)
 	}
-
-//	@Test
-//	fun testCircuitBreakerTriggered() {
-//	}
 	
 	@Test
 	fun createNowPlayingWithInvalidDataTest() {
