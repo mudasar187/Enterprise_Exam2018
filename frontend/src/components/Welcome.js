@@ -19,7 +19,7 @@ class Welcome extends Component {
 	}
 
 	getCinemas = () => {
-		axios.get(urls.cinemaUrl).then(
+		axios.get(urls.cinemaUrls.cinema).then(
 			res => {
 				this.setState({cinemas : res.data.data.list});
 			}

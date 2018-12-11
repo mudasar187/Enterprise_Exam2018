@@ -24,7 +24,7 @@ class NowPlayings extends Component{
 	getNowPlayings = () => {
 
 		if (this.state.cinemaId !== null) {
-			const url = `${urls.nowPlayingsUrl}?cinemaId=${this.state.cinemaId}`;
+			const url = `${urls.movieUrls.nowPlayings}?cinemaId=${this.state.cinemaId}`;
 
 			axios.get(url).then(
 				res => {

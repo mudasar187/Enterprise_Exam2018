@@ -4,6 +4,8 @@ import no.ecm.authentication.service.AmqpService
 import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
 import no.ecm.utils.dto.auth.RegistrationDto
+import no.ecm.utils.logger
+import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -33,6 +35,8 @@ class AuthController(
     @Value("\${adminCode}")
     private lateinit var adminCode: String
 
+    var logger = logger<AuthController>()
+
 
     @RequestMapping("/user")
     fun user(user: Principal): ResponseEntity<Map<String, Any>> {
@@ -47,6 +51,10 @@ class AuthController(
     fun signUp(@RequestBody dto: RegistrationDto)
             : ResponseEntity<Void> {
 
+        if (dto.password.isNullOrBlank() || dto.userInfo == null || dto.userInfo!!.username.isNullOrBlank()){
+            logger.warn("missing requered field")
+            return ResponseEntity.status(400).build()
+        }
         val userId : String = dto.userInfo!!.username!!
         val password : String = dto.password!!
 
