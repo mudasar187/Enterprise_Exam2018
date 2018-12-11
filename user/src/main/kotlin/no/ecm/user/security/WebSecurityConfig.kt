@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.web.cors.CorsUtils
 
 @Configuration
 @EnableWebSecurity
@@ -23,7 +24,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-
                 .antMatchers(HttpMethod.GET, "/graphql/**")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.

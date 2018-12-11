@@ -79,6 +79,16 @@ class InvoiceTest : TestBase() {
                 .post(invoiceUrl)
                 .then()
                 .statusCode(201)
+    
+        given().auth().basic("admin", "admin")
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .queryParam("username", "jondoe")
+            .get(invoiceUrl)
+            .then()
+            .statusCode(200)
+            .body("data.totalSize", CoreMatchers.equalTo(1))
+            .extract().body().jsonPath().prettyPrint()
 
         // find by username and nowplayingId
         given().auth().basic("admin", "admin")
