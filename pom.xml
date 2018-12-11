@@ -184,6 +184,13 @@
 				<version>${version.postgres}</version>
 			</dependency>
 
+			<!-- Flyway -->
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-core</artifactId>
+				<version>5.2.4</version>
+			</dependency>
+
 			<!-- SPRINGFOX & SWAGGER -->
 			<dependency>
 				<groupId>io.springfox</groupId>

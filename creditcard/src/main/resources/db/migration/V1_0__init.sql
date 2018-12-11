@@ -1,0 +1,2 @@
+create sequence hibernate_sequence start with 1 increment by 1;
+create table credit_card (id bigint not null, creditcard_number varchar(255) not null, cvc integer not null, expiration_date varchar(255) not null, username varchar(255), primary key (id));

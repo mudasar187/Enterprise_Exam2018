@@ -215,8 +215,6 @@ abstract class TestBase {
             movieDto = MovieDto(id = movieId),
             time = "2018-12-20 20:00:00")
     }
-    
-    
 
     fun createDefaultGenreDto() : GenreDto {
         return GenreDto(
