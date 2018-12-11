@@ -14,9 +14,20 @@ That is what we have done for adding default data in this exam.
     This is a Postman Environment file that contains global variables for storing the different IDs for the data that is to be added 
     - **Enterprise_Exam.postman_collection.json** <br/>
     This is a file that contains all the POST requests that are necessary to import all the defined predefined data
-2. Open postman and
-
-<img src="https://imgur.com/VpH70VT" alt="ImportButton" height="300" width="500"> 
-
-
-![Image](docs/imgs/Screenshot 2018-12-11 at 10.50.53.png)
+2. Open postman and push the import button in the top left corner <br/>
+    ![importImg](imgs/importButton.png)
+3. Import both **Cinema-App.postman_environment.json** and **Enterprise_Exam.postman_collection.json**.
+4. After this is done you need to select the imported Environment <br/>
+    ![envImg](imgs/envButton.png)
+5. You also have a new Collection on the left side of the window. Press the **"Play"**-button  when you hover over this button. An press **Run** <br/>
+    ![collectionImg](imgs/runCollection.png)
+6. Now a new **Collection-runner**-window should appear. <br/>
+    Make sure these fields have the following values:
+    - Environment: "Cinema-App"
+    - Iterations: 1
+    - Delay: 500 ms (For safety because of async tasks) <br/>
+    And hit **Run** and wat for it to finish
+    ![runnerImg](imgs/collectionRunner.png)
+    
+7. Now all the data is getting sent and stored in the applications Database.
+    
