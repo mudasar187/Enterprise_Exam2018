@@ -24,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder
 	path = ["/invoices"],
 	produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
+@CrossOrigin(origins = ["http://localhost:8080"])
 class InvoiceController(
 		private var invoiceService: InvoiceService
 ) {

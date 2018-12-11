@@ -19,7 +19,7 @@ class Header extends Component {
 	}
 
 	checkAuth = () => {
-		axios.get(urls.authUserUrl).then(
+		axios.get(urls.authUrls.user).then(
 			res => {
 				if (res.status === 200) {
 					this.setState({authenticated: true});

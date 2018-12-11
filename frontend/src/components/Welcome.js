@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from "axios";
 import urls from "../utils/Urls"
-import NowPlaying from "./sub/NowPlaying";
 import Cinema from "./sub/Cinema";
 
 class Welcome extends Component {
@@ -19,7 +18,7 @@ class Welcome extends Component {
 	}
 
 	getCinemas = () => {
-		axios.get(urls.cinemaUrl).then(
+		axios.get(urls.cinemaUrls.cinema).then(
 			res => {
 				this.setState({cinemas : res.data.data.list});
 			}
