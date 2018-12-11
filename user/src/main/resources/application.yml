@@ -16,7 +16,7 @@ spring:
     database: "h2"
     hibernate:
       ddl-auto: "validate"
-    show-sql: true
+    show-sql: false
 
 server:
   port: 8081

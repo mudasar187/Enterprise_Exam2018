@@ -24,7 +24,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-                .requestMatchers().permitAll()
                 .antMatchers(HttpMethod.GET, "/graphql/**")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.

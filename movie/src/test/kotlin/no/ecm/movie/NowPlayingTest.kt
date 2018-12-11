@@ -34,7 +34,6 @@ class NowPlayingTest: TestBase() {
 			.then()
 			.statusCode(200)
 			.body("data.list[0].id", CoreMatchers.equalTo(newNowPlayingId))
-			.extract().body().jsonPath().prettyPrint()
 	}
 
 	@Test
@@ -64,8 +63,6 @@ class NowPlayingTest: TestBase() {
 		stubJsonResponse(responseBody)
 
 		val newNowPlayingId = createNowPlaying(createDefaultNowPlayingDto(movieId))
-		
-		println(newNowPlayingId)
 
 		val res = given().accept(ContentType.JSON)
 				.param("cinemaId", cinemaId)
