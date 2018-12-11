@@ -143,3 +143,8 @@
   text-decoration: none;
   color: aliceblue;
 }
+
+.form{
+  align-content: center;
+  padding: 2rem;
+}

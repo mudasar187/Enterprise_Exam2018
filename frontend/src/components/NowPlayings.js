@@ -10,7 +10,7 @@ class NowPlayings extends Component{
 		super(props);
 
 		const {cinemaId} = props.location.state;
-		console.log(cinemaId); // "bar"
+		console.log(cinemaId);
 
 		this.state = {
 			nowPlayings: null,

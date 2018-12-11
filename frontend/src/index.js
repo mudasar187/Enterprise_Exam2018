@@ -6,12 +6,14 @@ import * as serviceWorker from './serviceWorker';
 import {BrowserRouter, Route} from "react-router-dom";
 import Welcome from "./components/Welcome";
 import NowPlayings from "./components/NowPlayings";
+import SignUp from "./components/SignUp";
 
 ReactDOM.render(
 	<BrowserRouter>
 		<App>
 			<Route path="/" exact component={Welcome} />
 			<Route path="/nowPlayings" component={NowPlayings} />
+			<Route path="/signup" component={SignUp} />
 		</App>
 	</BrowserRouter>
 	, document.getElementById('root'));
