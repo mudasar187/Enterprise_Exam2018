@@ -25,16 +25,6 @@ services:
       context: ./eureka
       dockerfile: Dockerfile
 
-  auth-server:
-    build:
-      context: ./authentication
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - eureka
-      - postgres-auth
-      - rabbitmq
-
   user-server:
     build:
       context: ./user
@@ -90,6 +80,22 @@ services:
       - eureka
       - postgres-cinema
 
+  auth-server:
+    build:
+      context: ./authentication
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-auth
+      - rabbitmq
+      - user-server
+      - order-server
+      - movie-server
+      - creditcard-server
+      - cinema-server
+      - cinema-server-2
+
   gateway-server:
     build:
       context: ./gateway
@@ -101,10 +107,11 @@ services:
       - eureka
       - auth-server
       - user-server
-#      - order-server
+      - order-server
       - movie-server
-#      - creditcard-server
+      - creditcard-server
       - cinema-server
+      - cinema-server-2
 
 #  frontend:
 #    build:

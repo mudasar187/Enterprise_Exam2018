@@ -1,11 +1,15 @@
-package no.ecm.cinema.repository
+package no.ecm.cinema
 
 import no.ecm.cinema.model.entity.Cinema
 import no.ecm.cinema.model.entity.Room
+import no.ecm.cinema.repository.CinemaRepository
+import no.ecm.cinema.repository.RoomRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 @Component
+@Profile("test")
 class DefaultData(
         private var cinemaRepository: CinemaRepository,
         private var roomRepository: RoomRepository

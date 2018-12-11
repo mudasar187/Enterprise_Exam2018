@@ -7,8 +7,14 @@ import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.dto.cinema.RoomDto
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
+import no.ecm.utils.dto.movie.NowPlayingDto
+import no.ecm.utils.dto.order.CouponDto
+import no.ecm.utils.dto.order.InvoiceDto
+import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.dto.user.UserDto
+import no.ecm.utils.response.NowPlayingReponse
 import org.hamcrest.CoreMatchers
+import org.junit.Assert
 import org.springframework.http.HttpStatus
 
 abstract class TestBase {
@@ -115,5 +121,37 @@ abstract class TestBase {
                 .statusCode(HttpStatus.CREATED.value())
                 .extract()
                 .jsonPath().getLong("data.list[0].id")
+    }
+
+
+
+//    fun createNowPlaying(cookie: String, cinemaId: String, roomId: String, movieId: String): Long {
+//
+//        val dto = """{
+//    "movieDto": {"id": "${movieId}"},
+//    "roomId": "${roomId}",
+//    "cinemaId": "${cinemaId}",
+//    "time": "2018-12-28 18:00:00"
+//}""".trimIndent()
+//
+//        return given().contentType(ContentType.JSON)
+//                .cookie("SESSION", cookie)
+//                .body(NowPlayingDto(movieDto = (MovieDto(id = movieId))), cinemaId, movieId, roomId)
+//                .post("/movie-service/now-playings")
+//                .then()
+//                .statusCode(HttpStatus.CREATED.value())
+//                .extract()
+//                .jsonPath().getLong("data.list[0].id")
+//    }
+
+
+    fun createDefaultInvoiceDto(username: String, orderDate: String, nowPlayingId: String, seat: String): InvoiceDto {
+        return InvoiceDto(
+                username = username,
+                orderDate = orderDate,
+                couponCode = null,
+                nowPlayingId = nowPlayingId,
+                tickets = listOf(TicketDto(seat = seat))
+        )
     }
 }
