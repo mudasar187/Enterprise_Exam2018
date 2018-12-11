@@ -11,7 +11,6 @@ spring:
     circuit:
       breaker:
         enabled: false
-
   session:
     store-type: none
 
