@@ -9,6 +9,9 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
 import org.junit.*
 import org.junit.Assert.assertNotEquals
+import org.junit.Before
+import org.junit.ClassRule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -36,9 +39,6 @@ class SecurityTest : TestBase() {
 
     @Value("\${adminCode}")
     private lateinit var adminCode: String
-
-    val name = "foo"
-    val pwd = "bar"
 
     companion object {
 
@@ -110,6 +110,9 @@ class SecurityTest : TestBase() {
     @Test
     fun testLoginWithUserRole() {
 
+        val name = createUniqueId()
+        val pwd = createUniqueId()
+
         checkAuthenticatedCookie("invalid cookie", 401)
 
         val cookie = testRegisterAsUserOrAdmin(name, pwd, null)
@@ -161,8 +164,8 @@ class SecurityTest : TestBase() {
     @Test
     fun testLoginWithAdminRole() {
 
-        val name = "foo"
-        val pwd = "bar"
+        val name = createUniqueId()
+        val pwd = createUniqueId()
 
         checkAuthenticatedCookie("invalid cookie", 401)
 
@@ -212,13 +215,49 @@ class SecurityTest : TestBase() {
         checkAuthenticatedCookie(login, 200)
     }
 
+    @Test
+    fun testLogout() {
+
+        val name = createUniqueId()
+        val pwd = createUniqueId()
+
+        checkAuthenticatedCookie("invalid cookie", 401)
+
+        val cookie = testRegisterAsUserOrAdmin(name, pwd, adminCode)
+
+        given().get("/user")
+                .then()
+                .statusCode(401)
+
+        given().cookie("SESSION", cookie)
+                .get("/user")
+                .then()
+                .statusCode(200)
+                .body("name", CoreMatchers.equalTo(name))
+                .body("roles", Matchers.contains("ROLE_ADMIN"))
+
+        // Logout will destroy session
+        given().cookie("SESSION", cookie)
+                .post("/logout")
+                .then()
+                .statusCode(204)
+
+
+        // Invalid session, because destroyd on logout
+        given().cookie("SESSION", cookie)
+                .get("/user")
+                .then()
+                .statusCode(401)
+
+    }
+
 
 
     @Test
     fun testWrongLogin() {
 
-        val name = "foo"
-        val pwd = "bar"
+        val name = createUniqueId()
+        val pwd = createUniqueId()
 
         val noAuth = given().contentType(ContentType.JSON)
                 .body(AuthenticationDto(name, pwd))

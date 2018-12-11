@@ -20,7 +20,8 @@
 		<module>cinema</module>
 		<module>creditcard</module>
 		<module>report</module>
-	</modules>
+        <module>frontend</module>
+    </modules>
 
     <contributors>
         <contributor>

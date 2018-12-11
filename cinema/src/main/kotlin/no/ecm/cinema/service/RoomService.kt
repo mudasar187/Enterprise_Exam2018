@@ -82,7 +82,7 @@ class RoomService(
             else -> {
 
                 when {
-                    roomRepository.existsByName(roomDto.name.toString()) -> {
+                    roomRepository.existsByCinema_IdAndName(cinema.id!!, roomDto.name.toString()) -> {
                         val errorMsg = ExceptionMessages.resourceAlreadyExists("Room", "name", "${roomDto.name}")
                         logger.warn(errorMsg)
                         throw ConflictException(errorMsg)

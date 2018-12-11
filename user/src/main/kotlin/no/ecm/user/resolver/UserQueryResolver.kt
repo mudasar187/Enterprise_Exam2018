@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Component
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.web.bind.annotation.CrossOrigin
 
 
 /* INFO:
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails
  */
 
 @Component
+@CrossOrigin(origins = ["http://localhost:8080"])
 class UserQueryResolver(
         private var userRepository: UserRepository
 ): GraphQLQueryResolver {

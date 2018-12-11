@@ -45,14 +45,14 @@ services:
       - postgres-user
       - rabbitmq
 
-  order-server:
-    build:
-      context: ./order
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - eureka
-      - postgres-order
+#  order-server:
+#    build:
+#      context: ./order
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - redis
+#      - eureka
+#      - postgres-order
 
   movie-server:
     build:
@@ -63,14 +63,14 @@ services:
       - eureka
       - postgres-movie
 
-  creditcard-server:
-    build:
-      context: ./creditcard
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - eureka
-      - postgres-creditcard
+#  creditcard-server:
+#    build:
+#      context: ./creditcard
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - redis
+#      - eureka
+#      - postgres-creditcard
 
   cinema-server:
     build:
@@ -81,14 +81,14 @@ services:
       - eureka
       - postgres-cinema
 
-  cinema-server-2:
-    build:
-      context: ./cinema
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - eureka
-      - postgres-cinema
+#  cinema-server-2:
+#    build:
+#      context: ./cinema
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - redis
+#      - eureka
+#      - postgres-cinema
 
   gateway-server:
     build:
@@ -101,10 +101,17 @@ services:
       - eureka
       - auth-server
       - user-server
-      - order-server
+#      - order-server
       - movie-server
-      - creditcard-server
+#      - creditcard-server
       - cinema-server
 
-# add '-rabbitmq' where AMQP is used
+#  frontend:
+#    build:
+#      context: ./frontend
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - gateway-server
 
