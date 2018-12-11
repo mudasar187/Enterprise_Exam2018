@@ -10,7 +10,6 @@ class DefaultData(
         private var cinemaRepository: CinemaRepository,
         private var roomRepository: RoomRepository
 ) {
-
     @PostConstruct
     fun createData() {
 
