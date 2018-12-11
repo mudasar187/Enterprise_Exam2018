@@ -19,4 +19,4 @@ That is what we have done for adding default data in this exam.
 <img src="https://imgur.com/VpH70VT" alt="ImportButton" height="300" width="500"> 
 
 
-![Image](https://imgur.com/VpH70VT)
+![Image](docs/imgs/Screenshot 2018-12-11 at 10.50.53.png)
