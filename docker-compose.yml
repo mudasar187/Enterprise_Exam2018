@@ -115,5 +115,3 @@ services:
     depends_on:
       - gateway-server
 
-# add '-rabbitmq' where AMQP is used
-

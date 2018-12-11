@@ -3,9 +3,7 @@ package no.ecm.user
 import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import no.ecm.user.model.entity.UserEntity
 import no.ecm.user.repository.UserRepository
-import no.ecm.utils.dto.auth.RegistrationDto
 import no.ecm.utils.dto.user.UserDto
 import org.awaitility.Awaitility.await
 import org.hamcrest.Matchers
@@ -23,15 +21,16 @@ import org.springframework.boot.test.util.TestPropertyValues
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.GenericContainer
-import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(initializers = [(AmqpTest.Companion.Initializer::class)])
+@ActiveProfiles("test")
 class AmqpTest {
 	
 	companion object {

@@ -118,10 +118,11 @@ class AuthenticationIT: TestBase() {
     @Test
     fun testWrongLogin() {
 
-
+        val username = createUniqueId()
+        val password = createUniqueId()
 
         val noAuth = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto("hgfd", "hgfds"))
+                .body(AuthenticationDto(username, password))
                 .post("/auth-service/login")
                 .then()
                 .statusCode(400)
@@ -129,8 +130,6 @@ class AuthenticationIT: TestBase() {
 
         checkAuthenticatedCookie(noAuth, 401)
 
-        val username = createUniqueId()
-        val password = createUniqueId()
         testRegisterUser(username, password, null)
 
         val auth = given().contentType(ContentType.JSON)
@@ -141,6 +140,40 @@ class AuthenticationIT: TestBase() {
                 .extract().cookie("SESSION")
 
         checkAuthenticatedCookie(auth, 200)
+    }
+
+    @Test
+    fun testLogout() {
+        val username = createUniqueId()
+        val password = createUniqueId()
+
+        checkAuthenticatedCookie("invalid cookie", 401)
+
+        val cookie = testRegisterUser(username, password, null)
+
+        given().get("/auth-service/user")
+                .then()
+                .statusCode(401)
+
+        given().cookie("SESSION", cookie)
+                .get("/auth-service/user")
+                .then()
+                .statusCode(200)
+                .body("name", CoreMatchers.equalTo(username))
+                .body("roles", Matchers.contains("ROLE_USER"))
+
+        // Logout will destroy session
+        given().cookie("SESSION", cookie)
+                .post("/auth-service/logout")
+                .then()
+                .statusCode(204)
+
+
+        // Invalid session, because destroyd on logout
+        given().cookie("SESSION", cookie)
+                .get("/auth-service/user")
+                .then()
+                .statusCode(401)
     }
 
 
