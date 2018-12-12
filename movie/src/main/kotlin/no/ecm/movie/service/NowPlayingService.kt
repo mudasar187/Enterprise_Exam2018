@@ -86,12 +86,8 @@ class NowPlayingService(
         if (dto.seats != null) handleIllegalField("seats")
         if (!dto.id.isNullOrEmpty()) handleIllegalField("id")
 
-        println("Dto.time = " + dto.time)
-
         val time = convertTimeStampToZonedTimeDate(
                 ValidationHandler.validateTimeFormat("${dto.time}.000000"))
-
-        println("converted time = " + time)
 
         if (nowPlayingRepository.existsByMovie_IdAndRoomIdAndTimeWhenMoviePlay(dto.movieDto!!.id!!.toLong(), dto.roomId!!.toLong(), time!!)){
             val errorMsg = (ExceptionMessages.resourceAlreadyExists("Now Playing",

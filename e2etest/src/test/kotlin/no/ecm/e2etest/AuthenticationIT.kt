@@ -54,6 +54,9 @@ class AuthenticationIT: TestBase() {
     }
 
 
+    /**
+     * auth-service
+     */
     @Test
     fun testUnauthorizedAccess() {
 
@@ -69,7 +72,7 @@ class AuthenticationIT: TestBase() {
 
         val username = createUniqueId()
         val password = createUniqueId()
-        val cookie = testRegisterUser(username, password, null)
+        val cookie = registerUser(username, password, null)
 
         given().get("/auth-service/user")
                 .then()
@@ -116,6 +119,27 @@ class AuthenticationIT: TestBase() {
     }
 
     @Test
+    fun testCreateAdmin() {
+        val username = createUniqueId()
+        val password = createUniqueId()
+
+        // create a admin with providing a secret key
+        val cookie = registerUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
+
+        given().get("/auth-service/user")
+                .then()
+                .statusCode(401)
+
+        given().cookie("SESSION", cookie)
+                .get("/auth-service/user")
+                .then()
+                .statusCode(200)
+                .body("name", CoreMatchers.equalTo(username))
+                .body("roles", Matchers.contains("ROLE_ADMIN"))
+                .extract().body().jsonPath().prettyPrint()
+    }
+
+    @Test
     fun testWrongLogin() {
 
         val username = createUniqueId()
@@ -130,7 +154,7 @@ class AuthenticationIT: TestBase() {
 
         checkAuthenticatedCookie(noAuth, 401)
 
-        testRegisterUser(username, password, null)
+        registerUser(username, password, null)
 
         val auth = given().contentType(ContentType.JSON)
                 .body(AuthenticationDto(username, password))
@@ -149,7 +173,7 @@ class AuthenticationIT: TestBase() {
 
         checkAuthenticatedCookie("invalid cookie", 401)
 
-        val cookie = testRegisterUser(username, password, null)
+        val cookie = registerUser(username, password, null)
 
         given().get("/auth-service/user")
                 .then()
@@ -174,38 +198,5 @@ class AuthenticationIT: TestBase() {
                 .get("/auth-service/user")
                 .then()
                 .statusCode(401)
-    }
-
-
-    /**
-     * Since AMQP sends all information except from password to user-service we can check if it is saved in user-service too
-     */
-    @Test
-    fun testIfUserDetailsIsSavedInUserService() {
-
-        val password = createUniqueId()
-        val username = createUniqueId()
-        val cookie = testRegisterUser(username, password, null)
-
-        val getQuery = """
-			{
-  				userById(id: "$username") {
-    				username, email, name, dateOfBirth
-  				}
-			}
-		""".trimIndent()
-
-        given().cookie("SESSION", cookie)
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .queryParam("query", getQuery)
-                .get("/user-service/graphql")
-                .then()
-                .statusCode(200)
-                .body("data.userById.username", Matchers.equalTo(username))
-                .body("data.userById.name", Matchers.equalTo("Foo Bar"))
-                .body("data.userById.dateOfBirth", Matchers.equalTo("1986-02-03"))
-
-
     }
 }

@@ -23,7 +23,6 @@ import javax.servlet.http.HttpSession
 @RequestMapping(
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
-@CrossOrigin(origins = ["http://localhost:8080"])
 class AuthController(
         private val authService: AuthenticationService,
         private val authenticationManager: AuthenticationManager,

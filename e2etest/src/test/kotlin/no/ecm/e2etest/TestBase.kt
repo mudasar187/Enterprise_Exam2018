@@ -7,14 +7,11 @@ import no.ecm.utils.dto.cinema.CinemaDto
 import no.ecm.utils.dto.cinema.RoomDto
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
-import no.ecm.utils.dto.movie.NowPlayingDto
 import no.ecm.utils.dto.order.CouponDto
-import no.ecm.utils.dto.order.InvoiceDto
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.dto.user.UserDto
-import no.ecm.utils.response.NowPlayingReponse
+import no.ecm.utils.response.CouponResponseDto
 import org.hamcrest.CoreMatchers
-import org.junit.Assert
 import org.springframework.http.HttpStatus
 
 abstract class TestBase {
@@ -23,7 +20,7 @@ abstract class TestBase {
 
     private var counter = System.currentTimeMillis()
 
-    fun testRegisterUser(username: String, password: String, secretPassword: String?): String {
+    fun registerUser(username: String, password: String, secretPassword: String?): String {
 
         val email = createUniqueId()
 
@@ -44,7 +41,7 @@ abstract class TestBase {
         return sessionCookie
     }
 
-    fun checkAuthenticatedCookie(cookie: String, expectedCode: Int){
+    fun checkAuthenticatedCookie(cookie: String, expectedCode: Int) {
         given().cookie("SESSION", cookie)
                 .get("/auth-service/user")
                 .then()
@@ -110,8 +107,7 @@ abstract class TestBase {
         )
     }
 
-    fun createMovie(cookie: String, movieDto: MovieDto) : Long {
-
+    fun createMovie(cookie: String, movieDto: MovieDto): Long {
 
         return given().contentType(ContentType.JSON)
                 .cookie("SESSION", cookie)
@@ -123,35 +119,33 @@ abstract class TestBase {
                 .jsonPath().getLong("data.list[0].id")
     }
 
+    fun createCoupon(cookie: String, couponCode: String, description: String, expireAt: String, percentage: Int): Long {
 
+        val dto = CouponDto(null, couponCode, description, expireAt, percentage)
 
-//    fun createNowPlaying(cookie: String, cinemaId: String, roomId: String, movieId: String): Long {
-//
-//        val dto = """{
-//    "movieDto": {"id": "${movieId}"},
-//    "roomId": "${roomId}",
-//    "cinemaId": "${cinemaId}",
-//    "time": "2018-12-28 18:00:00"
-//}""".trimIndent()
-//
-//        return given().contentType(ContentType.JSON)
-//                .cookie("SESSION", cookie)
-//                .body(NowPlayingDto(movieDto = (MovieDto(id = movieId))), cinemaId, movieId, roomId)
-//                .post("/movie-service/now-playings")
-//                .then()
-//                .statusCode(HttpStatus.CREATED.value())
-//                .extract()
-//                .jsonPath().getLong("data.list[0].id")
-//    }
+        return given().cookie("SESSION", cookie)
+                .contentType(ContentType.JSON)
+                .body(dto)
+                .post("/order-service/coupons")
+                .then()
+                .statusCode(201)
+                .extract()
+                .jsonPath().getLong("data.list[0].id")
+    }
 
+    fun createDefaultTicket(price: Double, seat: String, invoiceId: String): TicketDto {
+        return TicketDto(null, price, seat, invoiceId)
+    }
 
-    fun createDefaultInvoiceDto(username: String, orderDate: String, nowPlayingId: String, seat: String): InvoiceDto {
-        return InvoiceDto(
-                username = username,
-                orderDate = orderDate,
-                couponCode = null,
-                nowPlayingId = nowPlayingId,
-                tickets = listOf(TicketDto(seat = seat))
-        )
+    fun createTicket(cookie: String, ticketDto: TicketDto): Long {
+
+        return given().cookie("SESSION", cookie)
+                .contentType(ContentType.JSON)
+                .body(ticketDto)
+                .post("/order-service/tickets")
+                .then()
+                .statusCode(201)
+                .extract()
+                .jsonPath().getLong("data.list[0].id")
     }
 }

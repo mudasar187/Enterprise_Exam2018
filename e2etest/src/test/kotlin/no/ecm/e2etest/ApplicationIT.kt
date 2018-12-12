@@ -3,8 +3,10 @@ package no.ecm.e2etest
 import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import no.ecm.utils.converter.ConvertionHandler
-import no.ecm.utils.validation.ValidationHandler
+import junit.framework.Assert.assertEquals
+import no.ecm.utils.dto.order.TicketDto
+import no.ecm.utils.response.TicketResponseDto
+import no.ecm.utils.response.WrappedResponse
 import org.awaitility.Awaitility
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
@@ -40,6 +42,7 @@ class ApplicationIT: TestBase() {
         val env = KDockerComposeContainer(File("../docker-compose.yml"))
                 .withLocalCompose(true)
 
+
         @BeforeClass
         @JvmStatic
         fun initialize() {
@@ -47,7 +50,7 @@ class ApplicationIT: TestBase() {
             RestAssured.port = 10000
             RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
 
-            Awaitility.await().atMost(500, TimeUnit.SECONDS)
+            Awaitility.await().atMost(300, TimeUnit.SECONDS)
                     .pollInterval(3, TimeUnit.SECONDS)
                     .ignoreExceptions()
                     .until {
@@ -59,54 +62,24 @@ class ApplicationIT: TestBase() {
 
     }
 
-    // Create an admin to make authenticated HTTP request that are not allowed by normal user with 'ROLE_USER'
-    @Test
-    fun testCreateAdmin() {
-        val username = createUniqueId()
-        val password = createUniqueId()
-
-        // create a admin with providing a secret key
-        val cookie = testRegisterUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
-
-        given().get("/auth-service/user")
-                .then()
-                .statusCode(401)
-
-        given().cookie("SESSION", cookie)
-                .get("/auth-service/user")
-                .then()
-                .statusCode(200)
-                .body("name", CoreMatchers.equalTo(username))
-                .body("roles", Matchers.contains("ROLE_ADMIN"))
-                .extract().body().jsonPath().prettyPrint()
-    }
-
     /**
-     * Testing whole application
+     * cinema service
      */
     @Test
-    fun testApplicationEndPoints() {
+    fun testCinemaService() {
 
         val username = createUniqueId()
         val password = createUniqueId()
-        // create a admin with providing a secret key
-        val adminCookie = testRegisterUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
-
-
-
-        // Create a normal user to make a order
-        val normalUserName = createUniqueId()
-        val normalUserCookie = testRegisterUser(normalUserName, password, null)
-
+        val cookie = registerUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
 
         val cinemaName = createUniqueId()
         val cinemaLocation = createUniqueId()
-        val cinemaId = createCinema(adminCookie, cinemaName, cinemaLocation)
+        val cinemaId = createCinema(cookie, cinemaName, cinemaLocation)
 
         val roomName = createUniqueId()
-        val roomId = createRoomForSpecificCinema(adminCookie, cinemaId.toString(), roomName)
+        val roomId = createRoomForSpecificCinema(cookie, cinemaId.toString(), roomName)
 
-        given().cookie("SESSION", adminCookie)
+        given().cookie("SESSION", cookie)
                 .get("/cinema-service/cinemas/$cinemaId")
                 .then()
                 .statusCode(200)
@@ -114,7 +87,7 @@ class ApplicationIT: TestBase() {
                 .body("data.list[0].name", CoreMatchers.equalTo(cinemaName))
                 .body("data.list[0].location", CoreMatchers.equalTo(cinemaLocation))
 
-        given().cookie("SESSION", adminCookie)
+        given().cookie("SESSION", cookie)
                 .get("/cinema-service/cinemas/$cinemaId/rooms/$roomId")
                 .then()
                 .statusCode(200)
@@ -122,21 +95,33 @@ class ApplicationIT: TestBase() {
                 .body("data.list[0].name", CoreMatchers.equalTo(roomName))
                 .body("data.list[0].seats[0]", CoreMatchers.equalTo("A1"))
                 .body("data.list[0].seats[1]", CoreMatchers.equalTo("A2"))
+    }
+
+    /**
+     * movie-service
+     */
+
+    @Test
+    fun testMovieService() {
+
+        val username = createUniqueId()
+        val password = createUniqueId()
+        val cookie = registerUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
 
         val randomGenre = createUniqueId()
-        val genreId = createGenre(adminCookie, randomGenre)
+        val genreId = createGenre(cookie, randomGenre)
 
         val randomMovieTitle = createUniqueId()
-        val movieId = createMovie(adminCookie, createDefaultMovieDto(genreId, randomMovieTitle))
+        val movieId = createMovie(cookie, createDefaultMovieDto(genreId, randomMovieTitle))
 
-        given().cookie("SESSION", adminCookie)
+        given().cookie("SESSION", cookie)
                 .get("/movie-service/genres/$genreId")
                 .then()
                 .statusCode(200)
                 .body("data.list[0].id", CoreMatchers.equalTo("$genreId"))
                 .body("data.list[0].name", CoreMatchers.equalTo("${randomGenre.capitalize()}"))
 
-        given().cookie("SESSION", adminCookie)
+        given().cookie("SESSION", cookie)
                 .get("/movie-service/movies/$movieId")
                 .then()
                 .statusCode(200)
@@ -149,56 +134,121 @@ class ApplicationIT: TestBase() {
                 .body("data.list[0].genre[0].name", CoreMatchers.equalTo("${randomGenre.capitalize()}"))
 
 
-//        val time = "2018-12-01 20:00:00"
-//        val convertedTime = ConvertionHandler.convertTimeStampToZonedTimeDate("$time.000000")
-//        val nowPlayingId = createNowPlaying(adminCookie, "$cinemaId", "$roomId", "$movieId")
-
-//        given().cookie("SESSION", adminCookie)
-//                .get("/movie-service/now-playings/$nowPlayingId")
-//                .then()
-//                .statusCode(200)
-//                .body("data.list[0].id", CoreMatchers.equalTo("$nowPlayingId"))
-//                .body("data.list[0].time", CoreMatchers.equalTo("2018-12-28 18:00:00"))
-//                .body("data.list[0].roomId", CoreMatchers.equalTo("$roomId"))
-//                .body("data.list[0].seats", CoreMatchers.notNullValue())
-//                .body("data.list[0].cinemaId", CoreMatchers.equalTo("$cinemaId"))
-//                .body("data.list[0].movieDto.title", CoreMatchers.equalTo("$randomMovieTitle"))
-//                .body("data.list[0].movieDto.movieDuration", CoreMatchers.equalTo(120))
-//                .body("data.list[0].movieDto.ageLimit", CoreMatchers.equalTo(18))
-//                .body("data.list[0].movieDto.posterUrl", CoreMatchers.equalTo("www.poster-url.com"))
-//                .body("data.list[0].movieDto.genre[0].name", CoreMatchers.equalTo("$randomGenre"))
-//                .body("data.list[0].movieDto.genre[0].id", CoreMatchers.equalTo("$genreId"))
-//
-//
-//        val orderDate = "2018-12-24 20:04:15"
-//        val seat = "A1"
-//        val convertedOrderDate = ConvertionHandler.convertTimeStampToZonedTimeDate("$orderDate.000000")
-//        val invoiceDto = createDefaultInvoiceDto(username, orderDate, "$nowPlayingId", seat)
-//
-//         // Normal user makes an order
-//        val invoiceId = given().cookie("SESSION", normalUserCookie)
-//                .body(invoiceDto)
-//                .post("/order-service/invoices")
-//                .then()
-//                .statusCode(201)
-//                .extract()
-//                .jsonPath().getLong("data.list[0].id")
-//
-//
-//        // Admin retrive all orders made by normal users
-//        given().contentType(ContentType.JSON)
-//                .cookie("SESSION", adminCookie)
-//                .queryParam("username", normalUserName)
-//                .get("/order-service/invoices")
-//                .then()
-//                .statusCode(200)
-//                .body("data.list[0].nowPlayingId", CoreMatchers.equalTo("$nowPlayingId"))
-//                .body("data.list[0].id", CoreMatchers.equalTo("$invoiceId"))
-//                .body("data.list[0].orderDate", CoreMatchers.equalTo("$convertedOrderDate"))
-//                .body("data.list[0].username", CoreMatchers.equalTo("$normalUserName"))
-//                .body("data.list[0].tickets[0].seat", CoreMatchers.equalTo("$seat"))
-//                .body("data.list[0].tickets[0].invoiceId", CoreMatchers.equalTo("$invoiceId"))
-//                .body("data.list[0].tickets[0].price", CoreMatchers.equalTo(100.0))
+        given().cookie("SESSION", cookie)
+                .get("/movie-service/now-playings")
+                .then()
+                .statusCode(200)
+                .body("data.totalSize", CoreMatchers.equalTo(0))
 
     }
+
+
+    /**
+     *  Order service
+     */
+    @Test
+    fun testOrderService() {
+
+        val username = createUniqueId()
+        val password = createUniqueId()
+        val cookie = registerUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
+
+        val randomCouponCode = createUniqueId()
+        val randomDescription = createUniqueId()
+
+        val couponId = createCoupon(cookie, randomCouponCode, randomDescription, "2018-12-12 20:20:00",20)
+
+        given().cookie("SESSION", cookie)
+                .get("/order-service/coupons/$couponId")
+                .then()
+                .statusCode(200)
+                .body("data.list[0].description", CoreMatchers.equalTo(randomDescription))
+                .body("data.list[0].code", CoreMatchers.equalTo(randomCouponCode))
+
+                // Docker dosent understand timezone
+                //.body("data.list[0].expireAt", CoreMatchers.equalTo(convertedExpiredAt))
+
+                .body("data.list[0].percentage", CoreMatchers.equalTo(20))
+
+
+
+        val price = 200.0
+        val seat = "A1"
+        val invoiceId = "1"
+        val ticketDto = createDefaultTicket(price, seat, invoiceId)
+
+        val ticketId = createTicket(cookie, ticketDto)
+
+        val result = given().cookie("SESSION", cookie)
+                .get("/order-service/tickets/$ticketId")
+                .then()
+                .statusCode(200)
+                .extract().`as`(TicketResponseDto::class.java).data!!.list.first()
+
+
+                assertEquals(result.id, "$ticketId")
+                assertEquals(result.price, price)
+                assertEquals(result.seat, seat)
+                assertEquals(result.invoiceId, invoiceId)
+
+
+        // Normal user cant make a POST
+        val normalUsername = createUniqueId()
+        val normalUserCookie = registerUser(normalUsername, password, null)
+
+        given().cookie("SESSION", normalUserCookie)
+                .contentType(ContentType.JSON)
+                .body(ticketDto)
+                .post("/order-service/tickets")
+                .then()
+                .statusCode(403)
+
+
+        // Normal user tries to get invoices by username, not allowed
+//        given().cookie("SESSION", normalUserCookie)
+//                .contentType(ContentType.JSON)
+//                .body()
+
+    }
+
+
+
+
+
+
+
+
+
+    /**
+     * Since AMQP sends all information except from password to user-service we can check if it is saved in user-service too
+     */
+    @Test
+    fun testIfUserDetailsIsSavedInUserService() {
+
+        val password = createUniqueId()
+        val username = createUniqueId()
+        val cookie = registerUser(username, password, null)
+
+        val getQuery = """
+			{
+  				userById(id: "$username") {
+    				username, email, name, dateOfBirth
+  				}
+			}
+		""".trimIndent()
+
+        given().cookie("SESSION", cookie)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", getQuery)
+                .get("/user-service/graphql")
+                .then()
+                .statusCode(200)
+                .body("data.userById.username", Matchers.equalTo(username))
+                .body("data.userById.name", Matchers.equalTo("Foo Bar"))
+                .body("data.userById.dateOfBirth", Matchers.equalTo("1986-02-03"))
+
+
+    }
+
 }
