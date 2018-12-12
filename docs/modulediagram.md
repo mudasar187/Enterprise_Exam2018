@@ -16,4 +16,4 @@
 - Eureka is used for service discovery and together with ribbon creates Client Side Load Balancing  
 
 
-![Module Diagram](imgs/Module%20diagram.png)
+![Module Diagram2](imgs/Module%20diagram.png)
