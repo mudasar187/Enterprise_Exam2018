@@ -1,6 +1,7 @@
 import React from "react"
 import Movie from "./Movie";
 import moment from "moment-timezone"
+import {Link} from "react-router-dom";
 
 export default (props) => {
 
@@ -12,10 +13,12 @@ export default (props) => {
 	return (
 		<div className="grid-item">
 			{props.nowPlaying !== null
-				? <div>
-					<p>{parsedTime}</p>
-					<Movie key={props.nowPlaying.id} movie={props.nowPlaying.movieDto}/>
-				</div>
+				? <Link to={{ pathname: '/booking', state: { nowPlaying: props.nowPlaying} }}>
+						<div>
+							<p>{parsedTime}</p>
+							<Movie key={props.nowPlaying.id} movie={props.nowPlaying.movieDto}/>
+						</div>
+				</Link>
 				: <p>No content</p>
 
 			}

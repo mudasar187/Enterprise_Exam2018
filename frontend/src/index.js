@@ -7,6 +7,7 @@ import {BrowserRouter, Route} from "react-router-dom";
 import Welcome from "./components/Welcome";
 import NowPlayings from "./components/NowPlayings";
 import SignUp from "./components/SignUp";
+import Room from "./components/Room";
 
 ReactDOM.render(
 	<BrowserRouter>
@@ -14,6 +15,7 @@ ReactDOM.render(
 			<Route path="/" exact component={Welcome} />
 			<Route path="/nowPlayings" component={NowPlayings} />
 			<Route path="/signup" component={SignUp} />
+			<Route path="/booking" component={Room} />
 		</App>
 	</BrowserRouter>
 	, document.getElementById('root'));
