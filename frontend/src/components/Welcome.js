@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from "axios";
 import urls from "../utils/Urls"
 import Cinema from "./sub/Cinema";
+import Header from "./Header";
 
 class Welcome extends Component {
 
@@ -31,6 +32,7 @@ class Welcome extends Component {
 
 	render() {
 		return <div>
+			<Header/>
 			<div className="grid">
 				{this.state.cinemas !== null
 					? this.state.cinemas.map( item => {

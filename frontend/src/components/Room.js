@@ -3,6 +3,7 @@ import axios from "axios";
 import urls from "../utils/Urls"
 import Seatmap from 'react-seatmap';
 import naturalSort from "javascript-natural-sort";
+import Header from "./Header";
 
 
 class Room extends Component {
@@ -28,9 +29,11 @@ class Room extends Component {
 
 	render() {
 		return <div>
+			<Header/>
 			{this.state.seatmap != null
 			? <div className="seat-table">
 					<Seatmap rows={this.state.seatmap} maxReservableSeats={3} alpha={true} />
+					,document.getElementById('seatmap')
 
 
 				</div>
