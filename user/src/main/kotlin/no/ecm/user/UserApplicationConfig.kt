@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.CrossOrigin
 @Configuration
 @EntityScan(basePackages = ["no.ecm.user"])
 @Profile("!local")
-@CrossOrigin(origins = ["http://localhost:8080"])
 class UserApplicationConfig {
 
     @Bean

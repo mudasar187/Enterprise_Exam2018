@@ -24,7 +24,6 @@ import java.net.URI
         path = ["/genres"],
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
-@CrossOrigin(origins = ["http://localhost:8080"])
 class GenreController(
         private var genreService: GenreService
 ) {

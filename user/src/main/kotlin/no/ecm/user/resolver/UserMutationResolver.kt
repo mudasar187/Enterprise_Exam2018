@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.CrossOrigin
 
 @Component
-@CrossOrigin(origins = ["http://localhost:8080"])
 class UserMutationResolver(
 	private var userRepository: UserRepository,
 	private var userService: UserService

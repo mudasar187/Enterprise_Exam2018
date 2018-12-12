@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.CrossOrigin
 
 @Configuration
 @EntityScan(basePackages = ["no.ecm.creditcard"])
-@CrossOrigin(origins = ["http://localhost:8080"])
 class CreditCardApplicationConfig {
 
 
