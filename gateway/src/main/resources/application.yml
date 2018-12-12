@@ -8,49 +8,55 @@ spring:
     store-type: redis
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+            - POST
+            - GET
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+            - HEAD
       routes:
-        - id: user-server
-          uri: http://user-server:8080
-          predicates:
-            - Path=/user-service/**
-          filters:
-            - StripPrefix=1
-        - id: order-server
-          uri: http://order-server:8080
-          predicates:
-            - Path=/order-service/**
-          filters:
-            - StripPrefix=1
-        - id: movie-server
-          uri: http://movie-server:8080
-          predicates:
-            - Path=/movie-service/**
-          filters:
-            - StripPrefix=1
-        - id: creditcard-server
-          uri: http://creditcard-server:8080
-          predicates:
-            - Path=/creditcard-service/**
-          filters:
-            - StripPrefix=1
-        - id: cinema-server
-          uri: http://cinema-server:8080
-          predicates:
-            - Path=/cinema-service/**
-          filters:
-            - StripPrefix=1
-        - id: auth-server
-          uri: http://auth-server:8080
-          predicates:
-            - Path=/auth-service/**
-          filters:
-            - StripPrefix=1
-        - id: eureka
-          uri: http://eureka:8761
-          predicates:
-            - Path=/eureka-dashboard/**
-          filters:
-            - StripPrefix=1
+      - id: user-server
+        uri: lb://user-server
+        predicates:
+        - Path=/user-service/**
+        filters:
+        - StripPrefix=1
+      - id: order-server
+        uri: lb://order-server
+        predicates:
+        - Path=/order-service/**
+        filters:
+        - StripPrefix=1
+      - id: movie-server
+        uri: lb://movie-server
+        predicates:
+        - Path=/movie-service/**
+        filters:
+        - StripPrefix=1
+      - id: creditcard-server
+        uri: lb://creditcard-server
+        predicates:
+        - Path=/creditcard-service/**
+        filters:
+        - StripPrefix=1
+      - id: cinema-server
+        uri: lb://cinema-server
+        predicates:
+        - Path=/cinema-service/**
+        filters:
+        - StripPrefix=1
+      - id: auth-server
+        uri: lb://auth-server
+        predicates:
+        - Path=/auth-service/**
+        filters:
+        - StripPrefix=1
 
 eureka:
   instance:

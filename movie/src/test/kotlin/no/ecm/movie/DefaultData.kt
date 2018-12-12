@@ -1,13 +1,18 @@
-package no.ecm.movie.repository
+package no.ecm.movie
 
 import no.ecm.movie.model.entity.Genre
 import no.ecm.movie.model.entity.Movie
 import no.ecm.movie.model.entity.NowPlaying
+import no.ecm.movie.repository.GenreRepository
+import no.ecm.movie.repository.MovieRepository
+import no.ecm.movie.repository.NowPlayingRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
 import javax.annotation.PostConstruct
 
 @Component
+@Profile("test")
 class DefaultData(
         private val movieRepository: MovieRepository,
         private val genreRepository: GenreRepository,

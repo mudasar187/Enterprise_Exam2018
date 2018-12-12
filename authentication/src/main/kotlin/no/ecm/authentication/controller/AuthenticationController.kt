@@ -23,7 +23,6 @@ import javax.servlet.http.HttpSession
 @RequestMapping(
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
-@CrossOrigin(origins = ["http://localhost:8080"])
 class AuthController(
         private val authService: AuthenticationService,
         private val authenticationManager: AuthenticationManager,
@@ -74,7 +73,10 @@ class AuthController(
 
         if (token.isAuthenticated) {
             SecurityContextHolder.getContext().authentication = token
+            // TODO: f.eks legge den inne her ? bør ikke lagre i user service med mindre dette ikke går gjennom
         }
+
+        // TODO: fiks slik at amqp ikke fyrer av hvis brukeren ikke fåt auth username og password til å gå gjennom
 
         /**
          * AMQP
