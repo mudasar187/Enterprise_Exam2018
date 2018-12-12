@@ -14,12 +14,13 @@
    
     
 ## Table of content 
-1. [Exam 2018 Document](docs/PG6100Exam.pdf)    
-2. [Git Structure](docs/git.md)    
-3. [Database Model](docs/databasemodel.md)    
-4. [Module Diagram](docs/modulediagram.md)  
-5. [Coverage Report](docs/coveragereport.md)  
-6. [Default Data](docs/defaultdata.md)  
+1. [Exam 2018 Document](docs/PG6100Exam.pdf)   
+2. [Who has done what?](docs/tasks.pdf)
+3. [Git Structure](docs/git.md)    
+4. [Database Model](docs/databasemodel.md)    
+5. [Module Diagram](docs/modulediagram.md)  
+6. [Coverage Report](docs/coveragereport.md)  
+7. [Default Data](docs/defaultdata.md)  
   
 ## Technology
 - Production
@@ -44,23 +45,32 @@ How to test the application
 ## Project structure
 
 | Module | Description | Services | Technology | 
-|--|--|
-| Cinema  | Cinema is responsible for storing and CRUD operations | cinemas, rooms | REST |
-| Creditcard | Creditcard is responsible for storing and CRUD operations | creditcards | GraphQL
-| Docs | Documentation content | | |
-| E2E-tests | End to end test for testing every module in the application | Everyone | None | 
-| Eureka | bla bla |
-| Gateway | Gateway is responsible for proxying and guiding the users request to the correct service |
-| Movie | Movie is responsible for storing and CRUD operations |
-| Order | Order is responsible for storing an CRUD operations  | Genre, Movie, NowPlaying | REST |
-| Report | Total report coverage for cinema application | All | None |
-| User | Order is responsible for storing an CRUD operations | UserService | GraphQl |
-| Utils | Common helpers/validators and etc.. | None | None |
+|--|--|--|--|
+| Cinema  | Cinema is responsible for storing and CRUD operations | Cinemas, Rooms | REST |
+| Creditcard | Creditcard is responsible for storing and CRUD operations | Creditcards | GraphQL |
+| Docs | Documentation content |  |  |
+| E2E-tests | End to end test for testing every module in the application | Everyone |  | 
+| Eureka | Eureka is responsible for service discovery |  |  |
+| Gateway | Gateway is responsible for proxying and guiding the users request to the correct service |  |  |
+| Movie | Movie is responsible for storing and CRUD operations | Genres, Movies, NowPlayings | REST |
+| Order | Order is responsible for storing an CRUD operations  | Coupons, Tickets, Invoices | REST |
+| Report | Total report coverage for cinema application | All |  |
+| User | Order is responsible for storing an CRUD operations | Users | GraphQL |
+| Utils | Common helpers/validators and etc.. |  |  |
   
   
 ## Work progress  
 
-How we worked, and who did what and etc...  
+For detailed description on who has done what in this project, please see the attached document [Who has done what?](docs/tasks.pdf).
+
+The rest:
+- Eureka
+- E2E tests
+- Frontend
+- NowPlayings Service
+- Invoices Service
+
+Has been made by pair-programming an 
 
 
 ## End-to-end-tests
