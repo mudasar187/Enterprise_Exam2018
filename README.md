@@ -43,19 +43,19 @@ How to test the application
 
 ## Project structure
 
-| Module | Description |
+| Module | Description | Services | Technology | 
 |--|--|
-| cinema  | bla bla |
-| creditcard | bla bla |
-| docs | documentation content
-| e2etests | bla bla |
-| eureka | bla bla |
-| gateway | bla bla |
-| movie | bla bla |
-| order | bla bla |
-| report | total report coverage for cinema application |
-| user | bla bla |
-| utils | common helpers/validators and etc.. |
+| Cinema  | Cinema is responsible for storing and CRUD operations | cinemas, rooms | REST |
+| Creditcard | Creditcard is responsible for storing and CRUD operations | creditcards | GraphQL
+| Docs | Documentation content | | |
+| E2E-tests | End to end test for testing every module in the application | Everyone | None | 
+| Eureka | bla bla |
+| Gateway | Gateway is responsible for proxying and guiding the users request to the correct service |
+| Movie | Movie is responsible for storing and CRUD operations |
+| Order | Order is responsible for storing an CRUD operations  | Genre, Movie, NowPlaying | REST |
+| Report | Total report coverage for cinema application | All | None |
+| User | Order is responsible for storing an CRUD operations | UserService | GraphQl |
+| Utils | Common helpers/validators and etc.. | None | None |
   
   
 ## Work progress  
