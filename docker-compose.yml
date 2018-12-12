@@ -24,16 +24,8 @@ services:
     build:
       context: ./eureka
       dockerfile: Dockerfile
-
-  auth-server:
-    build:
-      context: ./authentication
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - eureka
-      - postgres-auth
-      - rabbitmq
+    ports:
+      - "9100:8761"
 
   user-server:
     build:
@@ -45,14 +37,14 @@ services:
       - postgres-user
       - rabbitmq
 
-#  order-server:
-#    build:
-#      context: ./order
-#      dockerfile: Dockerfile
-#    depends_on:
-#      - redis
-#      - eureka
-#      - postgres-order
+  order-server:
+    build:
+      context: ./order
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-order
 
   movie-server:
     build:
@@ -63,14 +55,14 @@ services:
       - eureka
       - postgres-movie
 
-#  creditcard-server:
-#    build:
-#      context: ./creditcard
-#      dockerfile: Dockerfile
-#    depends_on:
-#      - redis
-#      - eureka
-#      - postgres-creditcard
+  creditcard-server:
+    build:
+      context: ./creditcard
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-creditcard
 
   cinema-server:
     build:
@@ -81,14 +73,30 @@ services:
       - eureka
       - postgres-cinema
 
-#  cinema-server-2:
-#    build:
-#      context: ./cinema
-#      dockerfile: Dockerfile
-#    depends_on:
-#      - redis
-#      - eureka
-#      - postgres-cinema
+  cinema-server-2:
+    build:
+      context: ./cinema
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-cinema
+
+  auth-server:
+    build:
+      context: ./authentication
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-auth
+      - rabbitmq
+      - user-server
+      - order-server
+      - movie-server
+      - creditcard-server
+      - cinema-server
+      - cinema-server-2
 
   gateway-server:
     build:
@@ -101,10 +109,11 @@ services:
       - eureka
       - auth-server
       - user-server
-#      - order-server
+      - order-server
       - movie-server
-#      - creditcard-server
+      - creditcard-server
       - cinema-server
+      - cinema-server-2
 
 #  frontend:
 #    build:

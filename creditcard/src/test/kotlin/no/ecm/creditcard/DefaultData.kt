@@ -1,10 +1,13 @@
-package no.ecm.creditcard.repository
+package no.ecm.creditcard
 
 import no.ecm.creditcard.model.entity.CreditCard
+import no.ecm.creditcard.repository.CreditCardRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 @Component
+@Profile("test")
 class DefaultData(
         private var creditCardRepository: CreditCardRepository
 ) {

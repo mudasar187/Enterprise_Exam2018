@@ -26,7 +26,6 @@ import java.net.URI
         path = ["/cinemas"],
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
-@CrossOrigin(origins = ["http://localhost:8080"])
 class CinemaController(
         private var cinemaService: CinemaService,
         private var roomService: RoomService
