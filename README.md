@@ -168,10 +168,10 @@ What we have tested in e2e-tests
 ## Swagger
 Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger.
 
-**Local**
+**Local**<br/>
 To find out which port the service is running on, please check the table above <br/>
 URL: http://localhost:PORT/swagger-ui.html
 
-**Docker**
+**Docker**<br/>
 To find out which gateway path the service is running on, please check the table above <br/>
 URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
