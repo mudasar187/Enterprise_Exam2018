@@ -12,11 +12,10 @@
 - 704293: [Endre Synnes](https://github.com/synend16)
 - 703960: [Christian Marker](https://github.com/MiniMarker)
     - Christian forgot sign out of his other GitHub-profile (ExamUser) before he made a commit to this project. So that's the reason there is one commit from this user. 
-   
     
 ## Table of content 
 1. [Exam 2018 Document](docs/PG6100Exam.pdf)   
-2. [Who has done what?](docs/tasks.pdf)
+2. [Distribution of work](docs/workdistribution.md)
 3. [Git Structure](docs/git.md)    
 4. [Database Model](docs/databasemodel.md)    
 5. [Module Diagram](docs/modulediagram.md)  
@@ -48,6 +47,11 @@ This Cinema Application is an exam project in PG6100 - Enterprise 2.
 4. Run the DefaultData script, as described in this file [Default Data](docs/defaultdata.md)
 5. Visit the application on [localhost:8080](http://localhost:8080)
 6. Enjoy :)
+
+**Run individual modules**
+Since this is a microservice application, you can run each component/module individually, but with limited functionality. No communication with other external components/modules will work.
+ex. If you want to create a new NowPlaying, the service needs to get information from a Cinema and Room to fill inn the seats available. This connection is mocked in the tests, 
+but if you try to do a POST request directly to the service without running the cinema module as well this will fail with a 503.
   
 ## How to test application  
 Every module contains unit tests for testing each service in isolation. When you install the application with `mvn clean install` these tests will run automatically.
@@ -82,7 +86,7 @@ I our case every team member had to create two APIs, all of these provides POST,
 - Endre
     - Made API endpoints and tests for **Movie** and **Genre**, and API endpoints for **CreditCard**.
 
-After these APIs had been made there has been done some minor tweaks made by other team-members later in the process, when we exp
+After these APIs had been made there has been done some minor tweaks made by other team-members later in the process, when we experienced bugs in the code.
 
 For detailed description on who has done what in this project, please see the attached document [Who has done what?](docs/tasks.pdf).
 
@@ -149,6 +153,25 @@ This module contains he following helpers:
 
 What we have tested in e2e-tests
 
-## Swagger
+## Ports
+| Service | Local | Docker Gateway path |
+|--|--|--|
+| Authentication | -- | auth-service/** |
+| Cinema | 7086 | cinema-service/** |
+| CreditCard | 7085 | creditcard-service/** |
+| Eureka | 8761 | 9100 |
+| Frontend | 8080 | 8080 |
+| Movie | 7083 | movie-service/** |
+| Order | 7082 | order-service/** |
+| User | 7081 | user-service/** |
 
-Explain how to access swagger on browser and how to use it
+## Swagger
+Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger.
+
+**Local**
+To find out which port the service is running on, please check the table above <br/>
+URL: http://localhost:PORT/swagger-ui.html
+
+**Docker**
+To find out which gateway path the service is running on, please check the table above <br/>
+URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
