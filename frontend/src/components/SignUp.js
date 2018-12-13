@@ -116,6 +116,7 @@ class SignUp extends Component {
 	};
 
 	checkFormData = () => {
+		console.log("checking formdata");
 		if (!this.state.username || this.state.username.length === 0){
 			this.setState({error: "Missing username"});
 			return false;

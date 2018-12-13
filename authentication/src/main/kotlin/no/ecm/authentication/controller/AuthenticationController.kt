@@ -35,7 +35,7 @@ class AuthController(
     var logger = logger<AuthController>()
 
     //TODO test this
-    @GetMapping("/isAuthenticated")
+    @GetMapping("/is-authenticated")
     fun isAuthenticated(authentication: Authentication): ResponseEntity<Void> {
         if (authentication.isAuthenticated){
             return ResponseEntity.status(204).build()

@@ -4,6 +4,7 @@ import urls from "../utils/Urls"
 import Seatmap from 'react-seatmap';
 import naturalSort from "javascript-natural-sort";
 import Header from "./Header";
+import { SeatingChart } from 'react-seat-charts';
 
 
 class Room extends Component {
@@ -28,17 +29,19 @@ class Room extends Component {
 	}
 
 	render() {
+		let seatingChart;
+		if (this.state.seatmap != null) {
+			let naming = {rows: ["A"], columns: ["1"]};
+			seatingChart = <SeatingChart seats={this.state.seatmap} naming={naming}/>;
+		}
+
 		return <div>
 			<Header/>
 			{this.state.seatmap != null
 			? <div className="seat-table">
-					<Seatmap rows={this.state.seatmap} maxReservableSeats={3} alpha={true} />
-					,document.getElementById('seatmap')
-
-
+					{seatingChart}
 				</div>
-				: <p>No seats</p>
-
+				: <p>No seats for this movie found</p>
 			}
 
 		</div>
@@ -73,9 +76,18 @@ class Room extends Component {
 				freeSeats.includes(currentSeat) ? isReserved = false : isReserved = true;
 				console.log(isReserved);
 
+				let status;
+
+				if (!isReserved) {
+					status = "available"
+				} else {
+					status = "occupied"
+				}
+
 				seatarray.push({
-					number: currentSeat,
-					isReserved: isReserved
+					seatType: "regular",
+					label: currentSeat,
+					status: status
 				});
 			}
 			arr.push(seatarray);

@@ -34,11 +34,11 @@ class Welcome extends Component {
 		return <div>
 			<Header/>
 			<div className="grid">
-				{this.state.cinemas !== null
+				{this.state.cinemas !== null && !this.state.cinemas.isEmpty()
 					? this.state.cinemas.map( item => {
 						return <Cinema key={item.id} cinema={item}/>
 					})
-					: <p>No elemts in nowplaying</p>
+					: <p>No Cinemas in the Database</p>
 				}
 			</div>
 		</div>

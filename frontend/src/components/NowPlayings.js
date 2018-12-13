@@ -48,7 +48,7 @@ class NowPlayings extends Component{
 						? this.state.nowPlayings.map( item => {
 							return <NowPlaying key={item.id} nowPlaying={item}/>
 							})
-						: <p>No elemts in nowplaying</p>
+						: <p>No Now Playings fond for this cinema</p>
 					}
 				</div>
 
