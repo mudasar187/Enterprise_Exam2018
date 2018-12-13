@@ -5,7 +5,6 @@ import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
 import no.ecm.utils.dto.auth.RegistrationDto
 import no.ecm.utils.logger
-import no.ecm.utils.response.WrappedResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity

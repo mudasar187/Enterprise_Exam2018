@@ -33,7 +33,7 @@ abstract class TestBase {
 		RestAssured.port = port
 		RestAssured.basePath = "/graphql"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
-		RestAssured.authentication = basic("foobar", "123")
+		RestAssured.authentication = basic("admin", "admin")
 		
 		creditCardRepository.deleteAll()
 	}
@@ -46,10 +46,11 @@ abstract class TestBase {
                     """.trimIndent()
 		
 		return given()
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-			.body(createQuery)
-			.post()
+				//.auth().basic("admin", "admin")
+				.accept(ContentType.JSON)
+				.contentType(ContentType.JSON)
+				.body(createQuery)
+				.post()
 			.then()
 			.statusCode(200)
 			.extract().body().path<String>("data.createCreditCard")
@@ -65,11 +66,11 @@ abstract class TestBase {
 			.statusCode(200)
 	}
 	
-	fun getCreditcardById(id: String): ValidatableResponse? {
+	fun getCreditcardById(username: String): ValidatableResponse? {
 		
 		val getQuery = """
 			{
-  				creditcardById(id: "$id") {
+  				creditcardById(id: "$username") {
     				id, username, cardNumber, cvc, expirationDate
   				}
 			}

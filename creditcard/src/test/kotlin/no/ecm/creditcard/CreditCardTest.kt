@@ -9,159 +9,187 @@ import org.junit.Test
 
 
 class CreditCardTest : TestBase() {
-	
-	@Test
-	fun testCreateAndGetById() {
-		
-		val username = "foobar"
-		val creditcardNumber = "12345"
-		val cvc = 123
-		val expDate = "20/01"
-		
-		val id = createCreditcard(username, creditcardNumber, expDate, cvc)
-		
-		assertNotNull(id)
-		
-		getCreditcardById(id!!)!!
-			.statusCode(200)
-			
-			// all queries params are present
-			.body("data.creditcardById.size()", equalTo(5))
-			
-			// check individual params
-			.body("data.creditcardById.id", equalTo(id.toString()))
-			.body("data.creditcardById.username", equalTo(username))
-			.body("data.creditcardById.cardNumber", equalTo(creditcardNumber))
-			.body("data.creditcardById.cvc", equalTo(cvc))
-			.body("data.creditcardById.expirationDate", equalTo(expDate))
-	}
-	
-	@Test
-	fun createDuplicateCreditCard() {
-		
-		val username = "foobar"
-		val creditcardNumber = "12345"
-		val cvc = 123
-		val expDate = "20/01"
-		
-		createCreditcard(username, creditcardNumber, expDate, cvc)
-		
-		val query = """
+
+    @Test
+    fun testCreateAndGetByUsername() {
+
+        val username = "foobar"
+        val creditcardNumber = "1234543234"
+        val cvc = 123
+        val expDate = "20/01"
+
+        val id = createCreditcard(username, creditcardNumber, expDate, cvc)
+
+        assertNotNull(id)
+
+        val getQuery = """
+			{
+  				creditcardById(id: "$username") {
+    				id, username, cardNumber, cvc, expirationDate
+  				}
+			}
+		""".trimIndent()
+
+        given()
+                .auth().basic(username, "123")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", getQuery)
+                .get()
+                .then()
+                .statusCode(200)
+
+                // all queries params are present
+                .body("data.creditcardById.size()", equalTo(5))
+
+                // check individual params
+                .body("data.creditcardById.id", equalTo(id.toString()))
+                .body("data.creditcardById.username", equalTo(username))
+                .body("data.creditcardById.cardNumber", equalTo(creditcardNumber))
+                .body("data.creditcardById.cvc", equalTo(cvc))
+                .body("data.creditcardById.expirationDate", equalTo(expDate))
+    }
+
+    @Test
+    fun createDuplicateCreditCard() {
+
+        val username = "foobar"
+        val creditcardNumber = "12345"
+        val cvc = 123
+        val expDate = "20/01"
+
+        createCreditcard(username, creditcardNumber, expDate, cvc)
+
+        val query = """
                     { "query" :
                          "mutation{createCreditCard(creditCard:{expirationDate:\"$expDate\",cvc: $cvc,username:\"$username\",cardNumber:\"$creditcardNumber\"})}"
                     }
                     """.trimIndent()
-		invalidUserQuery(query)!!
-			.body("data.createUser", CoreMatchers.nullValue())
-			.body("errors.message[0]", CoreMatchers.notNullValue())
-	}
-	
-	@Test
-	fun testCreateCreditCardWithInvalidData() {
-		
-		val username = "foobar"
-		val creditcardNumber = "12345"
-		val cvc = 123
-		val expDate = "20/01"
-		
-		val noExpDate = """
+        invalidUserQuery(query)!!
+                .body("data.createUser", CoreMatchers.nullValue())
+                .body("errors.message[0]", CoreMatchers.notNullValue())
+    }
+
+    @Test
+    fun testCreateCreditCardWithInvalidData() {
+
+        val username = "foobar"
+        val creditcardNumber = "12345"
+        val cvc = 123
+        val expDate = "20/01"
+
+        val noExpDate = """
                     { "query" :
                          "mutation{createCreditCard(creditCard:{expirationDate:null,cvc: $cvc,username:\"$username\",cardNumber:\"$creditcardNumber\"})}"
                     }
                     """.trimIndent()
-		val noCvc = """
+        val noCvc = """
                     { "query" :
                          "mutation{createCreditCard(creditCard:{expirationDate:\"$expDate\",cvc: null,username:\"$username\",cardNumber:\"$creditcardNumber\"})}"
                     }
                     """.trimIndent()
-		val noUsername = """
+        val noUsername = """
                     { "query" :
                          "mutation{createCreditCard(creditCard:{expirationDate:\"$expDate\",cvc: $cvc,username:null,cardNumber:\"$creditcardNumber\"})}"
                     }
                     """.trimIndent()
-		val noCreditCardNumber = """
+        val noCreditCardNumber = """
                     { "query" :
                          "mutation{createCreditCard(creditCard:{expirationDate:\"$expDate\",cvc: $cvc,username:\"$username\",cardNumber:null})}"
                     }
                     """.trimIndent()
-		
-		invalidUserQuery(noExpDate)!!
-			.body("data.createUser", CoreMatchers.nullValue())
-			.body("errors.message[0]", CoreMatchers.notNullValue())
-		
-		invalidUserQuery(noCvc)!!
-			.body("data.createUser", CoreMatchers.nullValue())
-			.body("errors.message[0]", CoreMatchers.notNullValue())
-		
-		invalidUserQuery(noUsername)!!
-			.body("data.createUser", CoreMatchers.nullValue())
-			.body("errors.message[0]", CoreMatchers.notNullValue())
-		
-		invalidUserQuery(noCreditCardNumber)!!
-			.body("data.createUser", CoreMatchers.nullValue())
-			.body("errors.message[0]", CoreMatchers.notNullValue())
-	}
-	
-	@Test
-	fun testGetNonExistingCreditcardThatYouDontWon() {
-		
-		getCreditcardById("-1")!!
-			.statusCode(403)
-			.body("data.creditcardById", equalTo(null))
-	}
-	
-	@Test
-	fun testDeleteCreditcard() {
-		
-		val username = "foobar"
-		val creditcardNumber = "12345"
-		val cvc = 123
-		val expDate = "20/01"
-		
-		val id = createCreditcard(username, creditcardNumber, expDate, cvc)
-		
-		assertNotNull(id)
-		
-		getCreditcardById(id!!)!!
-			.statusCode(200)
-		
-		//DELETE
-		val deleteQuery = """
+
+        invalidUserQuery(noExpDate)!!
+                .body("data.createUser", CoreMatchers.nullValue())
+                .body("errors.message[0]", CoreMatchers.notNullValue())
+
+        invalidUserQuery(noCvc)!!
+                .body("data.createUser", CoreMatchers.nullValue())
+                .body("errors.message[0]", CoreMatchers.notNullValue())
+
+        invalidUserQuery(noUsername)!!
+                .body("data.createUser", CoreMatchers.nullValue())
+                .body("errors.message[0]", CoreMatchers.notNullValue())
+
+        invalidUserQuery(noCreditCardNumber)!!
+                .body("data.createUser", CoreMatchers.nullValue())
+                .body("errors.message[0]", CoreMatchers.notNullValue())
+    }
+
+    @Test
+    fun testGetNonExistingCreditcardThatYouDontWon() {
+
+        getCreditcardById("-1")!!
+                .statusCode(403)
+                .body("data.creditcardById", equalTo(null))
+    }
+
+    @Test
+    fun testDeleteCreditcard() {
+
+        val username = "foobar"
+        val creditcardNumber = "12345"
+        val cvc = 123
+        val expDate = "20/01"
+
+        val id = createCreditcard(username, creditcardNumber, expDate, cvc)
+
+        assertNotNull(id)
+
+        val getQuery = """
+			{
+  				creditcardById(id: "$username") {
+    				id, username, cardNumber, cvc, expirationDate
+  				}
+			}
+		""".trimIndent()
+
+        given()
+                .auth().basic(username, "123")
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", getQuery)
+                .get()
+                .then()
+                .statusCode(200)
+
+        //DELETE
+        val deleteQuery = """
                     { "query" :
                          "mutation{deleteCreditCardById(id:\"$id\")}"
                     }
                     """.trimIndent()
-		
-		given()
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-			.body(deleteQuery)
-			.post()
-			.then()
-			.statusCode(200)
-			.body("data.deleteCreditCardById", CoreMatchers.notNullValue() )
-		
-	}
-	
-	@Test
-	fun deleteInvalidCreditCardTest() {
-		
-		val deleteQueryNumber = """
+
+        given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(deleteQuery)
+                .post()
+                .then()
+                .statusCode(200)
+                .body("data.deleteCreditCardById", CoreMatchers.notNullValue())
+
+    }
+
+    @Test
+    fun deleteInvalidCreditCardTest() {
+
+        val deleteQueryNumber = """
                     { "query" :
                          "mutation{deleteCreditCardById(id:\"1234567\")}"
                     }
                     """.trimIndent()
-		
-		given()
-			.accept(ContentType.JSON)
-			.contentType(ContentType.JSON)
-			.body(deleteQueryNumber)
-			.post()
-			.then()
-			.statusCode(200)
-			.body("data.deleteUserById", CoreMatchers.nullValue())
-			.body("errors.message", CoreMatchers.notNullValue())
-		
-	}
-	
+
+        given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(deleteQueryNumber)
+                .post()
+                .then()
+                .statusCode(200)
+                .body("data.deleteUserById", CoreMatchers.nullValue())
+                .body("errors.message", CoreMatchers.notNullValue())
+
+    }
+
 }

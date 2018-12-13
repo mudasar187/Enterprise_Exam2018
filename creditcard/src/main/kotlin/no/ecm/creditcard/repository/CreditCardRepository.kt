@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository
 interface CreditCardRepository : CrudRepository<CreditCard, Long> {
 
     fun findByUsername(username: String): CreditCard
-    fun existsByCreditcardNumber(creditcardNumber: String): Boolean
+    fun existsByUsername(username: String): Boolean
+    fun existsByUsernameOrCreditcardNumber(username: String, creditcardNumber: String): Boolean
 }

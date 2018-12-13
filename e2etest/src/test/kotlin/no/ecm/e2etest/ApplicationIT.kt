@@ -4,9 +4,7 @@ import io.restassured.RestAssured
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import junit.framework.Assert.assertEquals
-import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.response.TicketResponseDto
-import no.ecm.utils.response.WrappedResponse
 import org.awaitility.Awaitility
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
@@ -41,6 +39,8 @@ class ApplicationIT: TestBase() {
         @JvmField
         val env = KDockerComposeContainer(File("../docker-compose.yml"))
                 .withLocalCompose(true)
+                .withLogConsumer("creditcard-server") {System.out.println("[CREDITCARD-SERVER] " + it.utf8String)}
+
 
 
         @BeforeClass
@@ -151,14 +151,14 @@ class ApplicationIT: TestBase() {
 
         val username = createUniqueId()
         val password = createUniqueId()
-        val cookie = registerUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
+        val adminCookie = registerUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
 
         val randomCouponCode = createUniqueId()
         val randomDescription = createUniqueId()
 
-        val couponId = createCoupon(cookie, randomCouponCode, randomDescription, "2018-12-12 20:20:00",20)
+        val couponId = createCoupon(adminCookie, randomCouponCode, randomDescription, "2018-12-12 20:20:00",20)
 
-        given().cookie("SESSION", cookie)
+        given().cookie("SESSION", adminCookie)
                 .get("/order-service/coupons/$couponId")
                 .then()
                 .statusCode(200)
@@ -177,9 +177,9 @@ class ApplicationIT: TestBase() {
         val invoiceId = "1"
         val ticketDto = createDefaultTicket(price, seat, invoiceId)
 
-        val ticketId = createTicket(cookie, ticketDto)
+        val ticketId = createTicket(adminCookie, ticketDto)
 
-        val result = given().cookie("SESSION", cookie)
+        val result = given().cookie("SESSION", adminCookie)
                 .get("/order-service/tickets/$ticketId")
                 .then()
                 .statusCode(200)
@@ -203,27 +203,104 @@ class ApplicationIT: TestBase() {
                 .then()
                 .statusCode(403)
 
+        val newNormalUsername = createUniqueId()
+        registerUser(newNormalUsername, password, null)
 
         // Normal user tries to get invoices by username, not allowed
-//        given().cookie("SESSION", normalUserCookie)
-//                .contentType(ContentType.JSON)
-//                .body()
+        given().cookie("SESSION", normalUserCookie)
+                .contentType(ContentType.JSON)
+                .queryParam("username", newNormalUsername)
+                .get("/order-service/invoices")
+                .then()
+                .statusCode(403)
+
+        // admin try to get invoices
+        given().cookie("SESSION", adminCookie)
+                .contentType(ContentType.JSON)
+                .queryParam("username", newNormalUsername)
+                .then()
+                .statusCode(200)
+                .body("data.totalSize", CoreMatchers.equalTo(0))
 
     }
 
 
+    /**
+     * Creditcard service
+     * Only frontend will talk directly to creditcard-service, it will validate credit-cards and also add
+     * creditcard to database if user want to save their creditcard information for next time they want to pay
+     */
+    @Test
+    fun testCreditCardService() {
+
+        val password = createUniqueId()
+        val username = createUniqueId()
+        val cookie = registerUser(username, password, null)
+
+        val expireDate = "09/12"
+        val cvc = 123
+        val creditcardNumber = "1234"
+
+        val createQuery = """
+                    { "query" :
+                         "mutation{createCreditCard(creditCard:{expirationDate:\"$expireDate\",cvc: $cvc,username:\"$username\",cardNumber:\"$creditcardNumber\"})}"
+                    }
+                    """.trimIndent()
+
+        given().cookie("SESSION", cookie)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(createQuery)
+                .post("/creditcard-service/graphql")
+                .then()
+                .statusCode(200)
+
+        // Same user want to get their own creditcard
+        val getQuery = """
+			{
+  				creditcardById(id: "$username") {
+    				id, username, cardNumber, cvc, expirationDate
+  				}
+			}
+		""".trimIndent()
+
+        given().cookie("SESSION", cookie)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", getQuery)
+                .get("/creditcard-service/graphql")
+                .then()
+                .statusCode(200)
 
 
+        // Another user tries to get another user´s creditcard, not allowed
+        val newUsername = createUniqueId()
+        val newUserCookie = registerUser(newUsername, password, null)
 
+        val getAnotherUserCreditCardQuery = """
+			{
+  				creditcardById(id: "$username") {
+    				id, username, cardNumber, cvc, expirationDate
+  				}
+			}
+		""".trimIndent()
 
+        given().cookie("SESSION", newUserCookie)
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .queryParam("query", getAnotherUserCreditCardQuery)
+                .get("/creditcard-service/graphql")
+                .then()
+                .statusCode(403)
 
+    }
 
 
     /**
      * Since AMQP sends all information except from password to user-service we can check if it is saved in user-service too
      */
     @Test
-    fun testIfUserDetailsIsSavedInUserService() {
+    fun testUserService() {
 
         val password = createUniqueId()
         val username = createUniqueId()
