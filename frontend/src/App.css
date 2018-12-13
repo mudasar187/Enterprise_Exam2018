@@ -148,3 +148,9 @@
   align-content: center;
   padding: 2rem;
 }
+
+.posterImages {
+  width: 500px;
+  height: 700px;  /* set to anything and aspect ratio is maintained */
+  max-width: 100%;
+}
