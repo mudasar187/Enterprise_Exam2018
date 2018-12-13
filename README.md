@@ -48,9 +48,9 @@ This Cinema Application is an exam project in PG6100 - Enterprise 2.
 5. Visit the application on [localhost:8080](http://localhost:8080)
 6. Enjoy :)
 
-**Run individual modules**
-Since this is a microservice application, you can run each component/module individually, but with limited functionality. No communication with other external components/modules will work.
-ex. If you want to create a new NowPlaying, the service needs to get information from a Cinema and Room to fill inn the seats available. This connection is mocked in the tests, 
+**Run individual modules** <br/>
+Since this is a microservice application, you can run each component/module individually, but with limited functionality. No communication with other external components/modules will work. <br/>
+Ex. If you want to create a new NowPlaying, the service needs to get information from a Cinema and Room to fill inn the seats available. This connection is mocked in the tests, 
 but if you try to do a POST request directly to the service without running the cinema module as well this will fail with a 503.
   
 ## How to test application  
@@ -167,11 +167,10 @@ What we have tested in e2e-tests
 
 ## Swagger
 Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger.
+Swagger is only awailable when you run the module with LocalApplicationRunner.
 
 **Local**<br/>
 To find out which port the service is running on, please check the table above <br/>
 URL: http://localhost:PORT/swagger-ui.html
 
 **Docker**<br/>
-To find out which gateway path the service is running on, please check the table above <br/>
-URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
