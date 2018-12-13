@@ -13,7 +13,7 @@
 - 703960: [Christian Marker](https://github.com/MiniMarker)
     - Christian forgot sign out of his other GitHub-profile (ExamUser) before he made a commit to this project. So that's the reason there is one commit from this user. 
     
-## Table of content 
+## Attachments 
 1. [Exam 2018 Document](docs/PG6100Exam.pdf)   
 2. [Distribution of work](docs/workdistribution.md)
 3. [Git Structure](docs/git.md)    
