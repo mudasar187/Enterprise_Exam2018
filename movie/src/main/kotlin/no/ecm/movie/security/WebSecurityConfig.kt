@@ -25,7 +25,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/movies/{id}").hasRole("ADMIN")
 
-                //TODO bruke course Now PLaying
                 .antMatchers(HttpMethod.GET,"/now-playings/**").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/now-playings/{id}").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/now-playings/{id}").hasRole("ADMIN")

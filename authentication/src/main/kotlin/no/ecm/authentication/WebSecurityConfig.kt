@@ -15,9 +15,6 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import javax.sql.DataSource
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.CorsConfigurationSource
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.util.*
 
 
@@ -58,6 +55,7 @@ class WebSecurityConfig(
                 //
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/is-authenticated").permitAll()
                 .antMatchers("/user").authenticated()
                 .antMatchers("/logout").authenticated()
                 .antMatchers("/signup").permitAll()

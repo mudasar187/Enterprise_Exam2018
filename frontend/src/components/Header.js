@@ -7,7 +7,9 @@ import urls from "../utils/Urls"
 class Header extends Component {
 
 	constructor(props){
-		super(props)
+		super(props);
+
+		this.checkAuth();
 
 		this.state = {
 			authenticated : false
@@ -19,7 +21,12 @@ class Header extends Component {
 	}
 
 	checkAuth = () => {
-		axios.get(urls.authUrls.user).then(
+		const client = axios.create({
+			headers: {'X-Requested-With': 'XMLHttpRequest'},
+			withCredentials: true
+		});
+
+		client.get(urls.authUrls.user).then(
 			res => {
 				if (res.status === 200) {
 					this.setState({authenticated: true});

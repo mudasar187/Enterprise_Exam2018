@@ -110,12 +110,14 @@ class SecurityTest : TestBase() {
     @Test
     fun testLoginWithUserRole() {
 
+        val username = createUniqueId()
         val name = createUniqueId()
         val pwd = createUniqueId()
+        val email = createUniqueId()
 
         checkAuthenticatedCookie("invalid cookie", 401)
 
-        val cookie = testRegisterAsUserOrAdmin(name, pwd, null)
+        val cookie = testRegisterAsUserOrAdmin(username, pwd, null, "2018-12-01", name, email)
 
         given().get("/user")
                 .then()
@@ -125,7 +127,7 @@ class SecurityTest : TestBase() {
                 .get("/user")
                 .then()
                 .statusCode(200)
-                .body("name", CoreMatchers.equalTo(name))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_USER"))
 
 
@@ -133,12 +135,12 @@ class SecurityTest : TestBase() {
             Trying to access with userId/password will reset
             the SESSION token.
          */
-        val basic = given().auth().basic(name, pwd)
+        val basic = given().auth().basic(username, pwd)
                 .get("/user")
                 .then()
                 .statusCode(200)
                 .cookie("SESSION") // new SESSION cookie
-                .body("name", CoreMatchers.equalTo(name))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_USER"))
                 .extract().cookie("SESSION")
 
@@ -149,7 +151,7 @@ class SecurityTest : TestBase() {
             Same with /login
          */
         val login = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, pwd))
+                .body(AuthenticationDto(username, pwd))
                 .post("/login")
                 .then()
                 .statusCode(204)
@@ -164,12 +166,14 @@ class SecurityTest : TestBase() {
     @Test
     fun testLoginWithAdminRole() {
 
+        val username = createUniqueId()
         val name = createUniqueId()
         val pwd = createUniqueId()
+        val email = createUniqueId()
 
         checkAuthenticatedCookie("invalid cookie", 401)
 
-        val cookie = testRegisterAsUserOrAdmin(name, pwd, adminCode)
+        val cookie = testRegisterAsUserOrAdmin(username, pwd, adminCode, "2018-12-01", name, email)
 
         given().get("/user")
                 .then()
@@ -179,7 +183,7 @@ class SecurityTest : TestBase() {
                 .get("/user")
                 .then()
                 .statusCode(200)
-                .body("name", CoreMatchers.equalTo(name))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_ADMIN"))
 
 
@@ -187,12 +191,12 @@ class SecurityTest : TestBase() {
             Trying to access with userId/password will reset
             the SESSION token.
          */
-        val basic = given().auth().basic(name, pwd)
+        val basic = given().auth().basic(username, pwd)
                 .get("/user")
                 .then()
                 .statusCode(200)
                 .cookie("SESSION") // new SESSION cookie
-                .body("name", CoreMatchers.equalTo(name))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_ADMIN"))
                 .extract().cookie("SESSION")
 
@@ -203,7 +207,7 @@ class SecurityTest : TestBase() {
             Same with /login
          */
         val login = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, pwd))
+                .body(AuthenticationDto(username, pwd))
                 .post("/login")
                 .then()
                 .statusCode(204)
@@ -218,12 +222,14 @@ class SecurityTest : TestBase() {
     @Test
     fun testLogout() {
 
+        val username = createUniqueId()
         val name = createUniqueId()
         val pwd = createUniqueId()
+        val email = createUniqueId()
 
         checkAuthenticatedCookie("invalid cookie", 401)
 
-        val cookie = testRegisterAsUserOrAdmin(name, pwd, adminCode)
+        val cookie = testRegisterAsUserOrAdmin(username, pwd, adminCode, "2018-12-01", name, email)
 
         given().get("/user")
                 .then()
@@ -233,7 +239,7 @@ class SecurityTest : TestBase() {
                 .get("/user")
                 .then()
                 .statusCode(200)
-                .body("name", CoreMatchers.equalTo(name))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_ADMIN"))
 
         // Logout will destroy session
@@ -256,11 +262,13 @@ class SecurityTest : TestBase() {
     @Test
     fun testWrongLogin() {
 
+        val username = createUniqueId()
         val name = createUniqueId()
         val pwd = createUniqueId()
+        val email = createUniqueId()
 
         val noAuth = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, pwd))
+                .body(AuthenticationDto(username, pwd))
                 .post("/login")
                 .then()
                 .statusCode(400)
@@ -268,10 +276,10 @@ class SecurityTest : TestBase() {
 
         checkAuthenticatedCookie(noAuth, 401)
 
-        testRegisterAsUserOrAdmin(name, pwd, null)
+        testRegisterAsUserOrAdmin(username, pwd, null, "2018-12-01", name, email)
 
         val auth = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, pwd))
+                .body(AuthenticationDto(username, pwd))
                 .post("/login")
                 .then()
                 .statusCode(204)

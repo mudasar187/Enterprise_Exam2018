@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from "axios";
 import urls from "../utils/Urls"
 import Cinema from "./sub/Cinema";
+import Header from "./Header";
 
 class Welcome extends Component {
 
@@ -31,12 +32,13 @@ class Welcome extends Component {
 
 	render() {
 		return <div>
+			<Header/>
 			<div className="grid">
 				{this.state.cinemas !== null
 					? this.state.cinemas.map( item => {
 						return <Cinema key={item.id} cinema={item}/>
 					})
-					: <p>No elemts in nowplaying</p>
+					: <p>No Cinemas in the Database</p>
 				}
 			</div>
 		</div>

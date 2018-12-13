@@ -97,9 +97,7 @@ class AmqpTest {
 		RestAssured.basePath = "/graphql"
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
 		userRepository.deleteAll()
-		
-		//val admin = UserEntity(username = "admin", dateOfBirth = LocalDate.now(), name = "Admin user", email = "admin@mail.com")
-		//userRepository.save(admin)
+
 	}
 	
 	@Test

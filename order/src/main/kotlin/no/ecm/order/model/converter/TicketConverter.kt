@@ -2,8 +2,6 @@ package no.ecm.order.model.converter
 
 import no.ecm.order.model.entity.Ticket
 import no.ecm.utils.dto.order.TicketDto
-import no.ecm.utils.hal.PageDto
-import kotlin.streams.toList
 
 object TicketConverter {
 	

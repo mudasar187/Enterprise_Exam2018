@@ -7,7 +7,6 @@ import junit.framework.Assert.assertEquals
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.dto.movie.NowPlayingDto
-import no.ecm.utils.response.GenreResponse
 import no.ecm.utils.response.NowPlayingReponse
 import org.hamcrest.CoreMatchers
 import org.junit.Test
