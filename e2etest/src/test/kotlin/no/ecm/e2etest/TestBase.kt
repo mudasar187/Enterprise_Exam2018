@@ -10,7 +10,6 @@ import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.dto.order.CouponDto
 import no.ecm.utils.dto.order.TicketDto
 import no.ecm.utils.dto.user.UserDto
-import no.ecm.utils.response.CouponResponseDto
 import org.hamcrest.CoreMatchers
 import org.springframework.http.HttpStatus
 

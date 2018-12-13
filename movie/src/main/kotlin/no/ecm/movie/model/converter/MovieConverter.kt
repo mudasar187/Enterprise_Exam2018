@@ -13,7 +13,6 @@ object MovieConverter {
 			genre = GenreConverter.movieEntityListToDtoList(entity.genre).toMutableSet(),
 			movieDuration = entity.movieDuration,
 			ageLimit = entity.ageLimit
-			//nowPlaying = entity.nowPlaying.map { NowPlayingConverter.movieEntityToDto(it) }.toMutableList()
 		)
 	}
 	
