@@ -14,7 +14,7 @@
     - Christian forgot sign out of his other GitHub-profile (ExamUser) before he made a commit to this project. So that's the reason there is one commit from this user. 
    
     
-## Table of content 
+## Attachments 
 1. [Exam 2018 Document](docs/PG6100Exam.pdf)   
 2. [Who has done what?](docs/tasks.pdf)
 3. [Git Structure](docs/git.md)    
