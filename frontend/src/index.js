@@ -8,6 +8,7 @@ import Welcome from "./components/Welcome";
 import NowPlayings from "./components/NowPlayings";
 import SignUp from "./components/SignUp";
 import Room from "./components/Room";
+import SignIn from "./components/SignIn";
 
 ReactDOM.render(
 	<BrowserRouter>
@@ -15,6 +16,7 @@ ReactDOM.render(
 			<Route path="/" exact component={Welcome} />
 			<Route path="/nowPlayings" component={NowPlayings} />
 			<Route path="/signup" component={SignUp} />
+			<Route path="/signin" component={SignIn} />
 			<Route path="/booking" component={Room} />
 		</App>
 	</BrowserRouter>

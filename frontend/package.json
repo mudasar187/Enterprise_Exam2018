@@ -14,10 +14,13 @@
     "react-dom": "^16.6.3",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.1",
+    "react-seat-charts": "^0.1.14",
     "react-seatmap": "^0.1.2"
   },
   "scripts": {
+    "local": "PORT=9090 react-scripts start",
     "dev": "PORT=8080 react-scripts start",
+    "windows": "set PORT=8080 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
