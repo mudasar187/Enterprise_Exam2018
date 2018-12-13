@@ -12,7 +12,7 @@ const app = express();
     will search for "foo/bar.html" under "public" and return it
     if present.
  */
-app.use(express.static('public'));
+app.use(express.static('build'));
 
 
 /*
@@ -37,7 +37,7 @@ app.use(express.static('public'));
     course.
  */
 app.use((req, res, next) => {
-    res.sendFile(path.resolve(__dirname, '..', '..', 'public', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '..', '..', 'build', 'index.html'));
 });
 
 const port = 8080;

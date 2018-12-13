@@ -55,6 +55,7 @@ class WebSecurityConfig(
                 //
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/is-authenticated").permitAll()
                 .antMatchers("/user").authenticated()
                 .antMatchers("/logout").authenticated()
                 .antMatchers("/signup").permitAll()

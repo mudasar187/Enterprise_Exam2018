@@ -4,7 +4,9 @@ import no.ecm.authentication.service.AmqpService
 import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
 import no.ecm.utils.dto.auth.RegistrationDto
+import no.ecm.utils.exception.UserInputValidationException
 import no.ecm.utils.logger
+import no.ecm.utils.messages.ExceptionMessages.Companion.missingRequiredField
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -48,10 +50,8 @@ class AuthController(
     fun signUp(@RequestBody dto: RegistrationDto)
             : ResponseEntity<Void> {
 
-        if (dto.password.isNullOrBlank() || dto.userInfo == null || dto.userInfo!!.username.isNullOrBlank()){
-            logger.warn("missing requered field")
-            return ResponseEntity.status(400).build()
-        }
+        validateRegistrationDto(dto)
+
         val userId : String = dto.userInfo!!.username!!
         val password : String = dto.password!!
 
@@ -72,15 +72,9 @@ class AuthController(
 
         if (token.isAuthenticated) {
             SecurityContextHolder.getContext().authentication = token
-            // TODO: f.eks legge den inne her ? bør ikke lagre i user service med mindre dette ikke går gjennom
+            amqpService.send(dto.userInfo!!, "USER-REGISTRATION")
         }
 
-        // TODO: fiks slik at amqp ikke fyrer av hvis brukeren ikke fåt auth username og password til å gå gjennom
-
-        /**
-         * AMQP
-         */
-        amqpService.send(dto.userInfo!!, "USER-REGISTRATION")
 
         return ResponseEntity.status(204).build()
     }
@@ -89,6 +83,8 @@ class AuthController(
             consumes = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
     fun login(@RequestBody dto: AuthenticationDto)
             : ResponseEntity<Void> {
+
+        validateAuthenticationDto(dto)
 
         val userId : String = dto.username!!
         val password : String = dto.password!!
@@ -115,6 +111,32 @@ class AuthController(
     fun logout(session: HttpSession): ResponseEntity<Void> {
         session.invalidate()
         return ResponseEntity.status(204).build()
+    }
+
+    fun validateAuthenticationDto(authenticationDto: AuthenticationDto) {
+
+        when {
+            authenticationDto.username.isNullOrBlank() -> handleMissingField("username")
+            authenticationDto.password.isNullOrBlank() -> handleMissingField("password")
+        }
+    }
+
+    fun validateRegistrationDto(registrationDto: RegistrationDto) {
+        when {
+            registrationDto.password.isNullOrBlank() -> handleMissingField("password")
+            registrationDto.userInfo == null -> handleMissingField("userInfo of type object")
+            registrationDto.userInfo!!.username.isNullOrBlank() -> handleMissingField("username")
+            registrationDto.userInfo!!.dateOfBirth.isNullOrBlank() -> handleMissingField("date of birth")
+            registrationDto.userInfo!!.email.isNullOrBlank() -> handleMissingField("email")
+            registrationDto.userInfo!!.name.isNullOrBlank() -> handleMissingField("name")
+
+        }
+    }
+
+    private fun handleMissingField(fieldName: String){
+        val errorMsg = missingRequiredField(fieldName)
+        logger.warn(errorMsg)
+        throw UserInputValidationException(errorMsg)
     }
 
 }

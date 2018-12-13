@@ -6,7 +6,7 @@ export default (props) => {
 		<div>
 			{props.movie !== null
 				? <div>
-						<img src={props.movie.posterUrl} alt={"Poster"}/>
+						<img className={"posterImages"} src={props.movie.posterUrl} alt={"Poster"}/>
 						<h3>{props.movie.title}</h3>
 						{props.movie.genre.map( gen => {
 							return <p className="genre" key={gen.id}>{gen.name}</p>

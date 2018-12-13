@@ -10,10 +10,10 @@ abstract class TestBase {
 
     private var counter = System.currentTimeMillis()
 
-    fun testRegisterAsUserOrAdmin(id: String, password: String, adminCode: String?): String {
+    fun testRegisterAsUserOrAdmin(username: String, password: String, adminCode: String?, dateOfBirth: String?, name: String, email: String): String {
 
         val sessionCookie = RestAssured.given().contentType(ContentType.JSON)
-                .body(RegistrationDto(password, adminCode, UserDto(id)))
+                .body(RegistrationDto(password, adminCode, UserDto(username,dateOfBirth, name, email)))
                 .post("/signup")
                 .then()
                 .statusCode(204)
