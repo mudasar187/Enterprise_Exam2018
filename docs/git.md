@@ -18,7 +18,7 @@ Its make easier for us to take over others code and start working on the code. W
 
 
 ##### Dev
-When each features works and conflicts are solved we can merge together into dev. Travis will build dev, and we can verify that everythings works with the new code.
+When each features works and conflicts are solved we can merge together into dev. Travis will build dev, and we can verify that everything works with the new code.
 
 ##### Master
-Master always need to be stabel. To make dev merged into master it has to go trough all pull requests. It means one of the team need to do a code review and confirm the merge before its allowing merged into master
+Master always need to be stable. To make dev merged into master it has to go trough all pull requests. It means one of the team need to do a code review and confirm the merge before its allowing merged into master
