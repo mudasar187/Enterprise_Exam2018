@@ -24,16 +24,8 @@ services:
     build:
       context: ./eureka
       dockerfile: Dockerfile
-
-  auth-server:
-    build:
-      context: ./authentication
-      dockerfile: Dockerfile
-    depends_on:
-      - redis
-      - eureka
-      - postgres-auth
-      - rabbitmq
+    ports:
+      - "9100:8761"
 
   user-server:
     build:
@@ -90,6 +82,22 @@ services:
       - eureka
       - postgres-cinema
 
+  auth-server:
+    build:
+      context: ./authentication
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+      - eureka
+      - postgres-auth
+      - rabbitmq
+      - user-server
+      - order-server
+      - movie-server
+      - creditcard-server
+      - cinema-server
+      - cinema-server-2
+
   gateway-server:
     build:
       context: ./gateway
@@ -105,6 +113,14 @@ services:
       - movie-server
       - creditcard-server
       - cinema-server
+      - cinema-server-2
 
-# add '-rabbitmq' where AMQP is used
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - gateway-server
 

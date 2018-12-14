@@ -14,9 +14,6 @@ import java.util.concurrent.TimeUnit
 
 class AuthenticationIT: TestBase() {
 
-    val name = "testName"
-    val password = "testPassword"
-
     companion object {
 
         @BeforeClass
@@ -24,7 +21,6 @@ class AuthenticationIT: TestBase() {
         fun checkEnvironment(){
 
             /*
-                TODO
                 Looks like currently some issues in running Docker-Compose on Travis
              */
 
@@ -58,6 +54,9 @@ class AuthenticationIT: TestBase() {
     }
 
 
+    /**
+     * auth-service
+     */
     @Test
     fun testUnauthorizedAccess() {
 
@@ -71,8 +70,9 @@ class AuthenticationIT: TestBase() {
 
         checkAuthenticatedCookie("invalid cookie", 401)
 
-        val id = createUniqueId()
-        val cookie = testRegisterUser(id, password)
+        val username = createUniqueId()
+        val password = createUniqueId()
+        val cookie = registerUser(username, password, null)
 
         given().get("/auth-service/user")
                 .then()
@@ -82,7 +82,7 @@ class AuthenticationIT: TestBase() {
                 .get("/auth-service/user")
                 .then()
                 .statusCode(200)
-                .body("name", CoreMatchers.equalTo(id))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_USER"))
 
 
@@ -90,12 +90,12 @@ class AuthenticationIT: TestBase() {
             Trying to access with userId/password will reset
             the SESSION token.
          */
-        val basic = given().auth().basic(id, password)
+        val basic = given().auth().basic(username, password)
                 .get("/auth-service/user")
                 .then()
                 .statusCode(200)
                 .cookie("SESSION") // new SESSION cookie
-                .body("name", CoreMatchers.equalTo(id))
+                .body("name", CoreMatchers.equalTo(username))
                 .body("roles", Matchers.contains("ROLE_USER"))
                 .extract().cookie("SESSION")
 
@@ -106,7 +106,7 @@ class AuthenticationIT: TestBase() {
             Same with /login
          */
         val login = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(id, password))
+                .body(AuthenticationDto(username, password))
                 .post("/auth-service/login")
                 .then()
                 .statusCode(204)
@@ -119,10 +119,34 @@ class AuthenticationIT: TestBase() {
     }
 
     @Test
+    fun testCreateAdmin() {
+        val username = createUniqueId()
+        val password = createUniqueId()
+
+        // create a admin with providing a secret key
+        val cookie = registerUser(username, password, "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6")
+
+        given().get("/auth-service/user")
+                .then()
+                .statusCode(401)
+
+        given().cookie("SESSION", cookie)
+                .get("/auth-service/user")
+                .then()
+                .statusCode(200)
+                .body("name", CoreMatchers.equalTo(username))
+                .body("roles", Matchers.contains("ROLE_ADMIN"))
+                .extract().body().jsonPath().prettyPrint()
+    }
+
+    @Test
     fun testWrongLogin() {
 
+        val username = createUniqueId()
+        val password = createUniqueId()
+
         val noAuth = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, password))
+                .body(AuthenticationDto(username, password))
                 .post("/auth-service/login")
                 .then()
                 .statusCode(400)
@@ -130,15 +154,49 @@ class AuthenticationIT: TestBase() {
 
         checkAuthenticatedCookie(noAuth, 401)
 
-        testRegisterUser(name, password)
+        registerUser(username, password, null)
 
         val auth = given().contentType(ContentType.JSON)
-                .body(AuthenticationDto(name, password))
+                .body(AuthenticationDto(username, password))
                 .post("/auth-service/login")
                 .then()
                 .statusCode(204)
                 .extract().cookie("SESSION")
 
         checkAuthenticatedCookie(auth, 200)
+    }
+
+    @Test
+    fun testLogout() {
+        val username = createUniqueId()
+        val password = createUniqueId()
+
+        checkAuthenticatedCookie("invalid cookie", 401)
+
+        val cookie = registerUser(username, password, null)
+
+        given().get("/auth-service/user")
+                .then()
+                .statusCode(401)
+
+        given().cookie("SESSION", cookie)
+                .get("/auth-service/user")
+                .then()
+                .statusCode(200)
+                .body("name", CoreMatchers.equalTo(username))
+                .body("roles", Matchers.contains("ROLE_USER"))
+
+        // Logout will destroy session
+        given().cookie("SESSION", cookie)
+                .post("/auth-service/logout")
+                .then()
+                .statusCode(204)
+
+
+        // Invalid session, because destroyd on logout
+        given().cookie("SESSION", cookie)
+                .get("/auth-service/user")
+                .then()
+                .statusCode(401)
     }
 }

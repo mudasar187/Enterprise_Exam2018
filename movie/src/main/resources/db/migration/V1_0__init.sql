@@ -1,0 +1,10 @@
+create sequence hibernate_sequence start with 1 increment by 1;
+create table genre (id bigint not null, name varchar(255), primary key (id));
+create table genre_movies (genre_id bigint not null, movies_id bigint not null, primary key (genre_id, movies_id));
+create table movie (id bigint not null, age_limit integer not null, movie_duration integer not null, poster_url varchar(255), title varchar(255), primary key (id));
+create table now_playing (id bigint not null, cinema_id bigint not null, room_id bigint not null, time_when_movie_play timestamp not null, movie_id bigint, primary key (id));
+create table now_playing_free_seats (now_playing_id bigint not null, free_seats varchar(255));
+alter table genre_movies add constraint FKtgatsvi7lb98phh9ft1gogkep foreign key (movies_id) references movie;
+alter table genre_movies add constraint FKna0q0v9ce4wywop8o440cv70p foreign key (genre_id) references genre;
+alter table now_playing add constraint FKrxtrqry5jm4ylgjmly3htt7h9 foreign key (movie_id) references movie;
+alter table now_playing_free_seats add constraint FK8ad51wg778o7kn5b3a9s5htvy foreign key (now_playing_id) references now_playing;

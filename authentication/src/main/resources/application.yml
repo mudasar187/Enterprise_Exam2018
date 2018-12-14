@@ -7,8 +7,8 @@ spring:
   jpa:
     database: "h2"
     hibernate:
-      ddl-auto: "create-drop"
-    show-sql: true
+      ddl-auto: "validate"
+    show-sql: false
 
 eureka:
   instance:
@@ -36,4 +36,4 @@ logging:
             AbstractSerializableParameter: error
 
 
-adminCode: $2y$12$wePwvk5.P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6
+adminCode: 2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6

@@ -1,19 +1,22 @@
-package no.ecm.order.repository
+package no.ecm.order
 
 import no.ecm.order.model.entity.Coupon
 import no.ecm.order.model.entity.Invoice
 import no.ecm.order.model.entity.Ticket
+import no.ecm.order.repository.InvoiceRepository
 import no.ecm.order.repository.coupon.CouponRepository
 import no.ecm.order.repository.ticket.TicketRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
 import javax.annotation.PostConstruct
 
 @Component
+@Profile("test")
 class DefaultData(
-	private var invoiceRepository: InvoiceRepository,
-	private var ticketRepository: TicketRepository,
-	private var couponRepository: CouponRepository
+        private var invoiceRepository: InvoiceRepository,
+        private var ticketRepository: TicketRepository,
+        private var couponRepository: CouponRepository
 ) {
 
     @PostConstruct

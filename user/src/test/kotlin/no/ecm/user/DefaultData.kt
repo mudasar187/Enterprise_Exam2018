@@ -1,11 +1,14 @@
-package no.ecm.user.repository
+package no.ecm.user
 
 import no.ecm.user.model.entity.UserEntity
+import no.ecm.user.repository.UserRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import javax.annotation.PostConstruct
 
 @Component
+@Profile("test")
 class DefaultData(
         private var userRepository: UserRepository
 ) {

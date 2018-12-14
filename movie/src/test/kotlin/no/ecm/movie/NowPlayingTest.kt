@@ -7,6 +7,7 @@ import junit.framework.Assert.assertEquals
 import no.ecm.utils.dto.movie.GenreDto
 import no.ecm.utils.dto.movie.MovieDto
 import no.ecm.utils.dto.movie.NowPlayingDto
+import no.ecm.utils.response.NowPlayingReponse
 import org.hamcrest.CoreMatchers
 import org.junit.Test
 
@@ -47,7 +48,32 @@ class NowPlayingTest: TestBase() {
 				.then()
 				.statusCode(500)
 	}
-	
+
+
+	@Test
+	fun testFindByCinemaId() {
+		assertEquals(nowPlayingCount(), 0)
+
+		val cinemaId = 1
+		val roomId = 4
+		val movieId = createDefaultMovie()
+
+		val responseBody = getAMockRoomResponse(cinemaId, roomId)
+		stubJsonResponse(responseBody)
+
+		val newNowPlayingId = createNowPlaying(createDefaultNowPlayingDto(movieId))
+
+		val res = given().accept(ContentType.JSON)
+				.param("cinemaId", cinemaId)
+				.get(nowPlayingURL)
+				.then()
+				.statusCode(200)
+				.extract()
+				.`as`(NowPlayingReponse::class.java)
+
+		assertEquals(cinemaId.toString(), res.data!!.list.first().cinemaId)
+	}
+
 	@Test
 	fun createNowPlayingWithInvalidDataTest() {
 		
@@ -107,44 +133,7 @@ class NowPlayingTest: TestBase() {
 			time = "2018-12-20 20:00:00")
 		)!!.then().statusCode(409)
 	}
-	
-	@Test
-	fun createNowPlayingWithNonExistingCinemaTest() {
-		
-		val cinemaId = 1
-		val roomId = 4
-		val movieId = createDefaultMovie()
-		
-		given().auth().basic("admin", "admin")
-			.body("""
-				{
-				  "cinemaId": "1000",
-				  "movieDto": {
-					"id": "4"
-				  },
-				  "roomId": "$roomId",
-				  "time": "2018-12-12 20:00:00"
-				}
-			""".trimIndent())
-			.post()
-			.then()
-			.statusCode(404)
-		
-		given().auth().basic("admin", "admin")
-			.body("""
-				{
-				  "cinemaId": "$cinemaId",
-				  "movieDto": {
-					"id": "4"
-				  },
-				  "roomId": "400",
-				  "time": "2018-12-12 20:00:00"
-				}
-			""".trimIndent())
-			.post()
-			.then()
-			.statusCode(404)
-	}
+
 	
 	@Test
 	fun getInvalidNowPlayingTest() {

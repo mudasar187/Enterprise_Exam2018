@@ -133,14 +133,27 @@ class InvoiceService(
                     "seats": ${seats.joinToString("\",\"", "[\"", "\"]")}
                     }""".trimMargin()
 
-        val patchResponse = CallPatchToMovieService(jsonBody, nowPlayingDto.id!!, response.headers.eTag!!).execute()
+        val url = "$movieUri/$nowPlayingPath/${nowPlayingDto.id!!}"
+        val headers = HttpHeaders()
+        headers.set("If-Match", response.headers.eTag!!)
+        headers.set("Content-Type", "application/merge-patch+json")
 
-        if (patchResponse.code == HttpStatus.INTERNAL_SERVER_ERROR.value()){
-            throw InternalException("INTERNAL_SERVER_ERROR", patchResponse.code!!)
-        } else if (patchResponse.code == HttpStatus.SERVICE_UNAVAILABLE.value()){
-            throw InternalException("SERVICE_TEMPORARILY_UNAVAILABLE", patchResponse.code!!)
+        val patchResponse : ResponseEntity<Void> = try {
+            restTemplate.exchange(url, HttpMethod.PATCH, HttpEntity(jsonBody, headers), Void::class.java)
+        } catch (e : HttpClientErrorException){
+            logger.error(e.toString())
+            if (e.message != null){
+                logger.warn(e.message!!)
+                throw UserInputValidationException(e.message!!, e.statusCode.value())
+            } else {
+                throw e
+            }
         }
-        logger.info(entitySuccessfullyUpdated("NowPlaying", nowPlayingDto.id.toString()))
+
+
+        if (patchResponse.statusCode.value() == 204){
+            logger.info(entitySuccessfullyUpdated("NowPlaying", nowPlayingDto.id.toString()))
+        }
 
         val id = invoiceRepository.save(InvoiceConverter.dtoToEntity(dto)).id
         logger.info(entityCreatedSuccessfully("Invoice", id.toString()))
@@ -163,8 +176,6 @@ class InvoiceService(
             deleteById(id.toString())
             throw e
         }
-
-
         return InvoiceDto(id.toString())
     }
 
@@ -190,12 +201,6 @@ class InvoiceService(
             dto.tickets == null -> handleMissingField("tickets")
             dto.totalPrice != null -> handleIllegalField("totlPrice")
         }
-    }
-
-    private fun handleUnableToParse(fieldName: String){
-        val errorMsg = ExceptionMessages.unableToParse(fieldName)
-        logger.warn(errorMsg)
-        throw UserInputValidationException(errorMsg)
     }
 
     private fun handleIllegalField(fieldName: String) {
@@ -252,40 +257,6 @@ class InvoiceService(
             }
 
             return ResponseEntity.status(503).body(NowPlayingReponse(message = "SERVICE_TEMPORARY_UNAVAILABLE", code = 503))
-        }
-    }
-
-    private inner class CallPatchToMovieService(private val jsonPatchBody: String, private var nowPlayingId: String, private var eTag: String)
-        : HystrixCommand<NowPlayingReponse>(HystrixCommandGroupKey.Factory.asKey("Removing seats from Now Playing in Movie service")) {
-
-        override fun run(): NowPlayingReponse {
-            
-            val url = "$movieUri/$nowPlayingPath/$nowPlayingId"
-            val headers = HttpHeaders()
-            headers.set("If-Match", eTag)
-            headers.set("Content-Type", "application/merge-patch+json")
-
-            val response : ResponseEntity<Void> = try {
-                restTemplate.exchange(url, HttpMethod.PATCH, HttpEntity(jsonPatchBody, headers), Void::class.java)
-            } catch (e : HttpClientErrorException){
-                val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
-                logger.warn(body.message)
-                throw HystrixBadRequestException(body.message, UserInputValidationException(message = body.message!!, httpCode = body.code!!))
-            }
-
-            return NowPlayingReponse(response.statusCodeValue)
-        }
-
-        override fun getFallback(): NowPlayingReponse {
-
-            logger.error("Critical error! Movie service crashed")
-            logger.error("Circuit breaker status: $executionEvents")
-
-            if(failedExecutionException is HttpServerErrorException) {
-                return NowPlayingReponse(message = "INTERNAL_SERVER_ERROR", code = 500)
-            }
-
-            return NowPlayingReponse(message = "SERVICE_TEMPORARILY_UNAVAILABLE", code = 503)
         }
     }
 }

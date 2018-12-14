@@ -23,7 +23,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-
                 .antMatchers(HttpMethod.GET, "/graphql/**")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.
@@ -31,7 +30,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                   */
                 .access("hasRole('USER') and @userSecurity.checkId(authentication)")
                 .antMatchers(HttpMethod.POST, "/graphql/**").authenticated()
-                .antMatchers("/**").hasRole("ADMIN")
+                .antMatchers("/graphiql/**", "/vendor/**").hasRole("ADMIN")
 
                 .anyRequest().denyAll()
                 .and()

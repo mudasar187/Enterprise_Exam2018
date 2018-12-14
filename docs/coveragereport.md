@@ -2,4 +2,6 @@
 
 ## JaCoco - Coverage Report
 
-Add picture
+Code coverage for the entire repo can be found in **reports** module after running `mvn clean install`.
+
+![CoverageReport](imgs/coverageReport.png)

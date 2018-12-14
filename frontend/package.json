@@ -1,0 +1,38 @@
+{
+  "name": "webapp",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.18.0",
+    "flexbox-react": "^4.4.0",
+    "javascript-natural-sort": "^0.7.1",
+    "js-joda": "^1.9.2",
+    "moment": "^2.22.2",
+    "moment-timezone": "^0.5.23",
+    "react": "^16.6.3",
+    "react-datepicker": "^2.0.0",
+    "react-dom": "^16.6.3",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "2.1.1",
+    "react-seat-charts": "^0.1.14",
+    "react-seatmap": "^0.1.2"
+  },
+  "scripts": {
+    "local": "PORT=9090 react-scripts start",
+    "dev": "PORT=8080 react-scripts start",
+    "windows": "set PORT=8080 && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "start": "node src/server/server.js"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

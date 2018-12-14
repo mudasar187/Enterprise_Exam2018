@@ -18,7 +18,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
 
     override fun configure(http: HttpSecurity) {
-        http
+        http.cors().and()
                 .httpBasic()
                 .and()
                 .authorizeRequests()
@@ -27,30 +27,32 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.GET,"/coupons/**").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/coupons/{id}").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/coupons/{id}").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/coupons").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/coupons/{id}").hasRole("ADMIN")
 
                 // Invoices
-                //.antMatchers(HttpMethod.GET,"/invoices/**").permitAll()
-                .antMatchers(HttpMethod.GET,"/invoices/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET,"/invoices/{id}/**")
+                .antMatchers(HttpMethod.GET,"/invoices").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET,"/invoices/{id}")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.
                     the "@" resolves a current bean.
                   */
                 .access("hasRole('USER') and @userSecurity.checkId(authentication, #id)")
 
-                .antMatchers(HttpMethod.POST, "/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/invoices").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/invoices/{id}").hasRole("ADMIN")
 
                 //Tickets
                 .antMatchers(HttpMethod.GET,"/tickets/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PATCH, "/tickets/{id}").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/tickets/{id}").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/tickets").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/tickets/{id}").hasRole("ADMIN")
 
-                .antMatchers("/**").hasRole("ADMIN")
+                .antMatchers("/swagger-resources/**").hasRole("ADMIN")
+                .antMatchers("/swagger-ui.html").hasRole("ADMIN")
+                .antMatchers("/v2/api-docs").hasRole("ADMIN")
+                .antMatchers("/webjars/**").hasRole("ADMIN")
 
                 .anyRequest().denyAll()
                 .and()
@@ -78,6 +80,8 @@ class UserSecurity{
 
     fun checkId(authentication: Authentication, id: String) : Boolean{
         val current = (authentication.principal as UserDetails).username
+
+        println(current)
 
         return invoiceService.findById(id).username == current
     }

@@ -16,7 +16,6 @@ import no.ecm.utils.validation.ValidationHandler
 import no.ecm.utils.validation.ValidationHandler.Companion.validateId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import kotlin.reflect.jvm.internal.ReflectProperties
 
 @Service
 class TicketService {

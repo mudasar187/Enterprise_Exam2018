@@ -47,8 +47,8 @@ class CreditCardMutationResolver(
                     return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
                 }
 
-                creditCardRepository.existsByCreditcardNumber(input.cardNumber!!) -> {
-                    val errorMsg = (ExceptionMessages.resourceAlreadyExists("CreditCard", "cardnumber", input.cardNumber!!))
+                creditCardRepository.existsByUsernameOrCreditcardNumber(input.username!!, input.cardNumber!!) -> {
+                    val errorMsg = ExceptionMessages.resourceAlreadyExists("Creditcard", "username and creditcard", "${input.username!!} and ${input.cardNumber!!}")
                     logger.warn(errorMsg)
                     return DataFetcherResult<String>(null, listOf(GenericGraphQLError(errorMsg)))
                 }

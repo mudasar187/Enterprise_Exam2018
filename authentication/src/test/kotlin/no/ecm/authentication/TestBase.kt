@@ -8,10 +8,12 @@ import org.hamcrest.CoreMatchers
 
 abstract class TestBase {
 
-    fun testRegisterAsUserOrAdmin(id: String, password: String, adminCode: String?): String {
+    private var counter = System.currentTimeMillis()
+
+    fun testRegisterAsUserOrAdmin(username: String, password: String, adminCode: String?, dateOfBirth: String?, name: String, email: String): String {
 
         val sessionCookie = RestAssured.given().contentType(ContentType.JSON)
-                .body(RegistrationDto(password, adminCode, UserDto(id)))
+                .body(RegistrationDto(password, adminCode, UserDto(username,dateOfBirth, name, email)))
                 .post("/signup")
                 .then()
                 .statusCode(204)
@@ -32,5 +34,10 @@ abstract class TestBase {
                 .get("/user")
                 .then()
                 .statusCode(expectedCode)
+    }
+
+    fun createUniqueId(): String {
+        counter++
+        return "foo_$counter"
     }
 }

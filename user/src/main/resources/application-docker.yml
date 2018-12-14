@@ -2,6 +2,7 @@ graphql:
   servlet:
     mapping: /graphql
     enabled: true
+    corsEnabled: true
 
 eureka:
   instance:
@@ -32,7 +33,7 @@ spring:
   jpa:
     database: "postgresql"
     hibernate:
-      ddl-auto: "update"
+      ddl-auto: "validate"
     properties:
      hibernate.temp.use_jdbc_metadata_defaults: false
     database-platform: org.hibernate.dialect.PostgreSQL9Dialect

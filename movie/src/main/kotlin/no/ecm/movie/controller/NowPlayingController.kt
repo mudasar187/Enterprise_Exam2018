@@ -38,6 +38,10 @@ class NowPlayingController(
                       @RequestParam("date", required = false)
                       date: String?,
 
+                      @ApiParam("cinemaId of the movie")
+                      @RequestParam("cinemaId", required = false)
+                      cinemaId: String?,
+
                       @ApiParam("Offset in the list of genres")
                       @RequestParam("offset", defaultValue = "0")
                       offset: Int,
@@ -45,7 +49,7 @@ class NowPlayingController(
                       @ApiParam("Limit of genres in a single retrieved page")
                       @RequestParam("limit", defaultValue = "10")
                       limit: Int): ResponseEntity<WrappedResponse<NowPlayingDto>> {
-        val nowPlayingDtos = nowPlayingService.find(title, date)
+        val nowPlayingDtos = nowPlayingService.find(title, date, cinemaId)
 
         val builder = UriComponentsBuilder.fromPath("/now-playing")
 
@@ -100,7 +104,6 @@ class NowPlayingController(
     }
 
     @ApiOperation("Update a seats using merge patch")
-    @CrossOrigin(origins = ["http://localhost:8082", "http://localhost:7082", "http://order-server"])
     @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
     fun patchNowPlaying(@ApiParam("The id of the Now Playing")
                    @PathVariable("id")
