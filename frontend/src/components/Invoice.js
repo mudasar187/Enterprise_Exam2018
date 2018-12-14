@@ -15,14 +15,18 @@ class Invoice extends Component {
             invoiceId: props.match.params.id,
             error: null,
             invoice: null,
-            price: 0
+            price: 0,
+            cardNumber: "",
+            cvc: "",
+            expireAt: "",
+            username : null
         };
-
 
 
         this.getInvoiceId();
 
     }
+
     render() {
         let formated = "";
         if (this.state.invoice) {
@@ -39,7 +43,7 @@ class Invoice extends Component {
                 <div className="invoice">
                     {this.state.invoice
                         ? <div>
-                            <h1>Success</h1>
+                            <h1>Confirm your order</h1>
                             <h3>Total Price:</h3>
                             <h4>{this.state.invoice.totalPrice},-</h4>
                             <h3>Your seats:</h3>
@@ -48,9 +52,25 @@ class Invoice extends Component {
                             })}
                             <p>{formated}</p>
                         </div>
-                    : <div>
+                        : <div>
                             <h3>Couldn't not fetch receipt</h3>
-                        </div>}
+                        </div>
+                    }
+                     <form onSubmit={this.verifyCreditCard}>
+                         <label>
+                             Card number:
+                             <input type="text" name="cardNumber" value={this.state.cardNumber} onChange={this.handleCardChange}/>
+                         </label>
+                         <label>
+                             CVC code:
+                             <input type="text" name="cvc" value={this.state.cvc} onChange={this.handleCardChange}/>
+                         </label>
+                         <label>
+                             Expire at (mm/yy):
+                             <input type="text" name="expireAt" value={this.state.expiration} onChange={this.handleCardChange}/>
+                         </label>
+                         <input type="submit" value="Pay"/>
+                     </form>
                 </div>
             </div>
         )
@@ -77,6 +97,53 @@ class Invoice extends Component {
     };
 
 
+    verifyCreditCard = (event) => {
+        event.preventDefault();
+        const client = axios.create({
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            withCredentials: true
+        });
+
+        client.post(urls.creditCard,
+                {
+                    query: `mutation{createCreditCard(creditCard:{expirationDate:"${this.state.expireAt}",cvc: ${this.state.cvc},username:"${this.state.invoice.username}",cardNumber:"${this.state.cardNumber}"})}`
+                }
+        ).then(
+            res => {
+                if (res.status === 200) {
+                    //this.setState({username: res.data.name});
+                    //console.log(this.state.username);
+                    console.log(res.data);
+                }
+            }
+        ).catch(err => {
+            this.setState({error: "Error on creation of creditcard"})
+        });
+    };
+
+    handleCardChange = (event) => {
+        this.setState({ [event.target.name]: event.target.value });
+    };
+
+
+    checkAuth = () => {
+        const client = axios.create({
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            withCredentials: true
+        });
+
+        client.get(urls.authUrls.user).then(
+            res => {
+                if (res.status === 200) {
+                    this.setState({username: res.data.name});
+                    console.log(this.state.username);
+                    console.log();
+                }
+            }
+        ).catch(err => {
+            this.setState({error: "You need to log in first"})
+        });
+    };
 }
 
 

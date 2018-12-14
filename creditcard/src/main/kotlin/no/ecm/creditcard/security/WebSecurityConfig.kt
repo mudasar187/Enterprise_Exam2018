@@ -14,18 +14,19 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
 
     override fun configure(http: HttpSecurity) {
-        http
+        http.cors().and()
                 .httpBasic()
                 .and()
                 .authorizeRequests()
 
-                .antMatchers(HttpMethod.GET, "/graphql/**")
+                .antMatchers(HttpMethod.GET, "/graphql")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.
                     the "@" resolves a current bean.
                   */
                 .access("hasRole('USER') and @userSecurity.checkId(authentication)")
                 .antMatchers(HttpMethod.POST, "/graphql/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/graphql").authenticated()
                 .antMatchers("/graphiql/**").hasRole("ADMIN")
 
                 .anyRequest().denyAll()

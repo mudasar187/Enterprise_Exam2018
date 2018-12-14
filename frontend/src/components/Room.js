@@ -230,7 +230,7 @@ class Room extends Component {
 
 	handleCodeInput = (event) => {
 		this.setState({codeInput: event.target.value})
-	}
+	};
 }
 
 export default Room

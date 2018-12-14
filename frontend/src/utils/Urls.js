@@ -17,6 +17,7 @@ export default {
 		create: "http://localhost:10000/order-service/invoices",
 		getById: "http://localhost:10000/order-service/invoices",
 		getCoupon: "http://localhost:10000/order-service/coupons?code="
-	}
+	},
+	creditCard: "http://localhost:10000/creditcard-service/graphql"
 
 };
