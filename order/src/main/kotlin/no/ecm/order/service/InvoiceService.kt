@@ -132,7 +132,7 @@ class InvoiceService(
         val jsonBody = """{
                     "seats": ${seats.joinToString("\",\"", "[\"", "\"]")}
                     }""".trimMargin()
-
+        
         val patchResponse = CallPatchToMovieService(jsonBody, nowPlayingDto.id!!, response.headers.eTag!!).execute()
 
         if (patchResponse.code == HttpStatus.INTERNAL_SERVER_ERROR.value()){
@@ -266,7 +266,9 @@ class InvoiceService(
             headers.set("Content-Type", "application/merge-patch+json")
 
             val response : ResponseEntity<Void> = try {
+                
                 restTemplate.exchange(url, HttpMethod.PATCH, HttpEntity(jsonPatchBody, headers), Void::class.java)
+                
             } catch (e : HttpClientErrorException){
                 val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
                 logger.warn(body.message)

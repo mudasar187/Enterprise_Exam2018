@@ -34,7 +34,6 @@ H2, RestAssured, WireMock, TestContainers
 This Cinema Application is an exam project in PG6100 - Enterprise 2.
   
 ## How to run
-
 **Make sure that your Docker desktop-application has allocated enough CPU-cores and RAM!!** 
 **When we developed this application we have allocated 4-cores and 8GB of RAM**
 
@@ -57,8 +56,14 @@ but if you try to do a POST request directly to the service without running the 
 Every module contains unit tests for testing each service in isolation. When you install the application with `mvn clean install` these tests will run automatically.
 Some tests are ignored by this command (E2E-tests). To run these tests you need to run this manually. These tests are located in the e2etest module.
 
-## Project structure
+## End-to-end-tests
+End-to-end tests is testing all of our controllers in an Docker environment made with Test-containers. <br/>
+We build the Docker environment with loading the same docker-compose.yml file that the application uses. 
+After this is up and running and are time cap'ed to 300 seconds. After this we test all the available moules to check if they work as intended.
+First we do a POST request to create a resource and asserts that we gan get it with an valid session.
 
+
+## Project structure
 | Module | Description | Services | Technology | 
 |--|--|--|--|
 | Cinema  | Cinema is responsible for storing and CRUD operations | Cinemas, Rooms | REST |
@@ -149,10 +154,6 @@ This module contains he following helpers:
             - Checks if offset and limit given in the parameters is valid
             - Throws exception if fails
             
-## End-to-end-tests
-
-What we have tested in e2e-tests
-
 ## Ports
 | Service | Local | Docker Gateway path |
 |--|--|--|
@@ -165,13 +166,23 @@ What we have tested in e2e-tests
 | Order | 7082 | order-service/** |
 | User | 7081 | user-service/** |
 
-## Swagger
-Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger.
+## Swagger & GraphiQL
+Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger or GraphiQL.
 
 **Local**
 To find out which port the service is running on, please check the table above <br/>
-URL: http://localhost:PORT/swagger-ui.html
+Swagger URL: http://localhost:PORT/swagger-ui.html
+GraphiQL URL: http://localhost:PORT/graphiql
 
 **Docker**
 To find out which gateway path the service is running on, please check the table above <br/>
+GraphiQL is accessible, but SpringWebSecurity blocks all queries when run in docker
 URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
+
+
+## Bugs in the code
+### Creation of a Invoice
+The internal patch call from Invoice-Service to NowPlayingService gets stripped of the authentication headers, we are fully aware of that this is a security hole in our solution.
+But for this exam and for you to be able to test all our core functionality we had to permit all communication to the PATCH method in NowPlayingService in WebSecurityConfig. <br/>
+But the POST method in Invoice-Service is secured with authenticated in WebSecurityConfig so by using the frontend there is no way for a unauthenticated user to do a PATCH-request. 
+Unless s/he knows how to use a terminal ;) 
