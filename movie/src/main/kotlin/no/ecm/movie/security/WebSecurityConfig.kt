@@ -40,6 +40,12 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
                 .antMatchers("/**").hasRole("ADMIN")
 
+                // Swagger
+                .antMatchers("/swagger-resources/**").hasRole("ADMIN")
+                .antMatchers("/swagger-ui.html").hasRole("ADMIN")
+                .antMatchers("/v2/api-docs").hasRole("ADMIN")
+                .antMatchers("/webjars/**").hasRole("ADMIN")
+
                 .anyRequest().denyAll()
                 .and()
                 .csrf().disable()
