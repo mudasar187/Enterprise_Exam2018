@@ -133,44 +133,7 @@ class NowPlayingTest: TestBase() {
 			time = "2018-12-20 20:00:00")
 		)!!.then().statusCode(409)
 	}
-	
-	@Test
-	fun createNowPlayingWithNonExistingCinemaTest() {
-		
-		val cinemaId = 1
-		val roomId = 4
-		val movieId = createDefaultMovie()
-		
-		given().auth().basic("admin", "admin")
-			.body("""
-				{
-				  "cinemaId": "1000",
-				  "movieDto": {
-					"id": "4"
-				  },
-				  "roomId": "$roomId",
-				  "time": "2018-12-12 20:00:00"
-				}
-			""".trimIndent())
-			.post()
-			.then()
-			.statusCode(404)
-		
-		given().auth().basic("admin", "admin")
-			.body("""
-				{
-				  "cinemaId": "$cinemaId",
-				  "movieDto": {
-					"id": "4"
-				  },
-				  "roomId": "400",
-				  "time": "2018-12-12 20:00:00"
-				}
-			""".trimIndent())
-			.post()
-			.then()
-			.statusCode(404)
-	}
+
 	
 	@Test
 	fun getInvalidNowPlayingTest() {

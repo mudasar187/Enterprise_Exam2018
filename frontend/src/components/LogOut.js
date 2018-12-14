@@ -9,8 +9,6 @@ class LogOut extends Component {
     constructor(props) {
         super(props);
 
-        //this.checkAuth();
-
         this.state = {
             message: null,
             error: null

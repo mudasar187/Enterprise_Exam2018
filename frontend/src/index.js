@@ -11,6 +11,7 @@ import Room from "./components/Room";
 import SignIn from "./components/SignIn";
 import Invoice from "./components/Invoice";
 import LogOut from "./components/LogOut";
+import Done from "./components/Done";
 
 ReactDOM.render(
 	<BrowserRouter>
@@ -20,6 +21,7 @@ ReactDOM.render(
 			<Route path="/signup" component={SignUp} />
 			<Route path="/signin" component={SignIn} />
 			<Route path="/logout" component={LogOut} />
+			<Route path="/done" component={Done} />
 			<Route path="/booking" component={Room} />
 			<Route path="/invoices/:id" component={Invoice} />
 		</App>

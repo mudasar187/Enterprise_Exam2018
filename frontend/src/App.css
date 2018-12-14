@@ -280,3 +280,7 @@
   color: aliceblue;
   cursor: pointer;
 }
+
+.done{
+  text-align: center;
+}

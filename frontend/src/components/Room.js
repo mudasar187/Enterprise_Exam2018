@@ -12,7 +12,6 @@ class Room extends Component {
 		super(props);
 
 		const {nowPlaying} = props.location.state;
-		//console.log(nowPlaying);
 
 		this.state = {
 			nowPlaying: nowPlaying,

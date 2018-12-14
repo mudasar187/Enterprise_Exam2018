@@ -89,9 +89,8 @@ class Invoice extends Component {
                     this.setState({invoice: invoiceObj});
                     console.log(this.state.invoice)
                 }
-            ).then(() => {
-                this.checkIfCreditCardForUserExists();
-            }).catch(err => {
+            )
+                .catch(err => {
                 this.setState({error: "You need to sign in first"})
             });
         }
@@ -111,16 +110,13 @@ class Invoice extends Component {
                 {
                     query: `mutation{createCreditCard(creditCard:{expirationDate:"${this.state.expireAt}",cvc: ${this.state.cvc},username:"${this.state.invoice.username}",cardNumber:"${this.state.cardNumber}"})}`
                 }
-        ).then(
-            res => {
+        ).then(res => {
                 if (res.status === 200) {
-                    //this.setState({username: res.data.name});
-                    //console.log(this.state.username);
-                    console.log(res.data);
+                    this.props.history.push('/done')
                 }
             }
         ).catch(err => {
-            this.setState({error: "Error on creation of creditcard"})
+            this.props.history.push('/done')
         });
     };
 
@@ -139,49 +135,12 @@ class Invoice extends Component {
             res => {
                 if (res.status === 200) {
                     this.setState({username: res.data.name});
-                    console.log(this.state.username);
-                    console.log();
+
                 }
             }
         ).catch(err => {
-            this.setState({error: "You need to log in first"})
         });
     };
-
-    checkIfCreditCardForUserExists = () => {
-        console.log("fsefsef");
-        if (this.state.invoice !== null) {
-
-            console.log("tttttt");
-            const client = axios.create({
-                headers: {'X-Requested-With': 'XMLHttpRequest'},
-                withCredentials: true
-            });
-
-            client.get(`${urls.creditCard}?query=query%7BcreditcardById(id%3A"${this.state.invoice.username}")%7BcardNumber%2Ccvc%2CexpirationDate%7D%7D`
-            ).then(res => {
-                console.log(res);
-                    if (res.status === 200) {
-                        //this.setState({username: res.data.name});
-                        //console.log(this.state.username);
-
-                        console.log(res.data.data.creditcardById);
-
-                        this.setState({
-                            creditcardRetrived: true,
-                            cardNumber: "",
-                            cvc: "",
-                            expireAt: "",
-                        })
-
-
-                    }
-                }
-            ).catch(err => {
-                this.setState({error: "Error on getting of creditcard"})
-            });
-        }
-    }
 }
 
 
