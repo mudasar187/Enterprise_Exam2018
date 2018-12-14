@@ -22,7 +22,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.GET,"/movies/**").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/movies/{id}").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/movies/{id}").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/movies").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/movies/{id}").hasRole("ADMIN")
 
                 .antMatchers(HttpMethod.GET,"/now-playings/**").permitAll()
@@ -34,17 +34,15 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 */
                 .antMatchers(HttpMethod.PATCH, "/now-playings/{id}").permitAll()
                 .antMatchers(HttpMethod.PUT, "/now-playings/{id}").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/now-playings").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/now-playings/{id}").hasRole("ADMIN")
 
                 //Genres
                 .antMatchers(HttpMethod.GET,"/genres/**").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/genres/{id}").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/genres/{id}").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/genres").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/genres/{id}").hasRole("ADMIN")
-
-                .antMatchers("/**").hasRole("ADMIN")
 
                 // Swagger
                 .antMatchers("/swagger-resources/**").hasRole("ADMIN")

@@ -62,7 +62,6 @@ class WebSecurityConfig(
                 .antMatchers("/logout").authenticated()
                 .antMatchers("/signup").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/**").hasRole("ADMIN")
 
                 // Swagger
                 .antMatchers("/swagger-resources/**").hasRole("ADMIN")
