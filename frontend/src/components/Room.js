@@ -3,7 +3,6 @@ import axios from "axios";
 import urls from "../utils/Urls"
 import naturalSort from "javascript-natural-sort";
 import Header from "./Header";
-import {Link} from "react-router-dom";
 
 
 class Room extends Component {
@@ -64,7 +63,7 @@ class Room extends Component {
 					</div>
 					<div className="selectedSeats">
 						<h3>Selected seats:</h3>
-						{this.state.seatmap.map(seat => {
+						{this.state.seatmap.filter(seat => {
 							if (seat.isSelected) {
 								return (<div key={seat.label}>{seat.label}</div>)
 							}

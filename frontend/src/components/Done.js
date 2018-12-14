@@ -4,11 +4,6 @@ import Link from "react-router-dom/es/Link";
 
 class Done extends Component {
 
-    constructor(props) {
-        super(props);
-
-    }
-
     render() {
         return (
             <div className="done">

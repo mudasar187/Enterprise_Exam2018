@@ -1,6 +1,5 @@
 import React from "react"
 import Movie from "./Movie";
-import moment from "moment-timezone"
 import {Link} from "react-router-dom";
 
 export default (props) => {

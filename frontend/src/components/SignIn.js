@@ -18,9 +18,6 @@ class SignIn extends Component {
 
 	signUp = () => {
 
-		const headers = {
-			'Content-Type': 'application/json'};
-
 		if (!this.checkFormData){
 			return;
 		}

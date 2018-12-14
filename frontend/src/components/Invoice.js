@@ -8,9 +8,6 @@ class Invoice extends Component {
     constructor(props) {
         super(props);
 
-        console.log(props.match.params.id);
-        const {invoiceId} = props.match.params.id;
-
         this.state = {
             invoiceId: props.match.params.id,
             error: null,
