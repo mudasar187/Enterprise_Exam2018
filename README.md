@@ -47,14 +47,15 @@ This Cinema Application is an exam project in PG6100 - Enterprise 2.
 5. Visit the application on [localhost:8080](http://localhost:8080)
 6. Enjoy :)
 
-**Run individual modules**
-Since this is a microservice application, you can run each component/module individually, but with limited functionality. No communication with other external components/modules will work.
-ex. If you want to create a new NowPlaying, the service needs to get information from a Cinema and Room to fill inn the seats available. This connection is mocked in the tests, 
-but if you try to do a POST request directly to the service without running the cinema module as well this will fail with a 503.
+**Run individual modules** <br/>
+Since this is a microservice application, you can run each component/module individually, but with limited functionality. No communication with other external components/modules will work. <br/>
+Ex. If you want to create a new NowPlaying, the service needs to get information from a Cinema and Room to fill inn the seats available. This connection is mocked in the tests, 
+but if you try to do a POST request directly to the service without running the cinema module as well this will fail with a 503. <br/>
+If you really want to run an component independently you can run the **LocalApplicationRunner** that is located in the the test folder for following modules: Cinema, CreditCard, Movie, Order, User. Eureka can also be ran seperatly, but this runner is licated in its main kotlin folder.
   
 ## How to test application  
 Every module contains unit tests for testing each service in isolation. When you install the application with `mvn clean install` these tests will run automatically.
-Some tests are ignored by this command (E2E-tests). To run these tests you need to run this manually. These tests are located in the e2etest module.
+Some tests are ignored by this command (ex. E2E-tests). To run these tests you need to run this manually. These tests are located in the e2etest module.
 
 ## End-to-end-tests
 End-to-end tests is testing all of our controllers in an Docker environment made with Test-containers. <br/>
@@ -93,7 +94,7 @@ I our case every team member had to create two APIs, all of these provides POST,
 
 After these APIs had been made there has been done some minor tweaks made by other team-members later in the process, when we experienced bugs in the code.
 
-For detailed description on who has done what in this project, please see the attached document [Who has done what?](docs/tasks.pdf).
+For detailed description on who has done what in this project, please see the attached document [Who has done what?](docs/workdistribution.md).
 
 The rest:
 - Eureka
@@ -157,19 +158,21 @@ This module contains he following helpers:
 ## Ports
 | Service | Local | Docker Gateway path |
 |--|--|--|
-| Authentication | -- | auth-service/** |
-| Cinema | 7086 | cinema-service/** |
-| CreditCard | 7085 | creditcard-service/** |
-| Eureka | 8761 | 9100 |
-| Frontend | 8080 | 8080 |
-| Movie | 7083 | movie-service/** |
-| Order | 7082 | order-service/** |
-| User | 7081 | user-service/** |
+| Authentication | -- | localhost:10000/auth-service/** |
+| Cinema | 7086 | localhost:10000/cinema-service/** |
+| CreditCard | 7085 | localhost:10000/creditcard-service/** |
+| Eureka | 8761 | localhost:9100/ |
+| Frontend | 8080 | localhost:8080/ |
+| Movie | 7083 | localhost:10000/movie-service/** |
+| Order | 7082 | localhost:10000/order-service/** |
+| User | 7081 | localhost:10000/user-service/** |
+
 
 ## Swagger & GraphiQL
-Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger or GraphiQL.
+Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger.
+Swagger is only available when you run the module with LocalApplicationRunner.
 
-**Local**
+**Local**<br/>
 To find out which port the service is running on, please check the table above <br/>
 Swagger URL: http://localhost:PORT/swagger-ui.html
 GraphiQL URL: http://localhost:PORT/graphiql
@@ -178,7 +181,6 @@ GraphiQL URL: http://localhost:PORT/graphiql
 To find out which gateway path the service is running on, please check the table above <br/>
 GraphiQL is accessible, but SpringWebSecurity blocks all queries when run in docker
 URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
-
 
 ## Bugs in the code
 ### Creation of a Invoice
