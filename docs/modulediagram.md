@@ -6,7 +6,7 @@
 - Dotted lines are showing the communication between Redis and the services.
 - Whole lines are showing direct communication between services.
 - Yellow boxes represents services in the application
-- Green boxes represents duplicates of the same service
+- Orange box represents duplicates of the same service
 
 **Tech deciption:**
 - Redis is used to store distributed user session tokens

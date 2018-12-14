@@ -17,7 +17,7 @@
 1. [Exam 2018 Document](docs/PG6100Exam.pdf)   
 2. [Distribution of work](docs/workdistribution.md)
 3. [Git Structure](docs/git.md)    
-4. [Database Model](docs/databasemodel.md)    
+4. [Database Model](docs/imgs/EarDiadram(1).png)    
 5. [Module Diagram](docs/modulediagram.md)  
 6. [Coverage Report](docs/coveragereport.md)  
 7. [Default Data](docs/defaultdata.md)  
@@ -35,7 +35,7 @@ This Cinema Application is an exam project in PG6100 - Enterprise 2.
   
 ## How to run
 **Make sure that your Docker desktop-application has allocated enough CPU-cores and RAM!!** 
-**When we developed this application we have allocated 4-cores and 8GB of RAM**
+**When we developed this application we have allocated 4-cores and 10GB of RAM**
 
 1. Clone or fork this project.
 2. To install the application:
@@ -44,14 +44,18 @@ This Cinema Application is an exam project in PG6100 - Enterprise 2.
         - If you run without tests and your computer supports hyperthreading you can optimize the installment process by doing this cmd instead `mvn -T 2C clean install -DskipTests`.
 3. Run `docker-compose up` you can add `-d` flag for detach mode.
 4. Run the DefaultData script, as described in this file [Default Data](docs/defaultdata.md)
+    - After this there are two available users, one admin and one user. if you want to make a new admin user you need to insert this 
+    key/value pair in the create registrationDto: `"secretPassword": "2y12wePwvk5P63kb8XqlvXcWeqpW6cNdbY8xPn6gazUIRMhJTYuBfvW6"` together with the rest of the user information. 
+    - login details for admin is: `admin/admin`
+    - login details for user is `foo/foo` 
 5. Visit the application on [localhost:8080](http://localhost:8080)
 6. Enjoy :)
 
 **Run individual modules** <br/>
 Since this is a microservice application, you can run each component/module individually, but with limited functionality. No communication with other external components/modules will work. <br/>
-Ex. If you want to create a new NowPlaying, the service needs to get information from a Cinema and Room to fill inn the seats available. This connection is mocked in the tests, 
+Ex. if you want to create a new NowPlaying, the service needs to get information from a Cinema and Room to fill inn the seats available. This connection is mocked in the tests, 
 but if you try to do a POST request directly to the service without running the cinema module as well this will fail with a 503. <br/>
-If you really want to run an component independently you can run the **LocalApplicationRunner** that is located in the the test folder for following modules: Cinema, CreditCard, Movie, Order, User. Eureka can also be ran seperatly, but this runner is licated in its main kotlin folder.
+If you really want to run an component independently you can run the **LocalApplicationRunner** that is located in the the test folder for following modules: Cinema, CreditCard, Movie, Order, User. Eureka can also be ran seperatly, but this runner is located in its main folder.
   
 ## How to test application  
 Every module contains unit tests for testing each service in isolation. When you install the application with `mvn clean install` these tests will run automatically.
@@ -60,8 +64,15 @@ Some tests are ignored by this command (ex. E2E-tests). To run these tests you n
 ## End-to-end-tests
 End-to-end tests is testing all of our controllers in an Docker environment made with Test-containers. <br/>
 We build the Docker environment with loading the same docker-compose.yml file that the application uses. 
-After this is up and running and are time cap'ed to 300 seconds. After this we test all the available moules to check if they work as intended.
-First we do a POST request to create a resource and asserts that we gan get it with an valid session.
+After this is up and running and are time cap'ed to 300 seconds. After this we test all the available modules to check if they work as intended.
+
+Here we have tested several endpoints against our whole microservices.
+
+We have one file for testing the authentication and one for testing several endpoints against the microservice via gateway.
+
+We encountered that sometimes its fail to run `docker-compose up -d`, but after one retry it worked. So if some tests fail, just try to run again.
+
+Notice that you need to run `mvn clean install` to build the jar-files to tests the e2e-tests because its depends on jar files.
 
 
 ## Project structure
@@ -159,40 +170,44 @@ This module contains he following helpers:
 | Service | Local | Docker Gateway path |
 |--|--|--|
 | Authentication | -- | localhost:10000/auth-service/** |
-| Cinema | 7086 | localhost:10000/cinema-service/** |
-| CreditCard | 7085 | localhost:10000/creditcard-service/** |
-| Eureka | 8761 | localhost:9100/ |
-| Frontend | 8080 | localhost:8080/ |
-| Movie | 7083 | localhost:10000/movie-service/** |
-| Order | 7082 | localhost:10000/order-service/** |
-| User | 7081 | localhost:10000/user-service/** |
+| Cinema And Room | localhost:7086/cinemas/** | localhost:10000/cinema-service/** |
+| CreditCard | localhost:7085/graphql | localhost:10000/creditcard-service/graphql |
+| Eureka | localhost:8761 | localhost:9100 |
+| Frontend | localhost:8080 | localhost:8080 |
+| Movie | localhost:7083/movies/** | localhost:10000/movie-service/movies/** |
+| NowPlaying | localhost:7083/now-playings/** | localhost:10000/movie-service/now-playings/** |
+| Genre | localhost:7083/genres/** | localhost:10000/movie-service/genres/** |
+| Invoice | localhost:7082/invoices/** | localhost:10000/order-service/invoices/** |
+| Coupon | localhost:7082/coupons/** | localhost:10000/order-service/coupons/** |
+| Ticket | localhost:7082/tickets/** | localhost:10000/order-service/tickets/** |
+| User | localhost:7081/graphql | localhost:10000/user-service/graphql |
 
 
 ## Swagger & GraphiQL
-Some documentation on the setup an which HTTP-methods are available in an endpoint cam be found in swagger.
-Swagger is only available when you run the module with LocalApplicationRunner.
+| URL | Local Available | Docker Available |
+|--|--|--|
+| Authentication | NOT | localhost:10000/auth-service/swagger-ui.html |
+| Cinema And Room | localhost:7086/swagger-ui.html | localhost:10000/auth-service/swagger-ui.html |
+| CreditCard | localhost:7085/graphiql | NOT |
+| Movie | localhost:7083/swagger-ui.html | localhost:10000/movie-service/swagger-ui.html |
+| Invoice | localhost:7082/swagger-ui.html | localhost:10000/order-service/swagger-ui.html |
+| User | localhost:7081/graphiql | NOT |
 
-**Local**<br/>
-To find out which port the service is running on, please check the table above <br/>
-Swagger URL: http://localhost:PORT/swagger-ui.html
-GraphiQL URL: http://localhost:PORT/graphiql
+All these have username/password: `admin/admin`
 
-**Docker**
-To find out which gateway path the service is running on, please check the table above <br/>
-GraphiQL is accessible, but SpringWebSecurity blocks all queries when run in docker
-Swagger URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
-GraphiQL URL: http://localhost:10000/Docker-Gateway-path/graphiql
+GraphiQL is not accessible when running in Docker, because SpringWebSecurity blocks all queries when run in docker
+
 
 ## Bugs in the code
 ### Creation of a Invoice
-The internal patch call from Invoice-Service to NowPlayingService gets stripped of the authentication headers, 
-we are fully aware of that this is a security hole in our solution.
+The internal patch call from Invoice-Service to NowPlaying-Service gets stripped of the authentication headers, 
+we are fully aware of that this is only known security hole in our application.
 But for this exam and for you to be able to test all our core functionality we had to permit all communication to the 
 PATCH method in NowPlayingService in WebSecurityConfig. <br/>
 But the POST method in Invoice-Service is secured with authenticated in WebSecurityConfig so by using the frontend 
 there is no way for a unauthenticated user to do a PATCH-request. Unless s/he knows how to use a terminal ;) 
 
 ## Future improvements
-- Creditcards, we didn't have the time to implement this feature for this exam, but for future improvements we would 
-have made a payment system where a user could save a CreditCard for later use. For future improvements for this feature we also want to implement and
-use the Luhn Algoritm for validation of CreditCard numbers.
+- Creditcards, for future improvements we would have made a payment system where a user can be charged from the creditcard after check in credit-card service. 
+User can now select to save their creditcard in the database for easier to not enter it again in next order.
+We also wanted to use the Luhn Algoritm for validation of CreditCard numbers, but we didnt do it because then you need to really add a valid creditcard.
