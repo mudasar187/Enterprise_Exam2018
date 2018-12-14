@@ -9,6 +9,7 @@ export default {
 	authUrls: {
 		signIn:"http://localhost:10000/auth-service/login",
 		signUp:"http://localhost:10000/auth-service/signup",
+		logOut:"http://localhost:10000/auth-service/logout",
 		user: "http://localhost:10000/auth-service/user",
 		isAuthenticated: "http://localhost:10000/auth-service/is-authenticated"
 	},

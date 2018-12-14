@@ -20,10 +20,12 @@ class Room extends Component {
 			free: null,
 			allSeats: null,
 			seatmap: null,
-			price: 0
+			price: 0,
+			username: null
 		};
 
 		this.getRoomInfo();
+		this.checkAuth()
 
 	}
 
@@ -32,6 +34,7 @@ class Room extends Component {
 			<Header/>
 			{this.state.seatmap != null
 				? <div>
+					<div className="warning">{this.state.error}</div>
 					<div className="seat-grid">
 						{this.state.seatmap.map(seat => {
 
@@ -123,7 +126,7 @@ class Room extends Component {
 
 				}
 			).catch(err => {
-				this.setState({error: err})
+				this.setState({error: "Cant retrieve room information"})
 			});
 		}
 	};
@@ -140,31 +143,54 @@ class Room extends Component {
 			}
 		});
 
-
-		const client = axios.create({
+		if (!this.state.username) {
+			this.setState({error: "Missing username, you need to log in first"})
+		}else if(!this.state.nowPlaying){
+			this.setState({error: "Missing movie, please reload page"})
+		} else {
+			const client = axios.create({
 				headers: {'X-Requested-With': 'XMLHttpRequest'},
 				withCredentials: true
 			});
-		client.post(`${urls.invoiceUrls.create}`,
-			{
-				nowPlayingId: this.state.nowPlaying.id,
-				tickets: ticketArray,
-				username: "endre",
-				orderDate: "2018-12-23 20:00:02"
-			}
-		).then(res => {
-			console.log(res);
-			const invoiceId = res.data.data.list[0].id;
-			console.log(invoiceId);
-			this.props.history.push(`/invoices/${invoiceId}`, {invoiceId: invoiceId})
+			client.post(`${urls.invoiceUrls.create}`,
+				{
+					nowPlayingId: this.state.nowPlaying.id,
+					tickets: ticketArray,
+					username: this.state.username,
+					orderDate: "2018-12-23 20:00:02"
+				}
+			).then(res => {
+					console.log(res);
+					const invoiceId = res.data.data.list[0].id;
+					console.log(invoiceId);
+					this.props.history.push(`/invoices/${invoiceId}`, {invoiceId: invoiceId})
+				}
+			).catch(err => {
+				console.log(err);
+				this.setState({error: "Failed to book movie"})
+
+			});
 		}
-		).catch(err => {
-			console.log(err)
+	};
+
+	checkAuth = () => {
+		const client = axios.create({
+			headers: {'X-Requested-With': 'XMLHttpRequest'},
+			withCredentials: true
 		});
 
-
-
-	}
+		client.get(urls.authUrls.user).then(
+			res => {
+				if (res.status === 200) {
+					this.setState({username: res.data.name});
+					console.log(this.state.username);
+					console.log();
+				}
+			}
+		).catch(err => {
+			this.setState({error: "You need to log in first"})
+		});
+	};
 }
 
 export default Room

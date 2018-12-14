@@ -12,37 +12,38 @@ class Header extends Component {
 		//this.checkAuth();
 
 		this.state = {
-			authenticated : false
+			authenticated : false,
+			error: null
 		}
 	}
 
 	componentDidMount() {
-		//this.checkAuth()
+		this.checkAuth()
 	}
 
 	checkAuth = () => {
-		// const client = axios.create({
-		// 	headers: {'X-Requested-With': 'XMLHttpRequest'},
-		// 	withCredentials: true
-		// });
-		//
-		// client.get(urls.authUrls.user).then(
-		// 	res => {
-		// 		if (res.status === 200) {
-		// 			this.setState({authenticated: true});
-		// 		}
-		// 	}
-		// ).catch(err => {
-		// 	this.setState({error: err})
-		// });
+		const client = axios.create({
+			headers: {'X-Requested-With': 'XMLHttpRequest'},
+			withCredentials: true
+		});
+
+		client.get(urls.authUrls.user).then(
+			res => {
+				if (res.status === 200) {
+					this.setState({authenticated: true});
+				}
+			}
+		).catch(err => {
+			this.setState({error: err})
+		});
 	};
+
 
 	renderLinks() {
 		if (this.state.authenticated) {
 			return (
 				<div>
-					<Link to="/signout">Sign Out</Link>
-					<Link to="/feature">My Page</Link>
+					<Link to="/logout">Sign Out</Link>
 				</div>
 			);
 		} else {

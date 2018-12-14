@@ -9,7 +9,7 @@ export default (props) => {
 			{props.cinema !== null
 				? <div>
 					<h3>{props.cinema.name}</h3>
-					<Link to={{ pathname: '/nowPlayings', state: { cinemaId: props.cinema.id} }}>My route</Link>
+					<Link to={{ pathname: '/nowPlayings', state: { cinemaId: props.cinema.id} }}>Visit Cinema</Link>
 				</div>
 				: <p>No content</p>
 

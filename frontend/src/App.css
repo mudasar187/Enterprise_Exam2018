@@ -142,6 +142,7 @@
   margin: 0 10px;
   text-decoration: none;
   color: aliceblue;
+  cursor: pointer;
 }
 
 .form{
@@ -154,20 +155,6 @@
   height: 700px;  /* set to anything and aspect ratio is maintained */
   max-width: 100%;
 }
-
-/*.seatChart-container {*/
-  /*width: 100%;*/
-/*}*/
-
-/*.seatChart-row {*/
-  /*width: 100%;*/
-  /*height: 100px;*/
-/*}*/
-
-/*.seatChart-cell{*/
-  /*width: 10px;*/
-  /*height: 20px;*/
-/*}*/
 
 
 .defaultSeat {
@@ -253,4 +240,18 @@
   font-size: 14pt;
   text-align: center;
   padding: 2rem;
+}
+
+.success{
+  color: green;
+  font-size: 14pt;
+  text-align: center;
+  padding: 4rem;
+}
+
+.headerBtn{
+  margin: 0 10px;
+  text-decoration: none;
+  color: aliceblue;
+  cursor: pointer;
 }

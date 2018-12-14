@@ -5,17 +5,21 @@ import {Link} from "react-router-dom";
 
 export default (props) => {
 
-	var parsedTime = "";
+	var formated = "";
 	if (props.nowPlaying !== null) {
-		const time = `${props.nowPlaying.time.substr(0, 19)}Z`;
-		parsedTime = moment(time).tz("Europe/Berlin").format("dddd MMM Mo kk:mm")
+		const date = props.nowPlaying.time.substr(0, 10);
+		const time = props.nowPlaying.time.substr(11, 5);
+
+		formated = `${date}       ${time}`
+		//parsedTime = moment(time).tz("Europe/Berlin").format("dddd MMM Mo kk:mm")
+
 	}
 	return (
 		<div className="grid-item">
 			{props.nowPlaying !== null
 				? <Link to={{ pathname: '/booking', state: { nowPlaying: props.nowPlaying} }}>
 						<div>
-							<p>{parsedTime}</p>
+							<p>{formated}</p>
 							<Movie key={props.nowPlaying.id} movie={props.nowPlaying.movieDto}/>
 						</div>
 				</Link>
