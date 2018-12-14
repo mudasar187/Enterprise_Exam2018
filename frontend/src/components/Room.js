@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import axios from "axios";
 import urls from "../utils/Urls"
-import Seatmap from 'react-seatmap';
 import naturalSort from "javascript-natural-sort";
 import Header from "./Header";
-import { SeatingChart } from 'react-seat-charts';
+import {Link} from "react-router-dom";
 
 
 class Room extends Component {
@@ -18,28 +17,50 @@ class Room extends Component {
 		this.state = {
 			nowPlaying: nowPlaying,
 			error: null,
-			rows: null,
-			cols : null,
 			free: null,
 			allSeats: null,
-			seatmap: null
+			seatmap: null,
+			price: 0
 		};
 
 		this.getRoomInfo();
+
 	}
 
 	render() {
-		let seatingChart;
-		if (this.state.seatmap != null) {
-			let naming = {rows: ["A"], columns: ["1"]};
-			seatingChart = <SeatingChart seats={this.state.seatmap} naming={naming}/>;
-		}
-
 		return <div>
 			<Header/>
 			{this.state.seatmap != null
-			? <div className="seat-table">
-					{seatingChart}
+				? <div>
+					<div className="seat-grid">
+						{this.state.seatmap.map(seat => {
+
+							if (!seat.isReserved){
+								return (<div key={seat.label} className={seat.isSelected ? "selectedSeat" : "defaultSeat"} onClick={() => this.handleSeatPick(seat.index)}>{seat.label}</div>)
+							} else {
+								return (<div key={seat.label} className={"reservedSeat"}>{seat.label}</div>)
+							}
+						})}
+					</div>
+					<div className="legend">
+						<div id="free">Free seat(s)</div>
+						<div id="selected">Selected seat(s)</div>
+						<div id="reserved">Reserved seats</div>
+					</div>
+					<div className="checkout">
+						<h2>{this.state.price},-</h2>
+						<div onClick={this.makePurchase}>Pu</div>
+						<Link to="/">Purchase tickets</Link>
+					</div>
+					<div className="selectedSeats">
+						<h3>Selected seats:</h3>
+						{this.state.seatmap.map(seat => {
+							if (seat.isSelected) {
+								return (<div key={seat.label}>{seat.label}</div>)
+							}
+						})
+						}
+					</div>
 				</div>
 				: <p>No seats for this movie found</p>
 			}
@@ -47,53 +68,49 @@ class Room extends Component {
 		</div>
 	}
 
-	calculateSeats = (allSeats) => {
+	calculatePrice = () => {
+		let price = 0.0;
+		if (this.state.seatmap !== null) {
+			this.state.seatmap.forEach(seat => {
+				if (seat.isSelected) {
+					price += 100
+				}
+			});
+		}
+		console.log("clicked");
+		this.setState({price})
+	};
+
+	handleSeatPick = (seat) => {
+
+		console.log(seat);
+		const newSeatMap = this.state.seatmap;
+		newSeatMap[seat].isSelected = !newSeatMap[seat].isSelected;
+
+		this.setState(prevState => ({
+			seatmap: newSeatMap,
+		}));
+
+		this.calculatePrice();
+
+	};
+
+	calculateSeats = () => {
+
 		const freeSeats = this.state.nowPlaying.seats.sort(naturalSort);
 
-		const firstSeat = allSeats[0].substr(0,1);
-		const seatsInARow = allSeats.filter(function(x){ return x.substr(0,1) === firstSeat; }).length;
-
-		let rows = allSeats.length / seatsInARow;
-
-
-		//this.setState({rows: (allSeats.length / seatsInARow), cols: seatsInARow});
-		//console.log(allSeats.length / freeSeats.length)
-
-		let arr = [];
-		console.log(rows);
-
-		for (let row = 0; row < rows; row++) {
-
-			console.log(row);
-
-			let seatarray = [];
-
-			for (let j = 0; j < seatsInARow; j++) {
-				let isReserved = false;
-				let currentSeat = allSeats[seatsInARow * row + j];
-
-				console.log();
-				freeSeats.includes(currentSeat) ? isReserved = false : isReserved = true;
-				console.log(isReserved);
-
-				let status;
-
-				if (!isReserved) {
-					status = "available"
-				} else {
-					status = "occupied"
-				}
-
-				seatarray.push({
-					seatType: "regular",
-					label: currentSeat,
-					status: status
-				});
+		const objSeats = this.state.allSeats.map((seat, index) => {
+			return {
+				isSelected: false,
+				isReserved: !freeSeats.includes(seat),
+				label: seat,
+				index,
 			}
-			arr.push(seatarray);
-		}
+		});
 
-		this.setState({seatmap: arr});
+		this.setState({
+			seatmap: objSeats
+		});
 	};
 
 	getRoomInfo = () => {
@@ -110,6 +127,41 @@ class Room extends Component {
 				this.setState({error: err})
 			});
 		}
+	}
+
+	makePurchase = () => {
+		const seats = this.state.seatmap.filter(seat => {
+			return seat.isSelected
+		});
+
+		const ticketArray = seats.map(seat => {
+			return {
+				seat: seat.label,
+				price: 20.5
+			}
+		});
+
+
+		const client = axios.create({
+				headers: {'X-Requested-With': 'XMLHttpRequest'},
+				withCredentials: true
+			});
+		client.post(`${urls.invoiceUrls.create}`,
+			{
+				nowPlayingId: this.state.nowPlaying.id,
+				tickets: ticketArray,
+				username: "endre",
+				orderDate: "2018-12-23 20:00:02"
+			}
+		).then(
+			res => {
+				console.log(res)
+			}
+		).catch(err => {
+			console.log(err)
+		});
+
+
 
 	}
 }

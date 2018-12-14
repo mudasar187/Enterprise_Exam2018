@@ -9,7 +9,7 @@ class Header extends Component {
 	constructor(props){
 		super(props);
 
-		this.checkAuth();
+		//this.checkAuth();
 
 		this.state = {
 			authenticated : false
@@ -17,24 +17,24 @@ class Header extends Component {
 	}
 
 	componentDidMount() {
-		this.checkAuth()
+		//this.checkAuth()
 	}
 
 	checkAuth = () => {
-		const client = axios.create({
-			headers: {'X-Requested-With': 'XMLHttpRequest'},
-			withCredentials: true
-		});
-
-		client.get(urls.authUrls.user).then(
-			res => {
-				if (res.status === 200) {
-					this.setState({authenticated: true});
-				}
-			}
-		).catch(err => {
-			this.setState({error: err})
-		});
+		// const client = axios.create({
+		// 	headers: {'X-Requested-With': 'XMLHttpRequest'},
+		// 	withCredentials: true
+		// });
+		//
+		// client.get(urls.authUrls.user).then(
+		// 	res => {
+		// 		if (res.status === 200) {
+		// 			this.setState({authenticated: true});
+		// 		}
+		// 	}
+		// ).catch(err => {
+		// 	this.setState({error: err})
+		// });
 	};
 
 	renderLinks() {

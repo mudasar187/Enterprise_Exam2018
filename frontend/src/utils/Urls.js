@@ -11,6 +11,9 @@ export default {
 		signUp:"http://localhost:10000/auth-service/signup",
 		user: "http://localhost:10000/auth-service/user",
 		isAuthenticated: "http://localhost:10000/auth-service/is-authenticated"
-}
+	},
+	invoiceUrls : {
+		create: "http://localhost:10000/order-service/invoices"
+	}
 
 };

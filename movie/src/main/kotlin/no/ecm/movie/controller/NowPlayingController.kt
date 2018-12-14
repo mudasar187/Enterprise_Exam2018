@@ -104,7 +104,6 @@ class NowPlayingController(
     }
 
     @ApiOperation("Update a seats using merge patch")
-    @CrossOrigin(origins = ["http://localhost:8082", "http://localhost:7082", "http://order-server"])
     @PatchMapping(path = ["/{id}"], consumes = ["application/merge-patch+json"])
     fun patchNowPlaying(@ApiParam("The id of the Now Playing")
                    @PathVariable("id")

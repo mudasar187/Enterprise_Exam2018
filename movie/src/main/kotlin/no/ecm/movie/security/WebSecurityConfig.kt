@@ -26,7 +26,13 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.DELETE, "/movies/{id}").hasRole("ADMIN")
 
                 .antMatchers(HttpMethod.GET,"/now-playings/**").permitAll()
-                .antMatchers(HttpMethod.PATCH, "/now-playings/{id}").hasRole("ADMIN")
+
+                /*
+                    FIXME WARNING: Here we had to permit all patch requests due to the fact that RestTemplate strips the request Cookies,
+                     -- so the user is no longer authenticated when OrderService makes a PATCH request to the MovieService endpoint:
+                     -- /now-playings/{id}.
+                */
+                .antMatchers(HttpMethod.PATCH, "/now-playings/{id}").permitAll()
                 .antMatchers(HttpMethod.PUT, "/now-playings/{id}").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/now-playings/{id}").hasRole("ADMIN")
@@ -44,6 +50,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .and()
                 .csrf().disable()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
     }
 }

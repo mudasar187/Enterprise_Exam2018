@@ -18,7 +18,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
 
     override fun configure(http: HttpSecurity) {
-        http
+        http.cors().and()
                 .httpBasic()
                 .and()
                 .authorizeRequests()
@@ -31,7 +31,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.DELETE, "/coupons/{id}").hasRole("ADMIN")
 
                 // Invoices
-                //.antMatchers(HttpMethod.GET,"/invoices/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/invoices/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.GET,"/invoices/{id}/**")
                 /*
@@ -50,7 +49,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/tickets/{id}").hasRole("ADMIN")
 
-                .antMatchers("/**").hasRole("ADMIN")
+                //.antMatchers("/**").hasRole("ADMIN")
 
                 .anyRequest().denyAll()
                 .and()

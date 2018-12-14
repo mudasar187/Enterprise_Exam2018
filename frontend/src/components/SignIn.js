@@ -25,29 +25,29 @@ class SignIn extends Component {
 			return;
 		}
 
-		axios.post(
-			urls.authUrls.signIn,
-			{
+		axios.post(urls.authUrls.signIn, {
 				password: this.state.password,
-				username: this.state.username,
-			},
-			{
-				headers: headers
+				username: this.state.username
+			}, {
+			withCredentials: true
 			}
+		).then( (res) => {
+			// axios.get(urls.authUrls.user).then((res) => {
+			// 	console.log(res)
+			// });
 
-		).then(
-			res => {
-				if (res.status === 204) {
-					this.props.history.push('/');
-				}
+			if (res.status === 204) {
+				this.props.history.push('/');
 			}
+		}
+
+
+
+
 		).catch(err => {
 			this.setState({error : err})
 		});
 	};
-
-
-
 
 	render() {
 		return (

@@ -41,6 +41,8 @@ class WebSecurityConfig(
         val configuration = CorsConfiguration()
         configuration.allowedOrigins = Arrays.asList("http://localhost:8080")
         configuration.allowedMethods = Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+        //configuration.allowedHeaders = Arrays.asList("SESSION", "Content-Type","Set-Cookie", "Accept")
+        configuration.addAllowedHeader("*")
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)
         return source

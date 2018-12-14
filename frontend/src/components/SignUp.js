@@ -42,7 +42,8 @@ class SignUp extends Component {
 				}
 			},
 			{
-				headers: headers
+				headers: headers,
+				withCredentials: true
 			}
 
 		).then(
