@@ -24,10 +24,34 @@ class Invoice extends Component {
 
     }
     render() {
+        let formated = "";
+        if (this.state.invoice) {
+            const date = this.state.invoice.orderDate.substr(0, 10);
+            const time = this.state.invoice.orderDate.substr(11, 5);
+            formated = `${date}       ${time}`;
+        }
+
+
         return (
             <div>
                 <Header/>
                 <div className="warning">{this.state.error}</div>
+                <div className="invoice">
+                    {this.state.invoice
+                        ? <div>
+                            <h1>Success</h1>
+                            <h3>Total Price:</h3>
+                            <h4>{this.state.invoice.totalPrice},-</h4>
+                            <h3>Your seats:</h3>
+                            {this.state.invoice.tickets.map(ticket => {
+                                return <p key={ticket.seat}>{ticket.seat}</p>
+                            })}
+                            <p>{formated}</p>
+                        </div>
+                    : <div>
+                            <h3>Couldn't not fetch receipt</h3>
+                        </div>}
+                </div>
             </div>
         )
     }
