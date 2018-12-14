@@ -39,6 +39,19 @@
   grid-gap: 1rem;
 }
 
+.cinema-grid{
+  margin: 2rem;
+  width: calc(100% - 4rem);
+  display: grid;
+  grid: auto-flow / repeat(2,1fr);
+  grid-gap: 1rem;
+}
+
+.cinema-grid * {
+  font-size: 3rem;
+  padding: 1rem;
+}
+
 @media (min-width: 1281px) {
 
 .grid {

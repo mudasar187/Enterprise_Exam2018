@@ -21,7 +21,10 @@ class Room extends Component {
 			allSeats: null,
 			seatmap: null,
 			price: 0,
-			username: null
+			username: null,
+			codeInput: null,
+			correctCode: false,
+			correctCodeId: null
 		};
 
 		this.getRoomInfo();
@@ -51,6 +54,12 @@ class Room extends Component {
 						<div id="reserved">Reserved seats</div>
 					</div>
 					<div className="checkout">
+						<form onSubmit={this.checkCouponCode}>
+							<label>Coupon code:
+								<input type="text" name="code" onChange={this.handleCodeInput}/>
+							</label>
+							<input type="submit" value="Submit"/>
+						</form>
 						<h2>{this.state.price},-</h2>
 						<div className="buy-btn" onClick={this.makePurchase}>Purchase tickets</div>
 					</div>
@@ -157,7 +166,11 @@ class Room extends Component {
 					nowPlayingId: this.state.nowPlaying.id,
 					tickets: ticketArray,
 					username: this.state.username,
-					orderDate: "2018-12-23 20:00:02"
+					orderDate: "2018-12-23 20:00:02",
+					couponCode: {
+						id: this.state.correctCodeId,
+						code: this.state.correctCode ? this.state.codeInput : null
+					}
 				}
 			).then(res => {
 					console.log(res);
@@ -191,6 +204,33 @@ class Room extends Component {
 			this.setState({error: "You need to log in first"})
 		});
 	};
+
+	checkCouponCode = (event) => {
+		event.preventDefault();
+
+		if (this.state.codeInput) {
+
+			const client = axios.create({
+				headers: {'X-Requested-With': 'XMLHttpRequest'},
+				withCredentials: true
+			});
+
+			client.get(`${urls.invoiceUrls.getCoupon}${this.state.codeInput}`).then(
+				res => {
+					if (res.status === 200) {
+						this.setState({correctCode: true, correctCodeId: res.data.data.list[0].id});
+						console.log("SUCCESS!!!")
+					}
+				}
+			).catch(err => {
+				this.setState({error: "Invalid coupon code"})
+			});
+		}
+	};
+
+	handleCodeInput = (event) => {
+		this.setState({codeInput: event.target.value})
+	}
 }
 
 export default Room

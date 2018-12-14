@@ -15,7 +15,8 @@ export default {
 	},
 	invoiceUrls : {
 		create: "http://localhost:10000/order-service/invoices",
-		getById: "http://localhost:10000/order-service/invoices"
+		getById: "http://localhost:10000/order-service/invoices",
+		getCoupon: "http://localhost:10000/order-service/coupons?code="
 	}
 
 };

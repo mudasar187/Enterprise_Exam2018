@@ -33,7 +33,7 @@ class Welcome extends Component {
 	render() {
 		return <div>
 			<Header/>
-			<div className="grid">
+			<div className="cinema-grid">
 				{this.state.cinemas !== null
 					? this.state.cinemas.map( item => {
 						return <Cinema key={item.id} cinema={item}/>
