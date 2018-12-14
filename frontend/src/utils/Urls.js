@@ -13,7 +13,8 @@ export default {
 		isAuthenticated: "http://localhost:10000/auth-service/is-authenticated"
 	},
 	invoiceUrls : {
-		create: "http://localhost:10000/order-service/invoices"
+		create: "http://localhost:10000/order-service/invoices",
+		getById: "http://localhost:10000/order-service/invoices"
 	}
 
 };

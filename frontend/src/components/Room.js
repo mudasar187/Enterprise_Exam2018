@@ -49,8 +49,7 @@ class Room extends Component {
 					</div>
 					<div className="checkout">
 						<h2>{this.state.price},-</h2>
-						<div onClick={this.makePurchase}>Pu</div>
-						<Link to="/">Purchase tickets</Link>
+						<div className="buy-btn" onClick={this.makePurchase}>Purchase tickets</div>
 					</div>
 					<div className="selectedSeats">
 						<h3>Selected seats:</h3>
@@ -127,7 +126,7 @@ class Room extends Component {
 				this.setState({error: err})
 			});
 		}
-	}
+	};
 
 	makePurchase = () => {
 		const seats = this.state.seatmap.filter(seat => {
@@ -153,10 +152,12 @@ class Room extends Component {
 				username: "endre",
 				orderDate: "2018-12-23 20:00:02"
 			}
-		).then(
-			res => {
-				console.log(res)
-			}
+		).then(res => {
+			console.log(res);
+			const invoiceId = res.data.data.list[0].id;
+			console.log(invoiceId);
+			this.props.history.push(`/invoices/${invoiceId}`, {invoiceId: invoiceId})
+		}
 		).catch(err => {
 			console.log(err)
 		});

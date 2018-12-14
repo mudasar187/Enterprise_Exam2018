@@ -235,3 +235,22 @@
   width: 200px;
   position: absolute;
 }
+
+.buy-btn{
+  width: 150px;
+  height: 50px;
+  background-color: #1d5d90;
+  color: white;
+  font-size: 12pt;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.warning{
+  color: red;
+  font-size: 14pt;
+  text-align: center;
+  padding: 2rem;
+}

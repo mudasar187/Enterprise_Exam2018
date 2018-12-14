@@ -9,6 +9,7 @@ import NowPlayings from "./components/NowPlayings";
 import SignUp from "./components/SignUp";
 import Room from "./components/Room";
 import SignIn from "./components/SignIn";
+import Invoice from "./components/Invoice";
 
 ReactDOM.render(
 	<BrowserRouter>
@@ -18,6 +19,7 @@ ReactDOM.render(
 			<Route path="/signup" component={SignUp} />
 			<Route path="/signin" component={SignIn} />
 			<Route path="/booking" component={Room} />
+			<Route path="/invoices/:id" component={Invoice} />
 		</App>
 	</BrowserRouter>
 	, document.getElementById('root'));

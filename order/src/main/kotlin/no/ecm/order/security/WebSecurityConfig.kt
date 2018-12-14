@@ -32,7 +32,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
                 // Invoices
                 .antMatchers(HttpMethod.GET,"/invoices").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET,"/invoices/{id}/**")
+                .antMatchers(HttpMethod.GET,"/invoices/{id}")
                 /*
                     the "#" resolves the variable in the path, "{id}" in this case.
                     the "@" resolves a current bean.
@@ -80,6 +80,8 @@ class UserSecurity{
 
     fun checkId(authentication: Authentication, id: String) : Boolean{
         val current = (authentication.principal as UserDetails).username
+
+        println(current)
 
         return invoiceService.findById(id).username == current
     }

@@ -40,12 +40,8 @@ class SignIn extends Component {
 				this.props.history.push('/');
 			}
 		}
-
-
-
-
 		).catch(err => {
-			this.setState({error : err})
+			this.setState({error : "Invalid username or password"})
 		});
 	};
 
