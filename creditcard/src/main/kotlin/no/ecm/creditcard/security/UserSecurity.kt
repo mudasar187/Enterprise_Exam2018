@@ -17,6 +17,7 @@ class UserSecurity{
     private lateinit var creditCardRepository: CreditCardRepository
 
     fun checkId(authentication: Authentication) : Boolean{
+        
         val current = (authentication.principal as UserDetails).username
 
         return try {

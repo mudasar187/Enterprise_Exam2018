@@ -2,4 +2,6 @@
 
 ## Database Model
 
-Add picture and explain the picture 
+![Database EAR Diagram](imgs/EarDiadram(1).png)
+
+In this diagram we have set up the EAR diagram for all database schemas, we have also divided them into their own modules.

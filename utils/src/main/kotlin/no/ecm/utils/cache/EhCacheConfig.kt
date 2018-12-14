@@ -34,8 +34,7 @@ class EhCacheConfig {
 		requestFactory.httpClient = httpClient
 		return RestTemplate(requestFactory)
 	}
-
-
+	
 	@Bean
 	@Profile("!docker")
 	fun restTemplate(httpClient: HttpClient): RestTemplate {
@@ -43,6 +42,9 @@ class EhCacheConfig {
 		requestFactory.httpClient = httpClient
 		return RestTemplate(requestFactory)
 	}
+	
+	
+	
 	
 	//---------------------------------------------------------------------
 	

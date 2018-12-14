@@ -132,6 +132,7 @@ class InvoiceService(
         val jsonBody = """{
                     "seats": ${seats.joinToString("\",\"", "[\"", "\"]")}
                     }""".trimMargin()
+<<<<<<< HEAD
 
         val url = "$movieUri/$nowPlayingPath/${nowPlayingDto.id!!}"
         val headers = HttpHeaders()
@@ -149,6 +150,10 @@ class InvoiceService(
                 throw e
             }
         }
+=======
+        
+        val patchResponse = CallPatchToMovieService(jsonBody, nowPlayingDto.id!!, response.headers.eTag!!).execute()
+>>>>>>> d333230a90dde7806853acb7e9ec129b53b7cc85
 
         if (patchResponse.statusCode.value() == 204){
             logger.info(entitySuccessfullyUpdated("NowPlaying", nowPlayingDto.id.toString()))
@@ -258,4 +263,43 @@ class InvoiceService(
             return ResponseEntity.status(503).body(NowPlayingReponse(message = "SERVICE_TEMPORARY_UNAVAILABLE", code = 503))
         }
     }
+<<<<<<< HEAD
+=======
+
+    private inner class CallPatchToMovieService(private val jsonPatchBody: String, private var nowPlayingId: String, private var eTag: String)
+        : HystrixCommand<NowPlayingReponse>(HystrixCommandGroupKey.Factory.asKey("Removing seats from Now Playing in Movie service")) {
+
+        override fun run(): NowPlayingReponse {
+            
+            val url = "$movieUri/$nowPlayingPath/$nowPlayingId"
+            val headers = HttpHeaders()
+            headers.set("If-Match", eTag)
+            headers.set("Content-Type", "application/merge-patch+json")
+
+            val response : ResponseEntity<Void> = try {
+                
+                restTemplate.exchange(url, HttpMethod.PATCH, HttpEntity(jsonPatchBody, headers), Void::class.java)
+                
+            } catch (e : HttpClientErrorException){
+                val body = Gson().fromJson(e.responseBodyAsString, NowPlayingReponse::class.java)
+                logger.warn(body.message)
+                throw HystrixBadRequestException(body.message, UserInputValidationException(message = body.message!!, httpCode = body.code!!))
+            }
+
+            return NowPlayingReponse(response.statusCodeValue)
+        }
+
+        override fun getFallback(): NowPlayingReponse {
+
+            logger.error("Critical error! Movie service crashed")
+            logger.error("Circuit breaker status: $executionEvents")
+
+            if(failedExecutionException is HttpServerErrorException) {
+                return NowPlayingReponse(message = "INTERNAL_SERVER_ERROR", code = 500)
+            }
+
+            return NowPlayingReponse(message = "SERVICE_TEMPORARILY_UNAVAILABLE", code = 503)
+        }
+    }
+>>>>>>> d333230a90dde7806853acb7e9ec129b53b7cc85
 }

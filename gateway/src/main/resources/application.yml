@@ -8,6 +8,8 @@ spring:
     store-type: redis
   cloud:
     gateway:
+      # Solution for global cors settings is found here:
+      # https://cloud.spring.io/spring-cloud-gateway/multi/multi__cors_configuration.html
       globalcors:
         corsConfigurations:
           '[/**]':

@@ -30,7 +30,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                   */
                 .access("hasRole('USER') and @userSecurity.checkId(authentication)")
                 .antMatchers(HttpMethod.POST, "/graphql/**").authenticated()
-                .antMatchers("/graphiql/**").hasRole("ADMIN")
+                .antMatchers("/graphiql/**", "/vendor/**").hasRole("ADMIN")
 
                 .anyRequest().denyAll()
                 .and()
