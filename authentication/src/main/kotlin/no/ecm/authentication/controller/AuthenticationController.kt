@@ -1,5 +1,8 @@
 package no.ecm.authentication.controller
 
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import no.ecm.authentication.service.AmqpService
 import no.ecm.authentication.service.AuthenticationService
 import no.ecm.utils.dto.auth.AuthenticationDto
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*
 import java.security.Principal
 import javax.servlet.http.HttpSession
 
+@Api(value = "/auth-service", description = "API for authentication")
 @RequestMapping(
         produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
 @RestController
@@ -36,7 +40,7 @@ class AuthController(
 
     var logger = logger<AuthController>()
 
-
+    @ApiOperation("Get user auth")
     @RequestMapping("/user")
     fun user(user: Principal): ResponseEntity<Map<String, Any>> {
         val map = mutableMapOf<String,Any>()
@@ -45,9 +49,12 @@ class AuthController(
         return ResponseEntity.ok(map)
     }
 
+    @ApiOperation("Signup a new user")
     @PostMapping(path = ["/signup"],
             consumes = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
-    fun signUp(@RequestBody dto: RegistrationDto)
+    fun signUp(
+            @ApiParam("JSON object representing the registration")
+            @RequestBody dto: RegistrationDto)
             : ResponseEntity<Void> {
 
         validateRegistrationDto(dto)
@@ -79,9 +86,12 @@ class AuthController(
         return ResponseEntity.status(204).build()
     }
 
+    @ApiOperation("Make a login")
     @PostMapping(path = ["/login"],
             consumes = [(MediaType.APPLICATION_JSON_UTF8_VALUE)])
-    fun login(@RequestBody dto: AuthenticationDto)
+    fun login(
+            @ApiParam("JSON object representing the authentication")
+            @RequestBody dto: AuthenticationDto)
             : ResponseEntity<Void> {
 
         validateAuthenticationDto(dto)
@@ -107,6 +117,7 @@ class AuthController(
         return ResponseEntity.status(400).build()
     }
 
+    @ApiOperation("Make a logout")
     @PostMapping(path = ["/logout"])
     fun logout(session: HttpSession): ResponseEntity<Void> {
         session.invalidate()
