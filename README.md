@@ -29,7 +29,7 @@ Kotlin, Spring framework, GraphQL, Postgres, Netflix Eureka, Netflix Hystrix, Ne
 - Testing
 H2, RestAssured, WireMock, TestContainers
 
-  
+
 ## About the cinema application
 This Cinema Application is an exam project in PG6100 - Enterprise 2.
   
@@ -180,11 +180,19 @@ GraphiQL URL: http://localhost:PORT/graphiql
 **Docker**
 To find out which gateway path the service is running on, please check the table above <br/>
 GraphiQL is accessible, but SpringWebSecurity blocks all queries when run in docker
-URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
+Swagger URL: http://localhost:10000/Docker-Gateway-path/swagger-ui.html
+GraphiQL URL: http://localhost:10000/Docker-Gateway-path/graphiql
 
 ## Bugs in the code
 ### Creation of a Invoice
-The internal patch call from Invoice-Service to NowPlayingService gets stripped of the authentication headers, we are fully aware of that this is a security hole in our solution.
-But for this exam and for you to be able to test all our core functionality we had to permit all communication to the PATCH method in NowPlayingService in WebSecurityConfig. <br/>
-But the POST method in Invoice-Service is secured with authenticated in WebSecurityConfig so by using the frontend there is no way for a unauthenticated user to do a PATCH-request. 
-Unless s/he knows how to use a terminal ;) 
+The internal patch call from Invoice-Service to NowPlayingService gets stripped of the authentication headers, 
+we are fully aware of that this is a security hole in our solution.
+But for this exam and for you to be able to test all our core functionality we had to permit all communication to the 
+PATCH method in NowPlayingService in WebSecurityConfig. <br/>
+But the POST method in Invoice-Service is secured with authenticated in WebSecurityConfig so by using the frontend 
+there is no way for a unauthenticated user to do a PATCH-request. Unless s/he knows how to use a terminal ;) 
+
+## Future improvements
+- Creditcards, we didn't have the time to implement this feature for this exam, but for future improvements we would 
+have made a payment system where a user could save a CreditCard for later use. For future improvements for this feature we also want to implement and
+use the Luhn Algoritm for validation of CreditCard numbers.
