@@ -1,9 +1,11 @@
+[![Build Status](https://travis-ci.org/mudasar187/Enterprise_Exam2018.svg?branch=master)](https://travis-ci.org/mudasar187/Enterprise_Exam2018)    
+
 ## Enterprise 2 - PG6100    
 
 ## Exam Fall 2018    
 
-## Cinema Application    
-     
+## Cinema Application
+
 ## Students 
 - 703830: [Mudasar Ahmad](https://github.com/mudasar187)
 - 704293: [Endre Synnes](https://github.com/synend16)
@@ -193,18 +195,3 @@ This module contains he following helpers:
 All these have username/password: `admin/admin`
 
 GraphiQL is not accessible when running in Docker, because SpringWebSecurity blocks all queries when run in docker
-
-
-## Bugs in the code
-### Creation of a Invoice
-The internal patch call from Invoice-Service to NowPlaying-Service gets stripped of the authentication headers, 
-we are fully aware of that this is only known security hole in our application.
-But for this exam and for you to be able to test all our core functionality we had to permit all communication to the 
-PATCH method in NowPlayingService in WebSecurityConfig. <br/>
-But the POST method in Invoice-Service is secured with authenticated in WebSecurityConfig so by using the frontend 
-there is no way for a unauthenticated user to do a PATCH-request. Unless s/he knows how to use a terminal ;) 
-
-## Future improvements
-- Creditcards, for future improvements we would have made a payment system where a user can be charged from the creditcard after check in credit-card service. 
-User can now select to save their creditcard in the database for easier to not enter it again in next order.
-We also wanted to use the Luhn Algoritm for validation of CreditCard numbers, but we didnt do it because then you need to really add a valid creditcard.

@@ -11,6 +11,3 @@ cache:
   - ".autoconf"
   - "$HOME/.m2"
 script: mvn clean verify  -Dmaven.test.redirectTestOutputToFile=true
-
-notifications:
-  slack: enterprisegroupexam:wH8ng5RGD4WvSSowgJaPBonS
