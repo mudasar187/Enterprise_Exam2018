@@ -81,8 +81,11 @@ class Room extends Component {
                 Purchase tickets
               </div>
             </div>
-            {}
-            <div className="selectedSeats">
+            {/* 
+		
+				Make travis fail
+				
+				<div className="selectedSeats">
               <h3>Selected seats:</h3>
               {this.state.seatmap.filter((seat) => {
                 if (seat.isSelected) {
@@ -90,6 +93,7 @@ class Room extends Component {
                 }
               })}
             </div>
+			*/}
           </div>
         ) : (
           <p>No seats for this movie found</p>
