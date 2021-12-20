@@ -105,7 +105,7 @@
         <version.awaitility>3.0.0</version.awaitility>
 
 		<!-- GraphQL -->
-		<version.graphql-spring>4.2.0</version.graphql-spring>
+		<version.graphql-spring>4.3.0</version.graphql-spring>
 
 		<!-- JACOCO REPORT -->
 		<version.jacoco>0.8.2</version.jacoco>
