@@ -71,7 +71,7 @@
 	    <java.version>1.8</java.version>
 
 	    <!-- SPRING -->
-	    <spring.version>2.0.6.RELEASE</spring.version>
+	    <spring.version>2.2.12.RELEASE</spring.version>
 		<version.springcloud>Finchley.SR1</version.springcloud>
 		<version.springcloud.eureka.client>2.0.1.RELEASE</version.springcloud.eureka.client>
 		<version.springcloud.eureka.server>2.0.1.RELEASE</version.springcloud.eureka.server>
