@@ -78,7 +78,7 @@
 
 	    <!-- DATABASES -->
 	    <h2.version>1.4.196</h2.version>
-	    <version.postgres>42.1.4</version.postgres>
+	    <version.postgres>42.2.25</version.postgres>
 
 	    <!-- JSON -->
 	    <google-code-json.version>2.8.1</google-code-json.version>
