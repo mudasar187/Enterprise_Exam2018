@@ -74,7 +74,7 @@
 	    <spring.version>2.0.6.RELEASE</spring.version>
 		<version.springcloud>Finchley.SR1</version.springcloud>
 		<version.springcloud.eureka.client>2.0.1.RELEASE</version.springcloud.eureka.client>
-		<version.springcloud.eureka.server>2.0.1.RELEASE</version.springcloud.eureka.server>
+		<version.springcloud.eureka.server>3.1.0</version.springcloud.eureka.server>
 
 	    <!-- DATABASES -->
 	    <h2.version>1.4.196</h2.version>
