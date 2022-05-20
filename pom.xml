@@ -81,7 +81,7 @@
 	    <version.postgres>42.1.4</version.postgres>
 
 	    <!-- JSON -->
-	    <google-code-json.version>2.8.1</google-code-json.version>
+	    <google-code-json.version>2.8.9</google-code-json.version>
 	    <jackson-datatype-jsr310.version>2.8.9</jackson-datatype-jsr310.version>
 
 	    <!-- TEST -->
