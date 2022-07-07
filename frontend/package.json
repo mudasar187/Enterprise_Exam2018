@@ -7,7 +7,7 @@
     "flexbox-react": "^4.4.0",
     "javascript-natural-sort": "^0.7.1",
     "js-joda": "^1.9.2",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.23",
     "react": "^16.6.3",
     "react-datepicker": "^2.0.0",
